@@ -60,7 +60,7 @@ namespace Refundeo.Controllers
             return new JwtSecurityToken(
                 new JwtHeader(
                     new SigningCredentials(
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes("j#{5s!!uk^K!Vuq<")),
                         SecurityAlgorithms.HmacSha256)),
                         new JwtPayload(claims));
         }   

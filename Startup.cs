@@ -28,7 +28,7 @@ namespace Refundeo
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
-            .SetBasePath(env.ContentRootPath)
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddEnvironmentVariables();
 
@@ -37,8 +37,6 @@ namespace Refundeo
                 builder.AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true);
                 builder.AddUserSecrets<Startup>();
             }
-
-            Configuration = builder.Build();
 
             Configuration = builder.Build();
         }
@@ -74,8 +72,9 @@ namespace Refundeo
                 {                            
                     ValidateIssuerSigningKey = true,
                    
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
-
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("j#{5s!!uk^K!Vuq<")),
+                    
                     ValidateIssuer = true,
                     ValidIssuer = Configuration["ValidIssuer"],
 
