@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -104,18 +105,22 @@ namespace Refundeo
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
                 app.UseCors(builder => builder.WithOrigins("http://localhost:4200"));
+                app.UseStaticFiles();
             }
             else
             {
                 app.UseCors(builder => builder.WithOrigins("http://localhost"));
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(
+                        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
+                });
             }
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint(SWAGGER_ENDPOINT, "Refundeo API V1");
             });
-
-            app.UseStaticFiles();
 
             app.UseAuthentication();
 
