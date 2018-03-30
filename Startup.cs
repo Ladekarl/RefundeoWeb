@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -47,8 +48,10 @@ namespace Refundeo
         {
             services.AddMvc();
 
+            services.AddCors();
+
             services.AddDbContext<RefundeoDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("RefundeoDB")));      
+                options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));      
 
             services.AddIdentity<RefundeoUser, IdentityRole>()
                 .AddEntityFrameworkStores<RefundeoDbContext>()
@@ -100,6 +103,11 @@ namespace Refundeo
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
+                app.UseCors(builder => builder.WithOrigins("http://localhost:4200"));
+            }
+            else
+            {
+                app.UseCors(builder => builder.WithOrigins("http://localhost"));
             }
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -119,10 +127,10 @@ namespace Refundeo
             await next();
             if (context.Response.StatusCode == 404 &&
                 !Path.HasExtension(context.Request.Path.Value) &&
-                !context.Request.Path.Value.StartsWith("/swagger/") &&
+                !context.Request.Path.Value.StartsWith("/swagger") &&
                 !context.Request.Path.Value.StartsWith("/api/")) {
-                    context.Request.Path = "/index.html";
-                    await next();
+                    context.Request.Path = new PathString("/index.html");
+                    await next.Invoke();
                 }
             });
             app.UseMvcWithDefaultRoute();
