@@ -45,7 +45,7 @@ namespace Refundeo
             services.AddMvc();
 
             services.AddDbContext<RefundeoDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("RefundeoDevDB")));      
+                options.UseSqlServer(Configuration.GetConnectionString("RefundeoDB")));      
 
             services.AddIdentity<RefundeoUser, IdentityRole>()
                 .AddEntityFrameworkStores<RefundeoDbContext>()
