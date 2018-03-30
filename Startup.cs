@@ -44,11 +44,6 @@ namespace Refundeo
         {
             services.AddMvc();
 
-            services.Configure<MvcOptions>(options =>
-            {
-                options.Filters.Add(new RequireHttpsAttribute());
-            });
-
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoDevDB")));      
 
@@ -94,11 +89,6 @@ namespace Refundeo
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
-            var options = new RewriteOptions()
-            .AddRedirectToHttps();
-
-            app.UseRewriter(options);
 
             if (env.IsDevelopment())
             {
