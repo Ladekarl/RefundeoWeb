@@ -105,12 +105,10 @@ namespace Refundeo
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
                 app.UseCors(builder => builder.WithOrigins("http://localhost:4200"));
-                app.UseStaticFiles();
             }
             else
             {
                 app.UseCors(builder => builder.WithOrigins("http://localhost"));
-              app.UseStaticFiles();
             }
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -131,9 +129,10 @@ namespace Refundeo
                 !context.Request.Path.Value.StartsWith("/swagger") &&
                 !context.Request.Path.Value.StartsWith("/api/")) {
                     context.Request.Path = new PathString("/index.html");
-                    await next.Invoke();
+                    await next();
                 }
             });
+            app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
             app.UseDefaultFiles();
         }
