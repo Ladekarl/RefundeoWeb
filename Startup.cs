@@ -110,11 +110,7 @@ namespace Refundeo
             else
             {
                 app.UseCors(builder => builder.WithOrigins("http://localhost"));
-                app.UseStaticFiles(new StaticFileOptions
-                {
-                    FileProvider = new PhysicalFileProvider(
-                        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
-                });
+              app.UseStaticFiles();
             }
             app.UseSwagger();
             app.UseSwaggerUI(c =>
