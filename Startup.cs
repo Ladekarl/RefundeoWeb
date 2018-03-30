@@ -30,11 +30,11 @@ namespace Refundeo
             var builder = new ConfigurationBuilder()
             .SetBasePath(env.ContentRootPath)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
             .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
             {
+                builder.AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true);
                 builder.AddUserSecrets<Startup>();
             }
 
