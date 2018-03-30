@@ -23,6 +23,7 @@ namespace Refundeo
 {
     public class Startup
     {
+        private const string SWAGGER_ENDPOINT = "/swagger/v1/swagger.json";
         public IConfiguration Configuration { get; }
 
         public Startup(IHostingEnvironment env)
@@ -103,7 +104,7 @@ namespace Refundeo
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Refundeo API V1");
+                c.SwaggerEndpoint(SWAGGER_ENDPOINT, "Refundeo API V1");
             });
 
             app.UseStaticFiles();
@@ -118,6 +119,7 @@ namespace Refundeo
             await next();
             if (context.Response.StatusCode == 404 &&
                 !Path.HasExtension(context.Request.Path.Value) &&
+                !context.Request.Path.Value.StartsWith("/swagger/") &&
                 !context.Request.Path.Value.StartsWith("/api/")) {
                     context.Request.Path = "/index.html";
                     await next();
