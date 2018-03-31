@@ -134,9 +134,9 @@ namespace Refundeo
                     await next();
                 }
             });
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
-            app.UseDefaultFiles();
         }
     }
 }
