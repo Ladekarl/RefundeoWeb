@@ -11,9 +11,10 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    partial class RefundeoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180331162608_Merchant")]
+    partial class Merchant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
