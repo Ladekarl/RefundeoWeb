@@ -127,6 +127,7 @@ namespace Refundeo
             if (context.Response.StatusCode == 404 &&
                 !Path.HasExtension(context.Request.Path.Value) &&
                 !context.Request.Path.Value.StartsWith("/swagger") &&
+                !context.Request.Path.Value.StartsWith("/Token") &&
                 !context.Request.Path.Value.StartsWith("/api/")) {
                     context.Request.Path = new PathString("/index.html");
                     await next();
