@@ -27,7 +27,6 @@ namespace Refundeo
 {
     public class Startup
     {
-        private const string SWAGGER_ENDPOINT = "/swagger/v1/swagger.json";
         public IConfiguration Configuration { get; }
 
         public Startup(IHostingEnvironment env)
@@ -41,12 +40,20 @@ namespace Refundeo
             {
                 builder.AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true);
                 builder.AddUserSecrets<Startup>();
+            } 
+            else 
+            {
+                var config = builder.Build();
+            
+                builder.AddAzureKeyVault(
+                    $"https://{config["Vault"]}.vault.azure.net/",
+                    config["ClientId"],
+                    config["ClientSecret"]);
             }
 
             Configuration = builder.Build();
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
@@ -79,8 +86,7 @@ namespace Refundeo
                 {                            
                     ValidateIssuerSigningKey = true,
                    
-                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("j#{5s!!uk^K!Vuq<")),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
                     
                     ValidateIssuer = true,
                     ValidIssuer = Configuration["ValidIssuer"],
@@ -93,9 +99,10 @@ namespace Refundeo
                     ClockSkew = TimeSpan.FromMinutes(5)
                 };
             });
+
+            services.AddSingleton<IConfiguration>(Configuration); 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -106,16 +113,14 @@ namespace Refundeo
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-                app.UseCors(builder => builder.WithOrigins("http://localhost:4200"));
             }
-            else
-            {
-                app.UseCors(builder => builder.WithOrigins("http://localhost"));
-            }
+            
+            app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
+           
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint(SWAGGER_ENDPOINT, "Refundeo API V1");
+                c.SwaggerEndpoint(Configuration["SwaggerEndpoint"], "Refundeo API V1");
             });
 
             app.UseAuthentication();
