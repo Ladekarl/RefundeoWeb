@@ -18,6 +18,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Refundeo.Data;
 using Refundeo.Models;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -120,8 +121,6 @@ namespace Refundeo
             app.UseAuthentication();
 
             DbInitializer.Initialize(userManager);
-            
-            app.UseMvc();
 
             app.Use(async (context, next) => {
             await next();

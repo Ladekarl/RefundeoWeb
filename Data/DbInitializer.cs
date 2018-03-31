@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Refundeo.Models;
 
-namespace Refundeo
+namespace Refundeo.Data
 {
     public static class DbInitializer
     {

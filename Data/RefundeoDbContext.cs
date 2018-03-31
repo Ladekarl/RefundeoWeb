@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Refundeo.Models;
 
-namespace Refundeo.Models
+namespace Refundeo.Data
 {
     public class RefundeoDbContext: IdentityDbContext<RefundeoUser>
     {
