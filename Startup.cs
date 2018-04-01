@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -40,11 +42,11 @@ namespace Refundeo
             {
                 builder.AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true);
                 builder.AddUserSecrets<Startup>();
-            } 
-            else 
+            }
+            else
             {
                 var config = builder.Build();
-            
+
                 builder.AddAzureKeyVault(
                     $"https://{config["Vault"]}.vault.azure.net/",
                     config["ClientId"],
@@ -56,12 +58,14 @@ namespace Refundeo
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthorization();
+
             services.AddMvc();
 
             services.AddCors();
 
             services.AddDbContext<RefundeoDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));      
+                options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
 
             services.AddIdentity<RefundeoUser, IdentityRole>()
                 .AddEntityFrameworkStores<RefundeoDbContext>()
@@ -76,18 +80,19 @@ namespace Refundeo
                 });
             });
 
-            services.AddAuthentication(options => {
+            services.AddAuthentication(options =>
+            {
                 options.DefaultAuthenticateScheme = "JwtBearer";
-                options.DefaultChallengeScheme = "JwtBearer";            
+                options.DefaultChallengeScheme = "JwtBearer";
             })
             .AddJwtBearer("JwtBearer", jwtBearerOptions =>
-            {                        
+            {
                 jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
-                {                            
+                {
                     ValidateIssuerSigningKey = true,
-                   
+
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
-                    
+
                     ValidateIssuer = true,
                     ValidIssuer = Configuration["ValidIssuer"],
 
@@ -100,10 +105,10 @@ namespace Refundeo
                 };
             });
 
-            services.AddSingleton<IConfiguration>(Configuration); 
+            services.AddSingleton<IConfiguration>(Configuration);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
@@ -114,9 +119,9 @@ namespace Refundeo
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
-            
+
             app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
-           
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -125,15 +130,17 @@ namespace Refundeo
 
             app.UseAuthentication();
 
-            DbInitializer.Initialize(userManager);
+            DbInitializer.InitializeAsync(userManager, roleManager).Wait();
 
-            app.Use(async (context, next) => {
-            await next();
-            if (context.Response.StatusCode == 404 &&
-                !Path.HasExtension(context.Request.Path.Value) &&
-                !context.Request.Path.Value.StartsWith("/swagger") &&
-                !context.Request.Path.Value.StartsWith("/Token") &&
-                !context.Request.Path.Value.StartsWith("/api/")) {
+            app.Use(async (context, next) =>
+            {
+                await next();
+                if (context.Response.StatusCode == 404 &&
+                    !Path.HasExtension(context.Request.Path.Value) &&
+                    !context.Request.Path.Value.StartsWith("/swagger") &&
+                    !context.Request.Path.Value.StartsWith("/Token") &&
+                    !context.Request.Path.Value.StartsWith("/api/"))
+                {
                     context.Request.Path = new PathString("/index.html");
                     await next();
                 }

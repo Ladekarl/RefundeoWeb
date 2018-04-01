@@ -9,7 +9,7 @@ using Refundeo.Data;
 
 namespace Refundeo.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Merchant")]
     [Route("api/[controller]")]
     public class QrCodeController : Controller
     {
