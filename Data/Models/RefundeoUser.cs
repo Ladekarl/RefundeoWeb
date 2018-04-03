@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Refundeo.Models
+namespace Refundeo.Data.Models
 {
     public class RefundeoUser : IdentityUser
     {

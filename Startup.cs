@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Refundeo.Data;
+using Refundeo.Data.Models;
 using Refundeo.Models;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -74,11 +78,9 @@ namespace Refundeo
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Refundeo", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme { In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
-                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
-                    { "Bearer", Enumerable.Empty<string>() },
-                });
             });
+
+            var refundeoTokenValidationParameters = new RefundeoTokenValidationParameters(Configuration);
 
             services.AddAuthentication(options =>
             {
@@ -87,22 +89,7 @@ namespace Refundeo
             })
             .AddJwtBearer("JwtBearer", jwtBearerOptions =>
             {
-                jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
-
-                    ValidateIssuer = true,
-                    ValidIssuer = Configuration["ValidIssuer"],
-
-                    ValidateAudience = true,
-                    ValidAudience = Configuration["ValidAudience"],
-
-                    ValidateLifetime = true,
-
-                    ClockSkew = TimeSpan.FromMinutes(5)
-                };
+                jwtBearerOptions.TokenValidationParameters = refundeoTokenValidationParameters.TokenValidationParameters;
             });
 
             services.AddSingleton<IConfiguration>(Configuration);
@@ -122,11 +109,8 @@ namespace Refundeo
 
             app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
 
+            app.UseSwaggerAuthorized();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint(Configuration["SwaggerEndpoint"], "Refundeo API V1");
-            });
 
             app.UseAuthentication();
 
@@ -148,6 +132,75 @@ namespace Refundeo
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
+        }
+    }
+
+    public static class SwaggerAuthorizeExtensions
+    {
+        public static IApplicationBuilder UseSwaggerAuthorized(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<SwaggerAuthorizedMiddleware>();
+        }
+    }
+
+    public class SwaggerAuthorizedMiddleware
+    {
+        private readonly RequestDelegate _next;
+
+        public SwaggerAuthorizedMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task Invoke(HttpContext context, IConfiguration Configuration)
+        {
+            if (context.Request.Path.StartsWithSegments("/swagger"))
+            {
+                SecurityToken jwt;
+                var token = await context.GetTokenAsync("JwtBearer", "access_token");
+
+                if (token != null)
+                {
+                    var refundeoParameters = new RefundeoTokenValidationParameters(Configuration);
+                    var principal = new JwtSecurityTokenHandler().ValidateToken(token, refundeoParameters.TokenValidationParameters, out jwt);
+
+                    if (principal.IsInRole("Admin") ||
+                        principal.IsInRole("Merchant"))
+                    {
+                        await _next.Invoke(context);
+                        return;
+                    }
+                }
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+            
+            await _next.Invoke(context);
+        }
+    }
+
+    public class RefundeoTokenValidationParameters
+    {
+        public TokenValidationParameters TokenValidationParameters { get; set; }
+        public RefundeoTokenValidationParameters(IConfiguration Configuration)
+        {
+            TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
+
+                ValidateIssuer = true,
+                ValidIssuer = Configuration["ValidIssuer"],
+
+                ValidateAudience = true,
+                ValidAudience = Configuration["ValidAudience"],
+
+                ValidateLifetime = true,
+
+                ClockSkew = TimeSpan.FromMinutes(5)
+            };
         }
     }
 }

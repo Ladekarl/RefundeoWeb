@@ -1,4 +1,4 @@
-namespace Refundeo.Models
+namespace Refundeo.Data.Models
 {
     public class QrCode
     {

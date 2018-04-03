@@ -10,6 +10,9 @@ import { AuthenticationService, UserService } from './services/index';
 import { HomeComponent } from './home/index';
 import { LoginComponent } from './login/index';
 import { RegisterComponent } from './register/index';
+import { HttpModule } from '@angular/http';
+import { SwaggerComponent } from './swagger/index';
+import { SwaggerService } from './services/swagger.service';
 
 
 @NgModule({
@@ -17,17 +20,20 @@ import { RegisterComponent } from './register/index';
         AppComponent,
         HomeComponent,
         LoginComponent,
-        RegisterComponent
+        RegisterComponent,
+        SwaggerComponent
     ],
     imports: [
         BrowserModule,
         FormsModule,
         HttpClientModule,
+        HttpModule,
         routing
     ],
     providers: [
         AuthGuard,
         AuthenticationService,
+        SwaggerService,
         UserService,
         {
             provide: HTTP_INTERCEPTORS,

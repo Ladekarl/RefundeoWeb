@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Refundeo.Data;
+using Refundeo.Data.Models;
 
 namespace Refundeo.Controllers
 {
@@ -29,7 +30,7 @@ namespace Refundeo.Controllers
         public async Task<IActionResult> GetById(long id)
         {
             var qrCode = await _context.QrCodes.FirstOrDefaultAsync(q => q.Id == id);
-            if(qrCode == null) 
+            if (qrCode == null)
             {
                 return NotFound();
             }
@@ -37,17 +38,21 @@ namespace Refundeo.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] QrCode qrCode) 
+        public async Task<IActionResult> Create([FromBody] QrCodeDTO qrCode)
         {
-            if(qrCode == null) 
+            if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            await _context.QrCodes.AddAsync(qrCode);
+            var result = await _context.QrCodes.AddAsync(new QrCode {
+                Name = qrCode.Name,
+                IsComplete = qrCode.IsComplete
+            });
+
             await _context.SaveChangesAsync();
 
-            return CreatedAtRoute("GetQrCode", new { id = qrCode.Id}, qrCode);
+            return CreatedAtRoute("GetQrCode", new { id = result.Entity.Id}, result.Entity);
         }
 
         [HttpPut("{id}")]

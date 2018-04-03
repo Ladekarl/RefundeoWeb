@@ -9,12 +9,12 @@ export class AuthenticationService {
 
     login(username: string, password: string) {
         return this.http.post<any>('/Token', { username: username, password: password })
-            .map(user => {
-                if (user && user.token) {
-                    localStorage.setItem('currentUser', JSON.stringify(user));
+            .map(response => {
+                if (response && response.token) {
+                    localStorage.setItem('currentUser', JSON.stringify(response));
                 }
 
-                return user;
+                return response;
             });
     }
 

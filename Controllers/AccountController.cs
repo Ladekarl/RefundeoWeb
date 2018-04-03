@@ -1,17 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Refundeo.Data.Models;
 using Refundeo.Models;
 
 namespace Refundeo.Controllers
@@ -32,14 +35,25 @@ namespace Refundeo.Controllers
         [AllowAnonymous]
         [Route("/Token")]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
+        public async Task<IActionResult> Token([FromBody] UserLogin userLogin)
         {
-            if (!ModelState.IsValid | !await IsValidUserAndPasswordCombination(userLogin.Username, userLogin.Password))
+            var result = await IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
+            if (result.Id != SignInId.SUCCESS)
             {
-                return BadRequest();
+                return new BadRequestObjectResult(
+                    new
+                    {
+                        error = result.Id,
+                        message = result.Desc
+                    });
             }
 
             var user = await _userManager.FindByNameAsync(userLogin.Username);
+
+            if (user == null)
+            {
+                return new NoContentResult();
+            }
 
             return await GenerateTokenResultAsync(user, true);
         }
@@ -108,30 +122,43 @@ namespace Refundeo.Controllers
 
             return new ObjectResult(new
             {
-                success = success,
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
+                expiration = token.ValidTo,
+                username = user.UserName,
+                roles = await _userManager.GetRolesAsync(user)
             });
         }
 
-        private async Task<bool> IsValidUserAndPasswordCombination(string username, string password)
+        private async Task<SignInResult> IsValidUserAndPasswordCombinationAsync(string username, string password)
         {
-            if (String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password))
-                return false;
+            if (String.IsNullOrEmpty(username))
+            {
+                return new SignInResult.NoUsername();
+            }
+            if (String.IsNullOrEmpty(password))
+            {
+                return new SignInResult.NoPassword();
+            }
+
             var user = await _userManager.FindByNameAsync(username);
-            return await _signManager.UserManager.CheckPasswordAsync(user, password);
+
+            if (user == null)
+            {
+                return new SignInResult.UserDoesNotExist();
+            }
+
+            var isValid = await _signManager.UserManager.CheckPasswordAsync(user, password);
+
+            if (!isValid)
+            {
+                return new SignInResult.WrongPassword();
+            }
+            return new SignInResult.Success();
         }
 
         private async Task<JwtSecurityToken> GenerateTokenAsync(RefundeoUser user)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Aud, Configuration["ValidAudience"]),
-                new Claim(JwtRegisteredClaimNames.Iss, Configuration["ValidIssuer"])
-            };
+            var claims = GenerateClaims(user);
 
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -147,5 +174,63 @@ namespace Refundeo.Controllers
                         SecurityAlgorithms.HmacSha256)),
                         new JwtPayload(claims));
         }
+
+        private List<Claim> GenerateClaims(RefundeoUser user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
+                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
+                new Claim(JwtRegisteredClaimNames.Aud, Configuration["ValidAudience"]),
+                new Claim(JwtRegisteredClaimNames.Iss, Configuration["ValidIssuer"])
+            };
+            return claims;
+        }
+    }
+
+    public abstract class SignInResult
+    {
+        public abstract SignInId Id { get; }
+        public abstract string Desc { get; }
+
+        public class WrongPassword : SignInResult
+        {
+            public override SignInId Id { get { return SignInId.WRONG_PASSWORD; } }
+            public override string Desc { get { return "Wrong password"; } }
+        }
+
+        public class UserDoesNotExist : SignInResult
+        {
+            public override SignInId Id { get { return SignInId.USER_DOES_NOT_EXIST; } }
+            public override string Desc { get { return "User does not exist"; } }
+        }
+
+        public class NoPassword : SignInResult
+        {
+            public override SignInId Id { get { return SignInId.NO_PASSWORD; } }
+            public override string Desc { get { return "No password provided"; } }
+        }
+
+        public class NoUsername : SignInResult
+        {
+            public override SignInId Id { get { return SignInId.NO_USERNAME; } }
+            public override string Desc { get { return "No username provided"; } }
+        }
+
+        public class Success : SignInResult
+        {
+            public override SignInId Id { get { return SignInId.SUCCESS; } }
+            public override string Desc { get { return "Success"; } }
+        }
+    }
+
+    public enum SignInId
+    {
+        SUCCESS = 1,
+        WRONG_PASSWORD = -1,
+        USER_DOES_NOT_EXIST = -2,
+        NO_PASSWORD = -3,
+        NO_USERNAME = -4
     }
 }

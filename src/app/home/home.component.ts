@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-
 import { User } from '../models/index';
 import { UserService } from '../services/index';
 
@@ -11,9 +10,12 @@ import { UserService } from '../services/index';
 export class HomeComponent implements OnInit {
   currentUser: User;
   users: User[] = [];
+  isApiUser;
 
   constructor(private userService: UserService) {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.isApiUser = this.currentUser.roles &&
+      (this.currentUser.roles.indexOf('Merchant') > -1 || this.currentUser.roles.indexOf('Admin') > -1);
   }
 
   ngOnInit() {
@@ -27,4 +29,5 @@ export class HomeComponent implements OnInit {
   private loadAllUsers() {
     this.userService.getAll().subscribe(users => { this.users = users; });
   }
+
 }

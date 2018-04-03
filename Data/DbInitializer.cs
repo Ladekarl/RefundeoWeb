@@ -2,7 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Refundeo.Models;
+using Refundeo.Data.Models;
 
 namespace Refundeo.Data
 {
@@ -33,17 +33,17 @@ namespace Refundeo.Data
         private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager)
         {
 
-            if (!userManager.Users.Any(u => u.UserName == "RefundeoAdmin"))
+            if (!userManager.Users.Any(u => u.UserName == "Admin"))
             {
-                await CreateUserAsync(userManager, "RefundeoAdmin", "R4xA5z9Gk`QhC<=", "Admin");
+                await CreateUserAsync(userManager, "Admin", "Admin1234!", "Admin");
             }
-            if (!userManager.Users.Any(u => u.UserName == "Magasin"))
+            if (!userManager.Users.Any(u => u.UserName == "Merchant"))
             {
-                await CreateUserAsync(userManager, "Magasin", "Magasin123!", "Merchant");
+                await CreateUserAsync(userManager, "Merchant", "Merchant1234!", "Merchant");
             }
-            if (!userManager.Users.Any(u => u.UserName == "Ladekarl"))
+            if (!userManager.Users.Any(u => u.UserName == "User"))
             {
-                await CreateUserAsync(userManager, "Ladekarl", "Nlade123!", "User");
+                await CreateUserAsync(userManager, "User", "User1234!", "User");
             }
         }
 
