@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Refundeo.Data.Models;
-using Refundeo.Models;
+using Refundeo.Models.Account;
 
 namespace Refundeo.Controllers
 {
@@ -32,10 +32,12 @@ namespace Refundeo.Controllers
             _signManager = signManager;
         }
 
+        #region /Token
+
         [AllowAnonymous]
         [Route("/Token")]
         [HttpPost]
-        public async Task<IActionResult> Token([FromBody] UserLogin userLogin)
+        public async Task<IActionResult> Token([FromBody] UserLoginDTO userLogin)
         {
             var result = await IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
             if (result.Id != SignInId.SUCCESS)
@@ -55,17 +57,21 @@ namespace Refundeo.Controllers
                 return new NoContentResult();
             }
 
-            return await GenerateTokenResultAsync(user, true);
+            return await GenerateTokenResultAsync(user);
         }
+
+        #endregion
+
+        #region /Account
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<IList<UserModel>> GetAll()
+        public async Task<IList<UserDTO>> GetAllAccounts()
         {
-            var userModels = new List<UserModel>();
+            var userModels = new List<UserDTO>();
             foreach (var u in await _userManager.Users.ToListAsync())
             {
-                userModels.Add(new UserModel
+                userModels.Add(new UserDTO
                 {
                     Id = u.Id,
                     Username = u.UserName,
@@ -77,7 +83,7 @@ namespace Refundeo.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}", Name = "GetAccount")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetAccountById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
@@ -92,9 +98,9 @@ namespace Refundeo.Controllers
             });
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] UserRegister model)
+        public async Task<IActionResult> RegisterAccount([FromBody] AccountRegisterDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -102,21 +108,439 @@ namespace Refundeo.Controllers
             }
 
             var user = new RefundeoUser { UserName = model.Username };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
 
-            if (!result.Succeeded)
+            if (!createUserResult.Succeeded)
             {
-                return new BadRequestObjectResult(new
-                {
-                    success = result.Succeeded,
-                    errors = result.Errors
-                });
+                GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            return await GenerateTokenResultAsync(user, result.Succeeded);
+            var addToRoleResult = await _userManager.AddToRolesAsync(user, model.Roles);
+
+            if (!addToRoleResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            return await GenerateTokenResultAsync(user);
         }
 
-        private async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user, bool success)
+        [Authorize(Roles = "Admin")]
+        [HttpPut]
+        public async Task<IActionResult> ChangeAccount([FromBody] ChangeAccountDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null)
+            {
+                GenerateBadRequestObjectResult("Account does not exist");
+            }
+
+            user.UserName = model.Username;
+
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if (!updateUserResult.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(updateUserResult.Errors);
+            }
+
+            var updateRolesResult = await UpdateRolesAsync(user, model.Roles);
+            if (!updateRolesResult.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(updateRolesResult.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAccount(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return GenerateBadRequestObjectResult($"Account with id={id} does not exist");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(result.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        [Authorize]
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
+        {
+            var user = await GetCallingUserAsync();
+            if (user == null)
+            {
+                return GenerateBadRequestObjectResult("No user found");
+            }
+
+            var signInResult = await IsValidUserAndPasswordCombinationAsync(user.UserName, model.OldPassword);
+            if (signInResult.Id != SignInId.SUCCESS)
+            {
+                return GenerateBadRequestObjectResult(signInResult.Desc);
+            }
+
+            if (model.NewPassword != model.PasswordConfirmation)
+            {
+                return GenerateBadRequestObjectResult("New password and password confirmation does not match");
+            }
+
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+            if (!changePasswordResult.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(changePasswordResult.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        #endregion
+
+        #region /Account/User
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("User")]
+        public async Task<IList<UserDTO>> GetAllUsers()
+        {
+            var userModels = new List<UserDTO>();
+            foreach (var u in await _userManager.GetUsersInRoleAsync("User"))
+            {
+                userModels.Add(new UserDTO
+                {
+                    Id = u.Id,
+                    Username = u.UserName,
+                    Roles = await _userManager.GetRolesAsync(u)
+                });
+            }
+            return userModels;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("User")]
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var user = new RefundeoUser { UserName = model.Username };
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(createUserResult.Errors);
+            }
+
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, "User");
+
+            if (!addToRoleResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            return await GenerateTokenResultAsync(user);
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPut("User")]
+        public async Task<IActionResult> ChangeUser([FromBody] ChangeUserDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return new BadRequestResult();
+            }
+            
+            var user = await GetCallingUserAsync();
+            if (user == null || await _userManager.IsInRoleAsync(user, "User"))
+            {
+                GenerateBadRequestObjectResult("User does not exist");
+            }
+
+            user.UserName = model.Username;
+
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if (!updateUserResult.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(updateUserResult.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpDelete("User")]
+        public async Task<IActionResult> DeleteUser()
+        {
+            var user = await GetCallingUserAsync();
+            if (user == null || !await _userManager.IsInRoleAsync(user, "User"))
+            {
+                return GenerateBadRequestObjectResult($"User does not exist");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(result.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        #endregion
+
+        #region /Account/Merchant
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("Merchant")]
+        public async Task<IList<UserDTO>> GetAllMerchants()
+        {
+            var userModels = new List<UserDTO>();
+            foreach (var u in await _userManager.GetUsersInRoleAsync("Merchant"))
+            {
+                userModels.Add(new UserDTO
+                {
+                    Id = u.Id,
+                    Username = u.UserName,
+                    Roles = await _userManager.GetRolesAsync(u)
+                });
+            }
+            return userModels;
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Merchant")]
+        public async Task<IActionResult> RegisterMerchant([FromBody] MerchantRegisterDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var user = new RefundeoUser { UserName = model.Username };
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(createUserResult.Errors);
+            }
+
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, "Merchant");
+
+            if (!addToRoleResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            return await GenerateTokenResultAsync(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("Merchant")]
+        public async Task<IActionResult> ChangeMerchant([FromBody] ChangeMerchantDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return new BadRequestResult();
+            }
+            
+            var user = await GetCallingUserAsync();
+            if (user == null || await _userManager.IsInRoleAsync(user, "Merchant"))
+            {
+                GenerateBadRequestObjectResult("Merchant does not exist");
+            }
+
+            user.UserName = model.Username;
+
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if (!updateUserResult.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(updateUserResult.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        [Authorize(Roles = "Merchant")]
+        [HttpDelete("Merchant")]
+        public async Task<IActionResult> DeleteMerchant()
+        {
+            var user = await GetCallingUserAsync();
+            if (user == null || !await _userManager.IsInRoleAsync(user, "Merchant"))
+            {
+                return GenerateBadRequestObjectResult($"Merchant does not exist");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(result.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        #endregion
+
+        #region /Account/Admin
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("Admin")]
+        public async Task<IList<UserDTO>> GetAllAdmins()
+        {
+            var userModels = new List<UserDTO>();
+            foreach (var u in await _userManager.GetUsersInRoleAsync("Admin"))
+            {
+                userModels.Add(new UserDTO
+                {
+                    Id = u.Id,
+                    Username = u.UserName,
+                    Roles = await _userManager.GetRolesAsync(u)
+                });
+            }
+            return userModels;
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegisterDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var user = new RefundeoUser { UserName = model.Username };
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(createUserResult.Errors);
+            }
+
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, "Admin");
+
+            if (!addToRoleResult.Succeeded)
+            {
+                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            return await GenerateTokenResultAsync(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("Admin")]
+        public async Task<IActionResult> ChangeAdmin([FromBody] ChangeAdminDTO model)
+        {
+             if (!ModelState.IsValid)
+            {
+                return new BadRequestResult();
+            }
+            
+            var user = await GetCallingUserAsync();
+            if (user == null || await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                GenerateBadRequestObjectResult("Admin does not exist");
+            }
+
+            user.UserName = model.Username;
+
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if (!updateUserResult.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(updateUserResult.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("Admin")]
+        public async Task<IActionResult> DeleteAdmin()
+        {
+            var user = await GetCallingUserAsync();
+            if (user == null || !await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return GenerateBadRequestObjectResult($"Admin does not exist");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return GenerateBadRequestObjectResult(result.Errors);
+            }
+
+            return new NoContentResult();
+        }
+
+        #endregion
+
+        #region Helpers Methods
+
+        private async Task<RefundeoUser> GetCallingUserAsync()
+        {
+            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userClaim == null)
+            {
+                return null;
+            }
+            return await _userManager.FindByIdAsync(userClaim.Value);
+        }
+
+        private async Task<IdentityResult> UpdateRolesAsync(RefundeoUser user, ICollection<string> roles)
+        {
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var rolesAdded = roles.Except(currentRoles);
+            var rolesRemoved = currentRoles.Except(roles);
+
+            if (rolesAdded.Count() > 0)
+            {
+                var result = await _userManager.AddToRolesAsync(user, rolesAdded);
+                if (!result.Succeeded)
+                {
+                    return result;
+                }
+            }
+
+            if (rolesRemoved.Count() > 0)
+            {
+                var result = await _userManager.RemoveFromRolesAsync(user, rolesRemoved);
+                if (!result.Succeeded)
+                {
+                    return result;
+                }
+            }
+
+            return IdentityResult.Success;
+        }
+
+        private ObjectResult GenerateBadRequestObjectResult(params string[] errors)
+        {
+            return GenerateBadRequestObjectResult(errors.ToList());
+        }
+
+        private ObjectResult GenerateBadRequestObjectResult(IEnumerable errors)
+        {
+            return new BadRequestObjectResult(new
+            {
+                errors = errors
+            });
+        }
+
+        private async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user)
         {
             var token = await GenerateTokenAsync(user);
 
@@ -187,7 +611,11 @@ namespace Refundeo.Controllers
             };
             return claims;
         }
+
+        #endregion
     }
+
+    #region Helper Classes
 
     public abstract class SignInResult
     {
@@ -233,4 +661,6 @@ namespace Refundeo.Controllers
         NO_PASSWORD = -3,
         NO_USERNAME = -4
     }
+
+    #endregion
 }

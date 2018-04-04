@@ -19,6 +19,6 @@ namespace Refundeo.Data
             // Add your customizations after calling base.OnModelCreating(builder);
         }
 
-        public DbSet<QrCode> QrCodes { get; set; }
+        public DbSet<QRCode> QRCodes { get; set; }
     }
 }

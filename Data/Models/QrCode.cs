@@ -1,6 +1,6 @@
 namespace Refundeo.Data.Models
 {
-    public class QrCode
+    public class QRCode
     {
         public long Id { get; set; }
         public string Name { get; set; }
