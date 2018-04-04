@@ -15,15 +15,18 @@ namespace Refundeo.Controllers
     public class QRCodeController : Controller
     {
         private readonly RefundeoDbContext _context;
-        public QRCodeController(RefundeoDbContext context) 
+        public QRCodeController(RefundeoDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<IList<QRCode>> GetAll() 
+        public async Task<IList<QRCodeDTO>> GetAll()
         {
-            return await _context.QRCodes.ToListAsync();
+            return await _context.QRCodes.Select(q => new QRCodeDTO
+            {
+                Data = q.Id.ToString()
+            }).ToListAsync();
         }
 
         [HttpGet("{id}", Name = "GetQRCode")]
@@ -34,31 +37,37 @@ namespace Refundeo.Controllers
             {
                 return NotFound();
             }
-            return new ObjectResult(qrCode);
+            return new ObjectResult(new QRCodeDTO
+            {
+                Data = qrCode.Id.ToString()
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] QRCodeDTO qrCode)
+        public async Task<IActionResult> Create([FromBody] CreateQRCodeDTO qrCode)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var result = await _context.QRCodes.AddAsync(new QRCode {
-                Name = qrCode.Name,
-                IsComplete = qrCode.IsComplete
+            // Create QR CODE HERE
+
+            var result = await _context.QRCodes.AddAsync(new QRCode
+            {
+                Name = "",
+                IsComplete = true
             });
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtRoute("GetQRCode", new { id = result.Entity.Id}, result.Entity);
+            return CreatedAtRoute("GetQRCode", new { id = result.Entity.Id }, result.Entity);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long id, [FromBody] QRCode qrCode)
+        public async Task<IActionResult> Update(long id, [FromBody] QRCodeDTO qrCode)
         {
-            if (qrCode == null || qrCode.Id != id)
+            if (qrCode == null)
             {
                 return BadRequest();
             }
@@ -69,8 +78,8 @@ namespace Refundeo.Controllers
                 return NotFound();
             }
 
-            qrCodeToUpdate.IsComplete = qrCode.IsComplete;
-            qrCodeToUpdate.Name = qrCode.Name;
+            // qrCodeToUpdate.IsComplete = qrCode.IsComplete;
+            // qrCodeToUpdate.Name = qrCode.Name;
 
             _context.QRCodes.Update(qrCodeToUpdate);
             await _context.SaveChangesAsync();

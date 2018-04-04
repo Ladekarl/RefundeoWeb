@@ -1,0 +1,18 @@
+.swagger-container {
+    .col {
+        position: relative;
+        width: inherit;
+        min-height: 1px;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    div {
+        .try-out {
+            margin-left: auto;
+            padding-right: 15px;
+        }
+    }
+    .curl {
+        display: none
+    }
+}

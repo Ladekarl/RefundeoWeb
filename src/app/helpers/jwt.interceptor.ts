@@ -1,32 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import { JwtHelperService } from '@auth0/angular-jwt';
+import { AuthenticationService } from '../services';
 import { Router } from '@angular/router';
+import 'rxjs/add/operator/do';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-
-    jwtHelperService: JwtHelperService;
-
-    constructor(private router: Router) {
-        this.jwtHelperService = new JwtHelperService();
-    }
+    constructor(private authenticationService: AuthenticationService, private router: Router) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (currentUser && currentUser.token) {
-            const isExpired = this.jwtHelperService.isTokenExpired(currentUser.token);
-            if (!isExpired) {
-                request = request.clone({
-                    setHeaders: {
-                        Authorization: `Bearer ${currentUser.token}`
-                    }
-                });
-                return next.handle(request);
-            }
+        const isAuthenticated = this.authenticationService.isAuthenticated();
+        if (isAuthenticated) {
+            request = request.clone({
+                setHeaders: {
+                    Authorization: `Bearer ${this.authenticationService.getToken()}`
+                }
+            });
         }
-        this.router.navigate(['/login']);
-        return new Observable();
+        return next.handle(request).do((event: HttpEvent<any>) => { }, (err: any) => {
+            if (err instanceof HttpErrorResponse) {
+                if (err.status === 401 && !this.authenticationService.isAuthenticated()) {
+                    this.router.navigate(['/login']);
+                }
+            }
+        });
     }
 }

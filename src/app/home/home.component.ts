@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../models/index';
 import { UserService } from '../services/index';
+import { AuthenticationService } from '../services/authentication.service';
+import { CurrentUser } from '../models';
 
 @Component({
   selector: 'app-home',
@@ -9,12 +11,12 @@ import { UserService } from '../services/index';
 })
 
 export class HomeComponent implements OnInit {
-  currentUser: User;
+  currentUser: CurrentUser;
   users: User[] = [];
-  isApiUser;
+  isApiUser: boolean;
 
-  constructor(private userService: UserService) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  constructor(private userService: UserService, private authenticationService: AuthenticationService) {
+    this.currentUser = this.authenticationService.getCurrentUser();
     this.isApiUser = this.currentUser.roles &&
       (this.currentUser.roles.indexOf('Merchant') > -1 || this.currentUser.roles.indexOf('Admin') > -1);
   }

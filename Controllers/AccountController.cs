@@ -32,7 +32,7 @@ namespace Refundeo.Controllers
             _signManager = signManager;
         }
 
-        #region /Token
+        #region /Token/Token
 
         [AllowAnonymous]
         [Route("/Token")]
@@ -548,6 +548,7 @@ namespace Refundeo.Controllers
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
+                id = user.Id,
                 username = user.UserName,
                 roles = await _userManager.GetRolesAsync(user)
             });
@@ -604,6 +605,7 @@ namespace Refundeo.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Aud, Configuration["ValidAudience"]),
