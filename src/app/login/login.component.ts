@@ -4,8 +4,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../services/index';
 
 @Component({
-  moduleId: module.id.toString(),
-  templateUrl: 'login.component.html'
+  selector: 'app-login',
+  templateUrl: 'login.component.html',
+  styleUrls: ['login.component.scss']
 })
 
 export class LoginComponent implements OnInit {

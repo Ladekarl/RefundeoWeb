@@ -9,18 +9,15 @@ import { JwtInterceptor } from './helpers/index';
 import { AuthenticationService, UserService } from './services/index';
 import { HomeComponent } from './home/index';
 import { LoginComponent } from './login/index';
-import { RegisterComponent } from './register/index';
 import { HttpModule } from '@angular/http';
 import { SwaggerComponent } from './swagger/index';
 import { SwaggerService } from './services/swagger.service';
-
 
 @NgModule({
     declarations: [
         AppComponent,
         HomeComponent,
         LoginComponent,
-        RegisterComponent,
         SwaggerComponent
     ],
     imports: [

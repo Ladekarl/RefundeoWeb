@@ -4,7 +4,7 @@ import { SwaggerService } from '../services/index';
 @Component({
   selector: 'app-swagger',
   templateUrl: './swagger.component.html',
-  styleUrls: ['./swagger.component.css']
+  styleUrls: ['swagger.component.scss']
 })
 export class SwaggerComponent implements OnInit, AfterViewInit {
 
