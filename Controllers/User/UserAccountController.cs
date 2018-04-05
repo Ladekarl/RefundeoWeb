@@ -4,16 +4,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Refundeo.Data;
 using Refundeo.Data.Models;
 using Refundeo.Models.Account;
 
 namespace Refundeo.Controllers.User
 {
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = RefundeoConstants.ROLE_USER)]
     [Route("/api/user/account")]
     public class UserAccountController : AuthenticationController
     {
-        public UserAccountController(IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(config, userManager, signManager)
+        public UserAccountController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, config, userManager, signManager)
         {
         }
 

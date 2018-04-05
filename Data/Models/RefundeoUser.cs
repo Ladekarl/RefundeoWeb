@@ -5,6 +5,7 @@ namespace Refundeo.Data.Models
 {
     public class RefundeoUser : IdentityUser
     {
-        public ICollection<QRCode> qrCodes {get; set;}
+        public ICollection<RefundCase> MerchantRefundCases {get; set;}
+        public ICollection<RefundCase> CustomerRefundCases { get; set; }
     }
 }

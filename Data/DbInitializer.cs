@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Refundeo.Controllers;
 using Refundeo.Data.Models;
 
 namespace Refundeo.Data
@@ -16,17 +17,17 @@ namespace Refundeo.Data
 
         private static async Task InitializeRolesAsync(RoleManager<IdentityRole> roleManager)
         {
-            if (!await roleManager.RoleExistsAsync("Admin"))
+            if (!await roleManager.RoleExistsAsync(RefundeoConstants.ROLE_ADMIN))
             {
-                await CreateRoleAsync(roleManager, "Admin");
+                await CreateRoleAsync(roleManager, RefundeoConstants.ROLE_ADMIN);
             }
-            if (!await roleManager.RoleExistsAsync("Merchant"))
+            if (!await roleManager.RoleExistsAsync(RefundeoConstants.ROLE_MERCHANT))
             {
-                await CreateRoleAsync(roleManager, "Merchant");
+                await CreateRoleAsync(roleManager, RefundeoConstants.ROLE_MERCHANT);
             }
-            if (!await roleManager.RoleExistsAsync("User"))
+            if (!await roleManager.RoleExistsAsync(RefundeoConstants.ROLE_USER))
             {
-                await CreateRoleAsync(roleManager, "User");
+                await CreateRoleAsync(roleManager, RefundeoConstants.ROLE_USER);
             }
         }
 
@@ -35,15 +36,15 @@ namespace Refundeo.Data
 
             if (!userManager.Users.Any(u => u.UserName == "Admin"))
             {
-                await CreateUserAsync(userManager, "Admin", "Admin1234!", "Admin");
+                await CreateUserAsync(userManager, "Admin", "Admin1234!", RefundeoConstants.ROLE_ADMIN);
             }
             if (!userManager.Users.Any(u => u.UserName == "Merchant"))
             {
-                await CreateUserAsync(userManager, "Merchant", "Merchant1234!", "Merchant");
+                await CreateUserAsync(userManager, "Merchant", "Merchant1234!", RefundeoConstants.ROLE_MERCHANT);
             }
             if (!userManager.Users.Any(u => u.UserName == "User"))
             {
-                await CreateUserAsync(userManager, "User", "User1234!", "User");
+                await CreateUserAsync(userManager, "User", "User1234!", RefundeoConstants.ROLE_USER);
             }
         }
 

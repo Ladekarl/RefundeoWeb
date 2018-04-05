@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Refundeo.Data;
 using Refundeo.Data.Models;
 
 namespace Refundeo.Controllers
@@ -18,7 +19,7 @@ namespace Refundeo.Controllers
     {
         public IConfiguration Configuration { get; set; }
         protected readonly SignInManager<RefundeoUser> signManager;
-        public AuthenticationController(IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(userManager)
+        public AuthenticationController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, userManager)
         {
             Configuration = config;
             this.signManager = signManager;

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Refundeo.Data;
 using Refundeo.Data.Models;
 using Refundeo.Models.Account;
 
@@ -13,7 +14,7 @@ namespace Refundeo.Controllers
     [Route("/api/account")]
     public class AccountController : AuthenticationController
     {
-        public AccountController(IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(config, userManager, signManager)
+        public AccountController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, config, userManager, signManager)
         {
         }
 
@@ -43,7 +44,7 @@ namespace Refundeo.Controllers
             return await GenerateTokenResultAsync(user);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpGet]
         public async Task<IList<UserDTO>> GetAllAccounts()
         {
@@ -60,7 +61,7 @@ namespace Refundeo.Controllers
             return userModels;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpGet("{id}", Name = "GetAccount")]
         public async Task<IActionResult> GetAccountById(string id)
         {
@@ -77,7 +78,7 @@ namespace Refundeo.Controllers
             });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpPost]
         public async Task<IActionResult> RegisterAccount([FromBody] AccountRegisterDTO model)
         {
@@ -104,7 +105,7 @@ namespace Refundeo.Controllers
             return await GenerateTokenResultAsync(user);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpPut]
         public async Task<IActionResult> ChangeAccount([FromBody] ChangeAccountDTO model)
         {
@@ -136,7 +137,7 @@ namespace Refundeo.Controllers
             return new NoContentResult();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(string id)
         {

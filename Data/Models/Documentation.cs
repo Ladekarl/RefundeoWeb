@@ -1,8 +1,8 @@
 namespace Refundeo.Data.Models
 {
-    public class QRCode
+    public class Documentation
     {
         public long Id {get; set;}
-        public byte[] Image { get; set; }
+        public byte[] Image {get; set;}
     }
 }

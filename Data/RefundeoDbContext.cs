@@ -4,7 +4,7 @@ using Refundeo.Data.Models;
 
 namespace Refundeo.Data
 {
-    public class RefundeoDbContext: IdentityDbContext<RefundeoUser>
+    public class RefundeoDbContext : IdentityDbContext<RefundeoUser>
     {
         public RefundeoDbContext(DbContextOptions<RefundeoDbContext> options)
             : base(options)
@@ -14,11 +14,22 @@ namespace Refundeo.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            // Customize the ASP.NET Identity model and override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+
+            builder.Entity<RefundCase>()
+                .HasOne(c => c.Customer)
+                .WithMany(u => u.MerchantRefundCases)
+                .HasForeignKey(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<RefundCase>()
+                .HasOne(c => c.Merchant)
+                .WithMany(u => u.CustomerRefundCases)
+                .HasForeignKey(c => c.MerchantId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
+        public DbSet<RefundCase> RefundCases { get; set; }
+        public DbSet<Documentation> Documentations { get; set; }
         public DbSet<QRCode> QRCodes { get; set; }
     }
 }

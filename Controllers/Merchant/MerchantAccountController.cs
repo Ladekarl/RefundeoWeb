@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Refundeo.Data;
 using Refundeo.Data.Models;
 using Refundeo.Models.Account;
 
@@ -13,7 +14,7 @@ namespace Refundeo.Controllers.Merchant
     [Route("/api/merchant/account")]
     public class MerchantAccountController : AuthenticationController
     {
-        public MerchantAccountController(IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(config, userManager, signManager)
+        public MerchantAccountController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, config, userManager, signManager)
         {
         }
 

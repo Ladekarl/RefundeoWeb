@@ -11,7 +11,7 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    [Migration("20180405093224_initial")]
+    [Migration("20180405200444_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,24 +129,58 @@ namespace Refundeo.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Refundeo.Data.Models.Documentation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<byte[]>("Image");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Documentations");
+                });
+
             modelBuilder.Entity("Refundeo.Data.Models.QRCode", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<byte[]>("Image");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QRCodes");
+                });
+
+            modelBuilder.Entity("Refundeo.Data.Models.RefundCase", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<double>("Amount");
 
-                    b.Property<string>("Image");
+                    b.Property<string>("CustomerId");
+
+                    b.Property<long?>("DocumentationId");
 
                     b.Property<string>("MerchantId");
+
+                    b.Property<long?>("QRCodeId");
 
                     b.Property<double>("RefundAmount");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("DocumentationId");
+
                     b.HasIndex("MerchantId");
 
-                    b.ToTable("QRCodes");
+                    b.HasIndex("QRCodeId");
+
+                    b.ToTable("RefundCases");
                 });
 
             modelBuilder.Entity("Refundeo.Data.Models.RefundeoUser", b =>
@@ -245,11 +279,25 @@ namespace Refundeo.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Refundeo.Data.Models.QRCode", b =>
+            modelBuilder.Entity("Refundeo.Data.Models.RefundCase", b =>
                 {
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser", "Customer")
+                        .WithMany("MerchantRefundCases")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Refundeo.Data.Models.Documentation", "Documentation")
+                        .WithMany()
+                        .HasForeignKey("DocumentationId");
+
                     b.HasOne("Refundeo.Data.Models.RefundeoUser", "Merchant")
-                        .WithMany("qrCodes")
-                        .HasForeignKey("MerchantId");
+                        .WithMany("CustomerRefundCases")
+                        .HasForeignKey("MerchantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Refundeo.Data.Models.QRCode", "QRCode")
+                        .WithMany()
+                        .HasForeignKey("QRCodeId");
                 });
 #pragma warning restore 612, 618
         }

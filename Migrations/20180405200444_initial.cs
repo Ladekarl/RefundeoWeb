@@ -49,6 +49,32 @@ namespace Refundeo.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Documentations",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Image = table.Column<byte[]>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Documentations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QRCodes",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Image = table.Column<byte[]>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QRCodes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -155,23 +181,43 @@ namespace Refundeo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QRCodes",
+                name: "RefundCases",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Amount = table.Column<double>(nullable: false),
-                    Image = table.Column<string>(nullable: true),
+                    CustomerId = table.Column<string>(nullable: true),
+                    DocumentationId = table.Column<long>(nullable: true),
                     MerchantId = table.Column<string>(nullable: true),
+                    QRCodeId = table.Column<long>(nullable: true),
                     RefundAmount = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QRCodes", x => x.Id);
+                    table.PrimaryKey("PK_RefundCases", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_QRCodes_AspNetUsers_MerchantId",
+                        name: "FK_RefundCases_AspNetUsers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RefundCases_Documentations_DocumentationId",
+                        column: x => x.DocumentationId,
+                        principalTable: "Documentations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RefundCases_AspNetUsers_MerchantId",
                         column: x => x.MerchantId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RefundCases_QRCodes_QRCodeId",
+                        column: x => x.QRCodeId,
+                        principalTable: "QRCodes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -216,9 +262,24 @@ namespace Refundeo.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_QRCodes_MerchantId",
-                table: "QRCodes",
+                name: "IX_RefundCases_CustomerId",
+                table: "RefundCases",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefundCases_DocumentationId",
+                table: "RefundCases",
+                column: "DocumentationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefundCases_MerchantId",
+                table: "RefundCases",
                 column: "MerchantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefundCases_QRCodeId",
+                table: "RefundCases",
+                column: "QRCodeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -239,13 +300,19 @@ namespace Refundeo.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "QRCodes");
+                name: "RefundCases");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Documentations");
+
+            migrationBuilder.DropTable(
+                name: "QRCodes");
         }
     }
 }
