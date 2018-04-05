@@ -6,20 +6,19 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Refundeo.Data;
-using Refundeo.Models;
 using System;
 
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    [Migration("20180330083713_Initial")]
-    partial class Initial
+    [Migration("20180405093224_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.0.1-rtm-125")
+                .HasAnnotation("ProductVersion", "2.0.2-rtm-10011")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -130,21 +129,27 @@ namespace Refundeo.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Refundeo.Models.QrCode", b =>
+            modelBuilder.Entity("Refundeo.Data.Models.QRCode", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("IsComplete");
+                    b.Property<double>("Amount");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Image");
+
+                    b.Property<string>("MerchantId");
+
+                    b.Property<double>("RefundAmount");
 
                     b.HasKey("Id");
 
-                    b.ToTable("QrCodes");
+                    b.HasIndex("MerchantId");
+
+                    b.ToTable("QRCodes");
                 });
 
-            modelBuilder.Entity("Refundeo.Models.RefundeoUser", b =>
+            modelBuilder.Entity("Refundeo.Data.Models.RefundeoUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -205,7 +210,7 @@ namespace Refundeo.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -213,7 +218,7 @@ namespace Refundeo.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -226,7 +231,7 @@ namespace Refundeo.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -234,10 +239,17 @@ namespace Refundeo.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Refundeo.Data.Models.QRCode", b =>
+                {
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser", "Merchant")
+                        .WithMany("qrCodes")
+                        .HasForeignKey("MerchantId");
                 });
 #pragma warning restore 612, 618
         }

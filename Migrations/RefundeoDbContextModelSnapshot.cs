@@ -128,21 +128,27 @@ namespace Refundeo.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Refundeo.Models.QrCode", b =>
+            modelBuilder.Entity("Refundeo.Data.Models.QRCode", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("IsComplete");
+                    b.Property<double>("Amount");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Image");
+
+                    b.Property<string>("MerchantId");
+
+                    b.Property<double>("RefundAmount");
 
                     b.HasKey("Id");
 
-                    b.ToTable("QrCodes");
+                    b.HasIndex("MerchantId");
+
+                    b.ToTable("QRCodes");
                 });
 
-            modelBuilder.Entity("Refundeo.Models.RefundeoUser", b =>
+            modelBuilder.Entity("Refundeo.Data.Models.RefundeoUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -156,8 +162,6 @@ namespace Refundeo.Migrations
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
-
-                    b.Property<bool>("IsMerchant");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -205,7 +209,7 @@ namespace Refundeo.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -213,7 +217,7 @@ namespace Refundeo.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -226,7 +230,7 @@ namespace Refundeo.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -234,10 +238,17 @@ namespace Refundeo.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Refundeo.Models.RefundeoUser")
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Refundeo.Data.Models.QRCode", b =>
+                {
+                    b.HasOne("Refundeo.Data.Models.RefundeoUser", "Merchant")
+                        .WithMany("qrCodes")
+                        .HasForeignKey("MerchantId");
                 });
 #pragma warning restore 612, 618
         }
