@@ -24,12 +24,7 @@ namespace Refundeo.Controllers.Admin
             var userModels = new List<UserDTO>();
             foreach (var u in await userManager.GetUsersInRoleAsync("Admin"))
             {
-                userModels.Add(new UserDTO
-                {
-                    Id = u.Id,
-                    Username = u.UserName,
-                    Roles = await userManager.GetRolesAsync(u)
-                });
+                userModels.Add(await ConvertRefundeoUserToUserDTOAsync(u));
             }
             return userModels;
         }

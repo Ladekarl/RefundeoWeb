@@ -23,6 +23,11 @@ namespace Refundeo.Controllers
         [HttpPost]
         public async Task<IActionResult> Token([FromBody] UserLoginDTO userLogin)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var result = await IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
             if (result.Id != SignInId.SUCCESS)
             {
@@ -51,18 +56,13 @@ namespace Refundeo.Controllers
             var userModels = new List<UserDTO>();
             foreach (var u in await userManager.Users.ToListAsync())
             {
-                userModels.Add(new UserDTO
-                {
-                    Id = u.Id,
-                    Username = u.UserName,
-                    Roles = await userManager.GetRolesAsync(u)
-                });
+                userModels.Add(await ConvertRefundeoUserToUserDTOAsync(u));
             }
             return userModels;
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
-        [HttpGet("{id}", Name = "GetAccount")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetAccountById(string id)
         {
             var user = await userManager.FindByIdAsync(id);
@@ -70,12 +70,7 @@ namespace Refundeo.Controllers
             {
                 return NotFound();
             }
-            return new ObjectResult(new
-            {
-                Id = user.Id,
-                Username = user.UserName,
-                Roles = userManager.GetRolesAsync(user)
-            });
+            return new ObjectResult(ConvertRefundeoUserToUserDTOAsync(user));
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
@@ -92,14 +87,14 @@ namespace Refundeo.Controllers
 
             if (!createUserResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(createUserResult.Errors);
+                return GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
             var addToRoleResult = await userManager.AddToRolesAsync(user, model.Roles);
 
             if (!addToRoleResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
             return await GenerateTokenResultAsync(user);
@@ -117,7 +112,7 @@ namespace Refundeo.Controllers
             var user = await userManager.FindByIdAsync(model.Id);
             if (user == null)
             {
-                GenerateBadRequestObjectResult("Account does not exist");
+                return GenerateBadRequestObjectResult("Account does not exist");
             }
 
             user.UserName = model.Username;
@@ -163,7 +158,12 @@ namespace Refundeo.Controllers
             var user = await GetCallingUserAsync();
             if (user == null)
             {
-                return GenerateBadRequestObjectResult("No user found");
+                return Unauthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
             }
 
             var signInResult = await IsValidUserAndPasswordCombinationAsync(user.UserName, model.OldPassword);

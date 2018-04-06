@@ -52,19 +52,6 @@ namespace Refundeo.Controllers
             return IdentityResult.Success;
         }
 
-        protected ObjectResult GenerateBadRequestObjectResult(params string[] errors)
-        {
-            return GenerateBadRequestObjectResult(errors.ToList());
-        }
-
-        protected ObjectResult GenerateBadRequestObjectResult(IEnumerable errors)
-        {
-            return new BadRequestObjectResult(new
-            {
-                errors = errors
-            });
-        }
-
         protected async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user)
         {
             var token = await GenerateTokenAsync(user);

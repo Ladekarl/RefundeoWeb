@@ -1,9 +1,13 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Refundeo.Data;
 using Refundeo.Data.Models;
+using Refundeo.Models.Account;
 
 namespace Refundeo.Controllers
 {
@@ -16,6 +20,7 @@ namespace Refundeo.Controllers
             this.userManager = userManager;
             this.context = context;
         }
+
         protected async Task<RefundeoUser> GetCallingUserAsync()
         {
             var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -24,6 +29,34 @@ namespace Refundeo.Controllers
                 return null;
             }
             return await userManager.FindByIdAsync(userClaim.Value);
+        }
+
+        protected async Task<UserDTO> ConvertRefundeoUserToUserDTOAsync(RefundeoUser refundeoUser)
+        {
+            UserDTO userDTO = null;
+            if (refundeoUser != null)
+            {
+                userDTO = new UserDTO
+                {
+                    Id = refundeoUser.Id,
+                    Username = refundeoUser.UserName,
+                    Roles = await userManager.GetRolesAsync(refundeoUser)
+                };
+            }
+            return userDTO;
+        }
+
+        protected ObjectResult GenerateBadRequestObjectResult(params string[] errors)
+        {
+            return GenerateBadRequestObjectResult(errors.ToList());
+        }
+
+        protected ObjectResult GenerateBadRequestObjectResult(IEnumerable errors)
+        {
+            return new BadRequestObjectResult(new
+            {
+                errors = errors
+            });
         }
     }
 

@@ -41,7 +41,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return GenerateRefundCaseDTOResponse(refundCases);
+            return await GenerateRefundCaseDTOResponseAsync(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -62,7 +62,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return GenerateRefundCaseDTOResponse(refundCase);
+            return await GenerateRefundCaseDTOResponseAsync(refundCase);
         }
 
         [HttpPut("{id}")]
@@ -79,12 +79,16 @@ namespace Refundeo.Controllers.User
             }
 
 
-            var refundCaseToUpdate = await context.RefundCases.FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+            var refundCaseToUpdate = await context.RefundCases
+            .Include(r => r.Documentation)
+            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
                 return NotFound();
             }
+
+            refundCaseToUpdate.Documentation.Image = ConvertBase64ToByteArray(model.Image);
 
             var documentation = new Documentation
             {

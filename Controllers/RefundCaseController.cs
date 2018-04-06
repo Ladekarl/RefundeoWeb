@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -20,17 +21,22 @@ namespace Refundeo.Controllers
         {
         }
 
-        protected ObjectResult GenerateRefundCaseDTOResponse(IEnumerable<RefundCase> refundCases)
+        protected async Task<ObjectResult> GenerateRefundCaseDTOResponseAsync(IEnumerable<RefundCase> refundCases)
         {
-            return new ObjectResult(refundCases.Select(r => ConvertRefundCaseToDTO(r)));
+            var dtos = new List<RefundCaseDTO>();
+            foreach (var refundCase in refundCases)
+            {
+                dtos.Add(await ConvertRefundCaseToDTOAsync(refundCase));
+            }
+            return new ObjectResult(dtos);
         }
 
-        protected ObjectResult GenerateRefundCaseDTOResponse(RefundCase refundCase)
+        protected async Task<ObjectResult> GenerateRefundCaseDTOResponseAsync(RefundCase refundCase)
         {
-            return new ObjectResult(ConvertRefundCaseToDTO(refundCase));
+            return new ObjectResult(await ConvertRefundCaseToDTOAsync(refundCase));
         }
 
-        protected RefundCaseDTO ConvertRefundCaseToDTO(RefundCase refundCase)
+        protected async Task<RefundCaseDTO> ConvertRefundCaseToDTOAsync(RefundCase refundCase)
         {
             return new RefundCaseDTO
             {
@@ -38,7 +44,9 @@ namespace Refundeo.Controllers
                 Amount = refundCase.Amount,
                 RefundAmount = refundCase.RefundAmount,
                 QRCode = ConvertByteArrayToBase64(refundCase?.QRCode?.Image),
-                Documentation = ConvertByteArrayToBase64(refundCase?.Documentation?.Image)
+                Documentation = ConvertByteArrayToBase64(refundCase?.Documentation?.Image),
+                Customer = await ConvertRefundeoUserToUserDTOAsync(refundCase.Customer),
+                Merchant = await ConvertRefundeoUserToUserDTOAsync(refundCase.Merchant)
             };
         }
 
@@ -91,7 +99,7 @@ namespace Refundeo.Controllers
             byte[] ba = null;
             if (ba != null)
             {
-                 ba = Convert.FromBase64String(base64String);
+                ba = Convert.FromBase64String(base64String);
             }
             return ba;
         }
