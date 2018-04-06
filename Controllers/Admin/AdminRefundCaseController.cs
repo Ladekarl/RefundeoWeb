@@ -137,8 +137,9 @@ namespace Refundeo.Controllers.Admin
             }
 
             refundCaseToUpdate.Amount = model.Amount;
-            refundCaseToUpdate.CustomerId = model.CustomerId = model.CustomerId;
-            refundCaseToUpdate.MerchantId = model.MerchantId = model.MerchantId;
+            refundCaseToUpdate.CustomerId = model.CustomerId;
+            refundCaseToUpdate.MerchantId = model.MerchantId;
+            refundCaseToUpdate.IsRequested = model.IsRequested;
             refundCaseToUpdate.Documentation.Image = ConvertBase64ToByteArray(model.Documentation);
             refundCaseToUpdate.QRCode.Image = ConvertBase64ToByteArray(model.QRCode);
             refundCaseToUpdate.RefundAmount = model.RefundAmount;

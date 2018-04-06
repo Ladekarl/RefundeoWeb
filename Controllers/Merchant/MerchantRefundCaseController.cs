@@ -95,7 +95,7 @@ namespace Refundeo.Controllers.Merchant
 
             var qrCode = new QRCode
             {
-                Image = GenerateQRCode(model.Height, model.Width, model.Margin, new QRCodePayloadDTO
+                Image = GenerateQRCode(model.QRCodeHeight, model.QRCodeWidth, model.QRCodeMargin, new QRCodePayloadDTO
                 {
                     RefundCaseId = refundCase.Id,
                     MerchantId = user.Id,

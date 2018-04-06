@@ -65,7 +65,7 @@ namespace Refundeo.Controllers.User
             return await GenerateRefundCaseDTOResponseAsync(refundCase);
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("doc/{id}")]
         public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocementationDTO model)
         {
             var user = await GetCallingUserAsync();
@@ -96,6 +96,40 @@ namespace Refundeo.Controllers.User
             };
             await context.Documentations.AddAsync(documentation);
             refundCaseToUpdate.Documentation = documentation;
+            context.RefundCases.Update(refundCaseToUpdate);
+            await context.SaveChangesAsync();
+            return new NoContentResult();
+        }
+
+        [HttpPost("refund/{id}")]
+        public async Task<IActionResult> RequestRefund(long id, [FromBody] RequestRefundDTO model)
+        {
+            var user = await GetCallingUserAsync();
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var refundCaseToUpdate = await context.RefundCases
+            .Include(r => r.Documentation)
+            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+
+            if (refundCaseToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            if (refundCaseToUpdate.Documentation == null)
+            {
+                return BadRequest("No documentation found");
+            }
+
+            refundCaseToUpdate.IsRequested = model.IsRequested;
             context.RefundCases.Update(refundCaseToUpdate);
             await context.SaveChangesAsync();
             return new NoContentResult();

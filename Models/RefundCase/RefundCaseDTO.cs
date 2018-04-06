@@ -7,9 +7,10 @@ namespace Refundeo.Models.RefundCase
         public long Id { get; set; }
         public double Amount { get; set; }
         public double RefundAmount { get; set; }
+        public bool IsRequested { get; set; }
         public string QRCode { get; set; }
         public string Documentation { get; set; }
-        public UserDTO Merchant {get; set;}
-        public UserDTO Customer {get; set;}
+        public UserDTO Merchant { get; set; }
+        public UserDTO Customer { get; set; }
     }
 }
