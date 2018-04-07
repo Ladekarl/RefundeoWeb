@@ -44,6 +44,7 @@ namespace Refundeo.Controllers
                 Amount = refundCase.Amount,
                 RefundAmount = refundCase.RefundAmount,
                 IsRequested = refundCase.IsRequested,
+                IsAccepted = refundCase.IsAccepted,
                 QRCode = ConvertByteArrayToBase64(refundCase?.QRCode?.Image),
                 Documentation = ConvertByteArrayToBase64(refundCase?.Documentation?.Image),
                 Customer = await ConvertRefundeoUserToUserDTOAsync(refundCase.Customer),

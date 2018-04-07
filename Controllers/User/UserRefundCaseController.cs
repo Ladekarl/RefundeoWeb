@@ -65,7 +65,7 @@ namespace Refundeo.Controllers.User
             return await GenerateRefundCaseDTOResponseAsync(refundCase);
         }
 
-        [HttpPost("doc/{id}")]
+        [HttpPost("{id}/doc")]
         public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocementationDTO model)
         {
             var user = await GetCallingUserAsync();
@@ -101,7 +101,7 @@ namespace Refundeo.Controllers.User
             return new NoContentResult();
         }
 
-        [HttpPost("refund/{id}")]
+        [HttpPost("{id}/refund")]
         public async Task<IActionResult> RequestRefund(long id, [FromBody] RequestRefundDTO model)
         {
             var user = await GetCallingUserAsync();

@@ -6,6 +6,7 @@ namespace Refundeo.Data.Models
         public double Amount { get; set; }
         public double RefundAmount { get; set; }
         public bool IsRequested { get; set; }
+        public bool IsAccepted { get; set; }
         public string CustomerId { get; set; }
         public virtual RefundeoUser Customer { get; set; }
         public string MerchantId { get; set; }

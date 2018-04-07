@@ -143,6 +143,34 @@ namespace Refundeo.Controllers.Merchant
             return new NoContentResult();
         }
 
+        [HttpPost("{id}/accept")]
+        public async Task<IActionResult> RequestRefund(long id, [FromBody] AcceptRefundCaseDTO model)
+        {
+            var user = await GetCallingUserAsync();
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var refundCaseToUpdate = await context.RefundCases
+            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+
+            if (refundCaseToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            refundCaseToUpdate.IsAccepted = model.IsAccepted;
+            context.RefundCases.Update(refundCaseToUpdate);
+            await context.SaveChangesAsync();
+            return new NoContentResult();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMerchantRefundCase(long id)
         {
