@@ -36,15 +36,19 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCases = context.RefundCases
-                .Include(r => r.QRCode)
-                .Include(r => r.Documentation)
-                .Where(c => c.MerchantId == user.Id && c.Merchant == user);
+            .Include(r => r.Documentation)
+            .Include(r => r.QRCode)
+            .Include(r => r.MerchantInformation)
+            .ThenInclude(i => i.Merchant)
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer);
+
             if (refundCases == null)
             {
                 return NotFound();
             }
 
-            return await GenerateRefundCaseDTOResponseAsync(refundCases);
+            return GenerateRefundCaseDTOResponse(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -57,15 +61,20 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCase = await context.RefundCases
-                .Include(r => r.QRCode)
-                .Include(r => r.Documentation)
-                .FirstOrDefaultAsync(r => r.Id == id && r.Merchant == user);
+            .Include(r => r.QRCode)
+            .Include(r => r.Documentation)
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer)
+            .Include(r => r.MerchantInformation)
+            .ThenInclude(i => i.Merchant)
+            .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant == user);
+
             if (refundCase == null)
             {
                 return NotFound();
             }
 
-            return await GenerateRefundCaseDTOResponseAsync(refundCase);
+            return GenerateRefundCaseDTOResponse(refundCase);
         }
 
         [HttpPost]
@@ -82,11 +91,17 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
+            var merchantInformation = await context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant == user);
+            if (merchantInformation == null)
+            {
+                return NotFound();
+            }
+
             var refundCase = new RefundCase
             {
                 Amount = model.Amount,
                 RefundAmount = model.Amount,
-                Merchant = user
+                MerchantInformation = merchantInformation
             };
 
             var refundCaseResult = await context.RefundCases.AddAsync(refundCase);
@@ -107,44 +122,50 @@ namespace Refundeo.Controllers.Merchant
             context.RefundCases.Update(refundCase);
             await context.SaveChangesAsync();
 
-            return await GenerateRefundCaseDTOResponseAsync(refundCaseResult.Entity);
+            return GenerateRefundCaseDTOResponse(refundCaseResult.Entity);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMerchantRefundCase(long id, [FromBody] RefundCaseDTO model)
-        {
-            var user = await GetCallingUserAsync();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+        // Do Merchants ever need to update a refund case?
 
-            var refundCaseToUpdate = await context.RefundCases
-            .Include(r => r.Documentation)
-            .Include(r => r.QRCode)
-            .FirstOrDefaultAsync(r => r.Id == id && r.Merchant == user);
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> UpdateMerchantRefundCase(long id, [FromBody] RefundCaseDTO model)
+        // {
+        //     var user = await GetCallingUserAsync();
+        //     if (user == null)
+        //     {
+        //         return Unauthorized();
+        //     }
+        //     if (!ModelState.IsValid)
+        //     {
+        //         return BadRequest();
+        //     }
 
-            if (refundCaseToUpdate == null)
-            {
-                return NotFound();
-            }
+        //     var refundCaseToUpdate = await context.RefundCases
+        //     .Include(r => r.Documentation)
+        //     .Include(r => r.QRCode)
+        //     .Include(r => r.MerchantInformation)
+        //     .ThenInclude(i => i.Merchant)
+        //     .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant == user);
 
-            refundCaseToUpdate.Amount = model.Amount;
-            refundCaseToUpdate.Documentation.Image = ConvertBase64ToByteArray(model.Documentation);
-            refundCaseToUpdate.QRCode.Image = ConvertBase64ToByteArray(model.QRCode);
-            refundCaseToUpdate.RefundAmount = model.RefundAmount;
+        //     if (refundCaseToUpdate == null)
+        //     {
+        //         return NotFound();
+        //     }
 
-            context.RefundCases.Update(refundCaseToUpdate);
-            await context.SaveChangesAsync();
-            return new NoContentResult();
-        }
+        //     refundCaseToUpdate.Amount = model.Amount;
+        //     refundCaseToUpdate.Documentation.Image = ConvertBase64ToByteArray(model.Documentation);
+        //     refundCaseToUpdate.QRCode.Image = ConvertBase64ToByteArray(model.QRCode);
+        //     refundCaseToUpdate.RefundAmount = model.RefundAmount;
+        //     refundCaseToUpdate.IsAccepted = model.IsAccepted;
+        //     refundCaseToUpdate.IsRequested = model.IsRequested;
+
+        //     context.RefundCases.Update(refundCaseToUpdate);
+        //     await context.SaveChangesAsync();
+        //     return new NoContentResult();
+        // }
 
         [HttpPost("{id}/accept")]
-        public async Task<IActionResult> RequestRefund(long id, [FromBody] AcceptRefundCaseDTO model)
+        public async Task<IActionResult> AcceptRefund(long id, [FromBody] AcceptRefundCaseDTO model)
         {
             var user = await GetCallingUserAsync();
             if (user == null)
@@ -158,7 +179,9 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCaseToUpdate = await context.RefundCases
-            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+            .Include(r => r.MerchantInformation)
+            .ThenInclude(i => i.Merchant)
+            .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant == user);
 
             if (refundCaseToUpdate == null)
             {
@@ -171,6 +194,8 @@ namespace Refundeo.Controllers.Merchant
             return new NoContentResult();
         }
 
+        // TODO: Shouldn't this only be an option if the refund case has been processed?
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMerchantRefundCase(long id)
         {
@@ -180,7 +205,10 @@ namespace Refundeo.Controllers.Merchant
                 return Unauthorized();
             }
 
-            var refundCase = await context.RefundCases.FirstOrDefaultAsync(r => r.Id == id && r.Merchant == user);
+            var refundCase = await context.RefundCases
+            .Include(r => r.MerchantInformation)
+            .ThenInclude(i => i.Merchant)
+            .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant == user);
             if (refundCase == null)
             {
                 return NotFound();

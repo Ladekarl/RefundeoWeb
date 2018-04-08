@@ -9,10 +9,10 @@ namespace Refundeo.Data
 {
     public static class DbInitializer
     {
-        public static async Task InitializeAsync(UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task InitializeAsync(UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
             await InitializeRolesAsync(roleManager);
-            await InitializeUsersAsync(userManager);
+            await InitializeUsersAsync(userManager, context);
         }
 
         private static async Task InitializeRolesAsync(RoleManager<IdentityRole> roleManager)
@@ -31,20 +31,20 @@ namespace Refundeo.Data
             }
         }
 
-        private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager)
+        private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context)
         {
 
             if (!userManager.Users.Any(u => u.UserName == "Admin"))
             {
-                await CreateUserAsync(userManager, "Admin", "Admin1234!", RefundeoConstants.ROLE_ADMIN);
+                await CreateAccountAsync(userManager, "Admin", "Admin1234!", RefundeoConstants.ROLE_ADMIN);
             }
             if (!userManager.Users.Any(u => u.UserName == "Merchant"))
             {
-                await CreateUserAsync(userManager, "Merchant", "Merchant1234!", RefundeoConstants.ROLE_MERCHANT);
+                await CreateMerchantAsync(userManager, context, "Merchant", "Merchant1234!", "MerchantCompany", "12345678", 25);
             }
             if (!userManager.Users.Any(u => u.UserName == "User"))
             {
-                await CreateUserAsync(userManager, "User", "User1234!", RefundeoConstants.ROLE_USER);
+                await CreateCustomerAsync(userManager, context, "User", "User1234!", "Bob", "Dylan", "DK", "123456781234", "1234");
             }
         }
 
@@ -55,15 +55,56 @@ namespace Refundeo.Data
             await roleManager.CreateAsync(role);
         }
 
-        private static async Task CreateUserAsync(UserManager<RefundeoUser> userManager, string username, string password, string role)
+        private static async Task CreateCustomerAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context, string username, string password, string firstName, string lastName, string country, string bankAccountNumber, string bankRegNumber)
+        {
+            var user = await CreateAccountAsync(userManager, username, password, RefundeoConstants.ROLE_USER);
+            if (user != null)
+            {
+                await context.CustomerInformations.AddAsync(new CustomerInformation
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Country = country,
+                    BankAccountNumber = bankAccountNumber,
+                    BankRegNumber = bankRegNumber,
+                    Customer = user
+                });
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context, string username, string password, string companyName, string cvrNumber, int refundPercentage)
+        {
+            var user = await CreateAccountAsync(userManager, username, password, RefundeoConstants.ROLE_MERCHANT);
+            if (user != null)
+            {
+                await context.MerchantInformations.AddAsync(new MerchantInformation
+                {
+                    CompanyName = companyName,
+                    CVRNumber = cvrNumber,
+                    RefundPercentage = refundPercentage,
+                    Merchant = user
+                });
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task<RefundeoUser> CreateAccountAsync(UserManager<RefundeoUser> userManager, string username, string password, string role)
         {
             var user = new RefundeoUser { UserName = username };
             var result = await userManager.CreateAsync(user, password);
 
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(user, role);
+                result = await userManager.AddToRoleAsync(user, role);
             }
+
+            if (result.Succeeded)
+            {
+                return user;
+            }
+
+            return null;
         }
     }
 }

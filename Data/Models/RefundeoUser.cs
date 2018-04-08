@@ -5,7 +5,7 @@ namespace Refundeo.Data.Models
 {
     public class RefundeoUser : IdentityUser
     {
-        public ICollection<RefundCase> MerchantRefundCases {get; set;}
-        public ICollection<RefundCase> CustomerRefundCases { get; set; }
+        public virtual CustomerInformation CustomerInformation { get; set; }
+        public virtual MerchantInformation MerchantInformation { get; set; }
     }
 }

@@ -70,66 +70,7 @@ namespace Refundeo.Controllers
             {
                 return NotFound();
             }
-            return new ObjectResult(ConvertRefundeoUserToUserDTOAsync(user));
-        }
-
-        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
-        [HttpPost]
-        public async Task<IActionResult> RegisterAccount([FromBody] AccountRegisterDTO model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var user = new RefundeoUser { UserName = model.Username };
-            var createUserResult = await userManager.CreateAsync(user, model.Password);
-
-            if (!createUserResult.Succeeded)
-            {
-                return GenerateBadRequestObjectResult(createUserResult.Errors);
-            }
-
-            var addToRoleResult = await userManager.AddToRolesAsync(user, model.Roles);
-
-            if (!addToRoleResult.Succeeded)
-            {
-                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
-            }
-
-            return await GenerateTokenResultAsync(user);
-        }
-
-        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
-        [HttpPut]
-        public async Task<IActionResult> ChangeAccount([FromBody] ChangeAccountDTO model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var user = await userManager.FindByIdAsync(model.Id);
-            if (user == null)
-            {
-                return GenerateBadRequestObjectResult("Account does not exist");
-            }
-
-            user.UserName = model.Username;
-
-            var updateUserResult = await userManager.UpdateAsync(user);
-            if (!updateUserResult.Succeeded)
-            {
-                return GenerateBadRequestObjectResult(updateUserResult.Errors);
-            }
-
-            var updateRolesResult = await UpdateRolesAsync(user, model.Roles);
-            if (!updateRolesResult.Succeeded)
-            {
-                return GenerateBadRequestObjectResult(updateRolesResult.Errors);
-            }
-
-            return new NoContentResult();
+            return new ObjectResult(await ConvertRefundeoUserToUserDTOAsync(user));
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]

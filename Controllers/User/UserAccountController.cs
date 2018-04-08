@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Refundeo.Data;
 using Refundeo.Data.Models;
@@ -10,7 +11,6 @@ using Refundeo.Models.Account;
 
 namespace Refundeo.Controllers.User
 {
-    [Authorize(Roles = RefundeoConstants.ROLE_USER)]
     [Route("/api/user/account")]
     public class UserAccountController : AuthenticationController
     {
@@ -18,14 +18,14 @@ namespace Refundeo.Controllers.User
         {
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpGet]
-        public async Task<IList<UserDTO>> GetAllUsers()
+        public async Task<IList<CustomerInformationDTO>> GetAllCustomers()
         {
-            var userModels = new List<UserDTO>();
-            foreach (var u in await userManager.GetUsersInRoleAsync("User"))
+            var userModels = new List<CustomerInformationDTO>();
+            foreach (var u in await context.CustomerInformations.Include(i => i.Customer).ToListAsync())
             {
-                userModels.Add(await ConvertRefundeoUserToUserDTOAsync(u));
+                userModels.Add(ConvertCustomerInformationToDTO(u));
             }
             return userModels;
         }
@@ -44,19 +44,32 @@ namespace Refundeo.Controllers.User
 
             if (!createUserResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(createUserResult.Errors);
+                return GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await userManager.AddToRoleAsync(user, "User");
+            var addToRoleResult = await userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_USER);
+
+            await context.SaveChangesAsync();
 
             if (!addToRoleResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
+
+            var customerInformation = new CustomerInformation
+            {
+                FirstName = model.Firstname,
+                LastName = model.Lastname,
+                Country = model.Country
+            };
+
+            await context.CustomerInformations.AddAsync(customerInformation);
+            await context.SaveChangesAsync();
 
             return await GenerateTokenResultAsync(user);
         }
 
+        [Authorize(Roles = RefundeoConstants.ROLE_USER)]
         [HttpPut]
         public async Task<IActionResult> ChangeUser([FromBody] ChangeUserDTO model)
         {
@@ -66,9 +79,18 @@ namespace Refundeo.Controllers.User
             }
 
             var user = await GetCallingUserAsync();
-            if (user == null || await userManager.IsInRoleAsync(user, "User"))
+            if (user == null)
             {
-                GenerateBadRequestObjectResult("User does not exist");
+                return NotFound();
+            }
+
+            var customerInformation = await context.CustomerInformations
+            .Include(i => i.Customer)
+            .FirstOrDefaultAsync(i => i.Customer == user);
+
+            if (customerInformation == null)
+            {
+                return NotFound();
             }
 
             user.UserName = model.Username;
@@ -79,14 +101,21 @@ namespace Refundeo.Controllers.User
                 return GenerateBadRequestObjectResult(updateUserResult.Errors);
             }
 
+            customerInformation.FirstName = model.Firstname;
+            customerInformation.LastName = model.Lastname;
+            customerInformation.Country = model.Country;
+
+            await context.SaveChangesAsync();
+
             return new NoContentResult();
         }
 
+        [Authorize(Roles = RefundeoConstants.ROLE_USER)]
         [HttpDelete]
         public async Task<IActionResult> DeleteUser()
         {
             var user = await GetCallingUserAsync();
-            if (user == null || !await userManager.IsInRoleAsync(user, "User"))
+            if (user == null)
             {
                 return GenerateBadRequestObjectResult($"User does not exist");
             }

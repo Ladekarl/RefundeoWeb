@@ -11,7 +11,7 @@ namespace Refundeo.Models.RefundCase
         public bool IsAccepted { get; set; }
         public string QRCode { get; set; }
         public string Documentation { get; set; }
-        public UserDTO Merchant { get; set; }
-        public UserDTO Customer { get; set; }
+        public MerchantInformationDTO Merchant { get; set; }
+        public CustomerInformationDTO Customer { get; set; }
     }
 }

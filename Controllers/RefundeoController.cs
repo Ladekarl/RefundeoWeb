@@ -23,7 +23,7 @@ namespace Refundeo.Controllers
 
         protected async Task<RefundeoUser> GetCallingUserAsync()
         {
-            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userClaim = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             if (userClaim == null)
             {
                 return null;
@@ -44,6 +44,39 @@ namespace Refundeo.Controllers
                 };
             }
             return userDTO;
+        }
+
+        protected CustomerInformationDTO ConvertCustomerInformationToDTO(CustomerInformation info)
+        {
+            CustomerInformationDTO dto = null;
+            if (info != null)
+            {
+                dto = new CustomerInformationDTO
+                {
+                    Id = info.Customer?.Id,
+                    Username = info.Customer?.UserName,
+                    Firstname = info.FirstName,
+                    Lastname = info.LastName,
+                    Country = info.Country
+                };
+            }
+            return dto;
+        }
+
+        protected MerchantInformationDTO ConvertMerchantInformationToDTO(MerchantInformation info)
+        {
+            MerchantInformationDTO dto = null;
+            if (info != null)
+            {
+                dto = new MerchantInformationDTO
+                {
+                    Id = info.Merchant?.Id,
+                    CompanyName = info.CompanyName,
+                    CVRNumber = info.CVRNumber,
+                    RefundPercentage = info.RefundPercentage
+                };
+            }
+            return dto;
         }
 
         protected ObjectResult GenerateBadRequestObjectResult(params string[] errors)

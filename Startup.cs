@@ -34,6 +34,7 @@ namespace Refundeo
     public class Startup
     {
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment HostingEnvironment { get; }
 
         public Startup(IHostingEnvironment env)
         {
@@ -58,14 +59,13 @@ namespace Refundeo
             }
 
             Configuration = builder.Build();
+            HostingEnvironment = env;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthorization();
-
             services.AddMvc();
-
             services.AddCors();
 
             services.AddDbContext<RefundeoDbContext>(options =>
@@ -80,41 +80,48 @@ namespace Refundeo
                 c.SwaggerDoc("v1", new Info { Title = "Refundeo", Version = "v1" });
             });
 
-            var refundeoTokenValidationParameters = new RefundeoTokenValidationParameters(Configuration);
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "JwtBearer";
                 options.DefaultChallengeScheme = "JwtBearer";
             })
             .AddJwtBearer("JwtBearer", jwtBearerOptions =>
-            {
-                jwtBearerOptions.TokenValidationParameters = refundeoTokenValidationParameters.TokenValidationParameters;
-            });
+                jwtBearerOptions.TokenValidationParameters = new RefundeoTokenValidationParameters(Configuration).TokenValidationParameters);
 
             services.AddSingleton<IConfiguration>(Configuration);
+
+            if (!HostingEnvironment.IsDevelopment())
+            {
+                services.Configure<MvcOptions>(options =>
+                {
+                    options.Filters.Add(new RequireHttpsAttribute());
+                });
+            }
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext dbContext)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
-            if (env.IsDevelopment())
+            if (HostingEnvironment.IsDevelopment())
             {
                 loggerFactory.AddDebug();
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
+            else
+            {
+                app.UseSwaggerAuthorized();
+                var options = new RewriteOptions()
+                .AddRedirectToHttps();
+                app.UseRewriter(options);
+            }
 
             app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
-
-            app.UseSwaggerAuthorized();
             app.UseSwagger();
-
             app.UseAuthentication();
-
-            DbInitializer.InitializeAsync(userManager, roleManager).Wait();
+            
+            DbInitializer.InitializeAsync(userManager, roleManager, dbContext).Wait();
 
             app.Use(async (context, next) =>
             {
@@ -175,7 +182,7 @@ namespace Refundeo
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return;
             }
-            
+
             await _next.Invoke(context);
         }
     }

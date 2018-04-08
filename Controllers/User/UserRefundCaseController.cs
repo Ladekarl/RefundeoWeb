@@ -35,13 +35,21 @@ namespace Refundeo.Controllers.User
                 return Unauthorized();
             }
 
-            var refundCases = context.RefundCases.Where(c => c.CustomerId == user.Id && c.Customer == user);
+            var refundCases = context.RefundCases
+            .Where(r => r.CustomerInformation.Customer == user)
+            .Include(r => r.Documentation)
+            .Include(r => r.QRCode)
+            .Include(r => r.MerchantInformation)
+            .ThenInclude(i => i.Merchant)
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer);
+
             if (refundCases == null)
             {
                 return NotFound();
             }
 
-            return await GenerateRefundCaseDTOResponseAsync(refundCases);
+            return GenerateRefundCaseDTOResponse(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -56,13 +64,18 @@ namespace Refundeo.Controllers.User
             var refundCase = await context.RefundCases
             .Include(r => r.QRCode)
             .Include(r => r.Documentation)
-            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+            .Include(r => r.MerchantInformation)
+            .ThenInclude(i => i.Merchant)
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer)
+            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+
             if (refundCase == null)
             {
                 return NotFound();
             }
 
-            return await GenerateRefundCaseDTOResponseAsync(refundCase);
+            return GenerateRefundCaseDTOResponse(refundCase);
         }
 
         [HttpPost("{id}/doc")]
@@ -73,7 +86,7 @@ namespace Refundeo.Controllers.User
             {
                 return Unauthorized();
             }
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image))
             {
                 return BadRequest();
             }
@@ -81,20 +94,28 @@ namespace Refundeo.Controllers.User
 
             var refundCaseToUpdate = await context.RefundCases
             .Include(r => r.Documentation)
-            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer)
+            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
                 return NotFound();
             }
 
-            refundCaseToUpdate.Documentation.Image = ConvertBase64ToByteArray(model.Image);
+            var documentation = new Documentation();
 
-            var documentation = new Documentation
+            try
             {
-                Image = ConvertBase64ToByteArray(model.Image)
-            };
+                documentation.Image = ConvertBase64ToByteArray(model.Image);
+            }
+            catch (System.FormatException)
+            {
+                return BadRequest("Image should be base64 encoded");
+            }
+
             await context.Documentations.AddAsync(documentation);
+            await context.SaveChangesAsync();
             refundCaseToUpdate.Documentation = documentation;
             context.RefundCases.Update(refundCaseToUpdate);
             await context.SaveChangesAsync();
@@ -117,7 +138,9 @@ namespace Refundeo.Controllers.User
 
             var refundCaseToUpdate = await context.RefundCases
             .Include(r => r.Documentation)
-            .FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer)
+            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
@@ -144,7 +167,11 @@ namespace Refundeo.Controllers.User
                 return Unauthorized();
             }
 
-            var refundCase = await context.RefundCases.FirstOrDefaultAsync(r => r.Id == id && r.Customer == user);
+            var refundCase = await context.RefundCases
+            .Include(r => r.CustomerInformation)
+            .ThenInclude(i => i.Customer)
+            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+
             if (refundCase == null)
             {
                 return NotFound();

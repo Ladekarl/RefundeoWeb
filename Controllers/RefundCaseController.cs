@@ -21,22 +21,22 @@ namespace Refundeo.Controllers
         {
         }
 
-        protected async Task<ObjectResult> GenerateRefundCaseDTOResponseAsync(IEnumerable<RefundCase> refundCases)
+        protected ObjectResult GenerateRefundCaseDTOResponse(IEnumerable<RefundCase> refundCases)
         {
             var dtos = new List<RefundCaseDTO>();
             foreach (var refundCase in refundCases)
             {
-                dtos.Add(await ConvertRefundCaseToDTOAsync(refundCase));
+                dtos.Add(ConvertRefundCaseToDTO(refundCase));
             }
             return new ObjectResult(dtos);
         }
 
-        protected async Task<ObjectResult> GenerateRefundCaseDTOResponseAsync(RefundCase refundCase)
+        protected ObjectResult GenerateRefundCaseDTOResponse(RefundCase refundCase)
         {
-            return new ObjectResult(await ConvertRefundCaseToDTOAsync(refundCase));
+            return new ObjectResult(ConvertRefundCaseToDTO(refundCase));
         }
 
-        protected async Task<RefundCaseDTO> ConvertRefundCaseToDTOAsync(RefundCase refundCase)
+        protected RefundCaseDTO ConvertRefundCaseToDTO(RefundCase refundCase)
         {
             return new RefundCaseDTO
             {
@@ -47,8 +47,8 @@ namespace Refundeo.Controllers
                 IsAccepted = refundCase.IsAccepted,
                 QRCode = ConvertByteArrayToBase64(refundCase?.QRCode?.Image),
                 Documentation = ConvertByteArrayToBase64(refundCase?.Documentation?.Image),
-                Customer = await ConvertRefundeoUserToUserDTOAsync(refundCase.Customer),
-                Merchant = await ConvertRefundeoUserToUserDTOAsync(refundCase.Merchant)
+                Customer = ConvertCustomerInformationToDTO(refundCase.CustomerInformation),
+                Merchant = ConvertMerchantInformationToDTO(refundCase.MerchantInformation)
             };
         }
 
@@ -99,7 +99,7 @@ namespace Refundeo.Controllers
         protected byte[] ConvertBase64ToByteArray(string base64String)
         {
             byte[] ba = null;
-            if (ba != null)
+            if (base64String != null)
             {
                 ba = Convert.FromBase64String(base64String);
             }

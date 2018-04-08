@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Refundeo.Data;
 using Refundeo.Data.Models;
@@ -10,7 +11,6 @@ using Refundeo.Models.Account;
 
 namespace Refundeo.Controllers.Merchant
 {
-    [Authorize(Roles = "Merchant")]
     [Route("/api/merchant/account")]
     public class MerchantAccountController : AuthenticationController
     {
@@ -18,19 +18,19 @@ namespace Refundeo.Controllers.Merchant
         {
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpGet]
-        public async Task<IList<UserDTO>> GetAllMerchants()
+        public async Task<IList<MerchantInformationDTO>> GetAllMerchants()
         {
-            var userModels = new List<UserDTO>();
-            foreach (var u in await userManager.GetUsersInRoleAsync("Merchant"))
+            var userModels = new List<MerchantInformationDTO>();
+            foreach (var u in await context.MerchantInformations.Include(i => i.Merchant).ToListAsync())
             {
-                userModels.Add(await ConvertRefundeoUserToUserDTOAsync(u));
+                userModels.Add(ConvertMerchantInformationToDTO(u));
             }
             return userModels;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpPost]
         public async Task<IActionResult> RegisterMerchant([FromBody] MerchantRegisterDTO model)
         {
@@ -44,19 +44,31 @@ namespace Refundeo.Controllers.Merchant
 
             if (!createUserResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(createUserResult.Errors);
+                return GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await userManager.AddToRoleAsync(user, "Merchant");
+            var addToRoleResult = await userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_MERCHANT);
 
             if (!addToRoleResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
+
+            var merchantInformation = new MerchantInformation
+            {
+                CompanyName = model.CompanyName,
+                CVRNumber = model.CVRNumber,
+                RefundPercentage = model.RefundPercentage,
+                Merchant = user
+            };
+
+            await context.MerchantInformations.AddAsync(merchantInformation);
+            await context.SaveChangesAsync();
 
             return await GenerateTokenResultAsync(user);
         }
 
+        [Authorize(Roles = RefundeoConstants.ROLE_MERCHANT)]
         [HttpPut]
         public async Task<IActionResult> ChangeMerchant([FromBody] ChangeMerchantDTO model)
         {
@@ -66,9 +78,18 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var user = await GetCallingUserAsync();
-            if (user == null || await userManager.IsInRoleAsync(user, "Merchant"))
+            if (user == null)
             {
-                GenerateBadRequestObjectResult("Merchant does not exist");
+                return GenerateBadRequestObjectResult("Merchant does not exist");
+            }
+
+            var merchantInformation = await context.MerchantInformations
+            .Include(i => i.Merchant)
+            .FirstOrDefaultAsync(i => i.Merchant == user);
+
+            if (merchantInformation == null)
+            {
+                return NotFound();
             }
 
             user.UserName = model.Username;
@@ -79,15 +100,22 @@ namespace Refundeo.Controllers.Merchant
                 return GenerateBadRequestObjectResult(updateUserResult.Errors);
             }
 
+            merchantInformation.CompanyName = model.CompanyName;
+            merchantInformation.CVRNumber = model.CVRNumber;
+            merchantInformation.RefundPercentage = model.RefundPercentage;
+
+            context.MerchantInformations.Update(merchantInformation);
+            await context.SaveChangesAsync();
+
             return new NoContentResult();
         }
 
-        [Authorize]
+        [Authorize(Roles = RefundeoConstants.ROLE_MERCHANT)]
         [HttpDelete]
         public async Task<IActionResult> DeleteMerchant()
         {
             var user = await GetCallingUserAsync();
-            if (user == null || !await userManager.IsInRoleAsync(user, "Merchant"))
+            if (user == null)
             {
                 return GenerateBadRequestObjectResult($"Merchant does not exist");
             }

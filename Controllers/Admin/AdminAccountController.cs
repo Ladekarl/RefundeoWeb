@@ -22,7 +22,7 @@ namespace Refundeo.Controllers.Admin
         public async Task<IList<UserDTO>> GetAllAdmins()
         {
             var userModels = new List<UserDTO>();
-            foreach (var u in await userManager.GetUsersInRoleAsync("Admin"))
+            foreach (var u in await userManager.GetUsersInRoleAsync(RefundeoConstants.ROLE_ADMIN))
             {
                 userModels.Add(await ConvertRefundeoUserToUserDTOAsync(u));
             }
@@ -42,14 +42,14 @@ namespace Refundeo.Controllers.Admin
 
             if (!createUserResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(createUserResult.Errors);
+                return GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await userManager.AddToRoleAsync(user, "Admin");
+            var addToRoleResult = await userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_ADMIN);
 
             if (!addToRoleResult.Succeeded)
             {
-                GenerateBadRequestObjectResult(addToRoleResult.Errors);
+                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
             return await GenerateTokenResultAsync(user);
@@ -58,15 +58,15 @@ namespace Refundeo.Controllers.Admin
         [HttpPut]
         public async Task<IActionResult> ChangeAdmin([FromBody] ChangeAdminDTO model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Username))
             {
-                return new BadRequestResult();
+                return BadRequest();
             }
 
             var user = await GetCallingUserAsync();
-            if (user == null || await userManager.IsInRoleAsync(user, "Admin"))
+            if (user == null)
             {
-                GenerateBadRequestObjectResult("Admin does not exist");
+                return GenerateBadRequestObjectResult("Admin does not exist");
             }
 
             user.UserName = model.Username;
@@ -84,7 +84,7 @@ namespace Refundeo.Controllers.Admin
         public async Task<IActionResult> DeleteAdmin()
         {
             var user = await GetCallingUserAsync();
-            if (user == null || !await userManager.IsInRoleAsync(user, "Admin"))
+            if (user == null)
             {
                 return GenerateBadRequestObjectResult($"Admin does not exist");
             }

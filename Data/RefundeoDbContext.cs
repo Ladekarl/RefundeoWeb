@@ -15,19 +15,18 @@ namespace Refundeo.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<RefundCase>()
-                .HasOne(c => c.Customer)
-                .WithMany(u => u.MerchantRefundCases)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<CustomerInformation>()
+            .HasOne(i => i.Customer)
+            .WithOne(c => c.CustomerInformation)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<RefundCase>()
-                .HasOne(c => c.Merchant)
-                .WithMany(u => u.CustomerRefundCases)
-                .HasForeignKey(c => c.MerchantId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<MerchantInformation>()
+            .HasOne(i => i.Merchant)
+            .WithOne(c => c.MerchantInformation);
         }
-
+        
+        public DbSet<CustomerInformation> CustomerInformations { get; set; }
+        public DbSet<MerchantInformation> MerchantInformations { get; set; }
         public DbSet<RefundCase> RefundCases { get; set; }
         public DbSet<Documentation> Documentations { get; set; }
         public DbSet<QRCode> QRCodes { get; set; }
