@@ -1,24 +1,28 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { AppComponent } from './app.component';
+import { AppComponent } from './components/app.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthGuard } from './guards/index';
+import { AdminAuthGuard, AuthGuard } from './guards/index';
 import { routing } from './app.routing';
 import { JwtInterceptor } from './helpers/index';
 import { AuthenticationService, UserService } from './services/index';
-import { HomeComponent } from './home/index';
-import { LoginComponent } from './login/index';
+import { HomeComponent } from './components/home/index';
+import { LoginComponent } from './components/login/index';
 import { HttpModule } from '@angular/http';
-import { SwaggerComponent } from './swagger/index';
+import { SwaggerComponent } from './components/swagger/index';
 import { SwaggerService } from './services/swagger.service';
+import { AdminComponent } from './components/admin/admin.component';
+import { DashboardComponent } from './components/home/dashboard/dashboard.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         HomeComponent,
         LoginComponent,
-        SwaggerComponent
+        SwaggerComponent,
+        AdminComponent,
+        DashboardComponent
     ],
     imports: [
         BrowserModule,
@@ -28,6 +32,7 @@ import { SwaggerService } from './services/swagger.service';
         routing
     ],
     providers: [
+        AdminAuthGuard,
         AuthGuard,
         AuthenticationService,
         SwaggerService,

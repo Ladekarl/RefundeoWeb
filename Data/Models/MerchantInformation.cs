@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace Refundeo.Data.Models
 {
+    // TODO: Possibly secure these columns too
     public class MerchantInformation
     {
         public long Id {get; set;}

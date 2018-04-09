@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ViewEncapsulation } from '@angular/core';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-root',

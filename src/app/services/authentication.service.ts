@@ -26,12 +26,36 @@ export class AuthenticationService {
         return JSON.parse(localStorage.getItem('currentUser'));
     }
 
+    isMerchant(): boolean {
+        const user = this.getCurrentUser();
+        if (!user) {
+            return false;
+        }
+        return user.roles.indexOf('Merchant') > -1;
+    }
+
+    isAdmin(): boolean {
+        const user = this.getCurrentUser();
+        if (!user) {
+            return false;
+        }
+        return user.roles.indexOf('Admin') > -1;
+    }
+
     isAuthenticated(): boolean {
         const token = this.getToken();
         if (!token) {
             return false;
         }
         return !this.jwtHelperService.isTokenExpired(token);
+    }
+
+    isAuthenticatedMerchant(): boolean {
+        return this.isAuthenticated() && this.isMerchant();
+    }
+
+    isAuthenticatedAdmin(): boolean {
+        return this.isAuthenticated() && this.isAdmin();
     }
 
     login(username: string, password: string): Observable<CurrentUser> {

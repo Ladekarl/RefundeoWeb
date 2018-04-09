@@ -1,14 +1,31 @@
 import { Routes, RouterModule } from '@angular/router';
 
-import { HomeComponent } from './home/index';
-import { LoginComponent } from './login/index';
-import { AuthGuard } from './guards/index';
-import { SwaggerComponent } from './swagger/index';
+import { HomeComponent, DashboardComponent} from './components/home/index';
+import { LoginComponent } from './components/login/index';
+import { AuthGuard, AdminAuthGuard } from './guards/index';
+import { SwaggerComponent } from './components/swagger/index';
+import { AdminComponent } from './components/admin/index';
 
 const appRoutes: Routes = [
-    { path: '', component: HomeComponent, canActivate: [AuthGuard] },
+    {
+        path: '',
+        component: HomeComponent,
+        canActivate: [AuthGuard],
+        children: [
+            {
+                path: '',
+                component: DashboardComponent,
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'docs',
+                component: SwaggerComponent,
+                canActivate: [AuthGuard]
+            }
+        ]
+    },
     { path: 'login', component: LoginComponent },
-    { path: 'docs', component: SwaggerComponent, canActivate: [AuthGuard]},
+    { path: 'admin', component: AdminComponent, canActivate: [AdminAuthGuard] },
     { path: '**', redirectTo: '' }
 ];
 
