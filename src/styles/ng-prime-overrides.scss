@@ -1,0 +1,27 @@
+$theme-color: #303880;
+.ui-dataview {
+    .ui-widget-header {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid $theme-color;
+        color: $theme-color;
+    }
+}
+
+.ui-widget-content {
+    border: none;
+}
+
+.ui-widget {
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.ui-widget-header {
+    background: none;
+}
+
+.ui-corner-all {
+    border-radius: 1px;
+}

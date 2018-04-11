@@ -108,6 +108,7 @@ namespace Refundeo
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
+                app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"], "0.0.0.0"));
             }
             else
             {
@@ -115,12 +116,11 @@ namespace Refundeo
                 var options = new RewriteOptions()
                 .AddRedirectToHttps();
                 app.UseRewriter(options);
+                app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             }
-
-            app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             app.UseSwagger();
             app.UseAuthentication();
-            
+
             DbInitializer.InitializeAsync(userManager, roleManager, dbContext).Wait();
 
             app.Use(async (context, next) =>

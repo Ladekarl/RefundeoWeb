@@ -1,0 +1,69 @@
+<p-dataView [value]="refundCases">
+  <p-header>
+    <div class="ui-helper-clearfix header-row">
+      <div class="ui-g">
+        <div class="ui-g-2 ui-md-2 header-col">
+          <b>Amount</b>
+        </div>
+        <div class="ui-g-2 ui-md-2 header-col">
+          <b>Refund Amount</b>
+        </div>
+        <div class="ui-g-3 ui-md-3 header-col">
+          <b>Customer</b>
+        </div>
+        <div class="ui-g-2 ui-md-2 header-col">
+          <b>Documentation</b>
+        </div>
+        <div class="ui-g-3 ui-md-3 header-col">
+          <b>Accept</b>
+        </div>
+      </div>
+    </div>
+  </p-header>
+  <ng-template let-refundCase pTemplate="listItem">
+    <div class="ui-g table-row">
+      <div class="ui-g-2 ui-md-2 table-col">
+        {{refundCase.amount}}
+      </div>
+      <div class="ui-g-2 ui-md-2 table-col">
+        {{refundCase.refundAmount}}
+      </div>
+      <div class="ui-g-3 ui-md-3 table-col">
+        <div *ngIf="refundCase.customer" class="ui-g">
+          <div class="ui-g-6 ui-sm-12 detail-description">Name: </div>
+          <div class="ui-g-6 ui-sm-12 detail-value">
+            <b>{{refundCase.customer?.firstname + ' ' + refundCase.customer?.lastname}}</b>
+          </div>
+
+          <div class="ui-g-6 ui-sm-12 detail-description">Username: </div>
+          <div class="ui-g-6 ui-sm-12 detail-value">
+            <b>{{refundCase.customer?.username}}</b>
+          </div>
+
+          <div class="ui-g-6 ui-sm-12 detail-description">Country: </div>
+          <div class="ui-g-6 ui-sm-12 detail-value">
+            <b>{{refundCase.customer?.country}}</b>
+          </div>
+        </div>
+        <div *ngIf="!refundCase.customer" class="ui-g-12 ui-sm-12 text-danger">
+          Not Claimed
+        </div>
+      </div>
+      <div class="ui-g-2 ui-md-2 table-col">
+        <img *ngIf="refundCase.documentation" class="img-fluid" [src]="'data:image/png;base64,' + refundCase.documentation" />
+      </div>
+      <div class="ui-g-3 ui-md-3 table-col">
+        <div *ngIf="refundCase.isAccepted">
+          <div class="ui-g-12 ui-sm-12 text-success">Accepted</div>
+        </div>
+        <div *ngIf="!refundCase.isAccepted">
+          <div class="ui-g-12 ui-sm-12 text-danger">Not Accepted</div>
+        </div>
+        <div class="ui-g-12 ui-sm-12">
+          <button type="button" (click)="accept(refundCase)" pButton icon="fa-check" label="Accept" class="ui-button-success"></button>
+          <button type="button" (click)="reject(refundCase)" pButton icon="fa-times" label="Reject" class="ui-button-danger"></button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dataView>

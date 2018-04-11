@@ -1,47 +1,57 @@
 <div class="nav-side-menu">
-  <div class="brand">
-    <a [routerLink]="['/']">
-      <div>
-        <img [src]="logoImageUrl" class="img-fluid" alt="image">
+  <div class="menu-body">
+    <div class="brand">
+      <a [routerLink]="['/']">
+        <div class="logo-container">
+          <img [src]="logoImageUrl" class="img-fluid" alt="image">
+        </div>
         <span>Refundeo</span>
-      </div>
-    </a>
+      </a>
+    </div>
+    <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+    <div class="menu-list">
+      <ul id="menu-content" class="menu-content collapse out">
+        <div *ngFor="let menuItem of menuItems; let last = last">
+          <li [routerLinkActive]="['active']" [routerLink]="[menuItem.routerLink]" [routerLinkActiveOptions]="{ exact: true }" data-toggle="collapse"
+            [attr.data-target]="'#' + menuItem.displayName" class="collapsed" (click)="setActiveMenuItem(menuItem)" [class.last-item]="last">
+            <a>
+              <i [className]="'fa fa-lg ' + menuItem.iconClass"></i> {{menuItem.displayName}}
+              <span *ngIf="menuItem.children" class="arrow"></span>
+            </a>
+          </li>
+          <ul *ngIf="menuItem.children" class="sub-menu collapse" [attr.id]="menuItem.displayName">
+            <li *ngFor="let child of menuItem.children" [routerLinkActive]="['active']" [routerLink]="[child.routerLink]" [routerLinkActiveOptions]="{ exact: true }"
+              (click)="setActiveMenuItem(child)">{{child.displayName}}</li>
+          </ul>
+        </div>
+        <div class="menu-bottom-content">
+          <li *ngFor="let menuItem of bottomMenuItems.reverse();" [routerLinkActive]="['active']" [routerLink]="[menuItem.routerLink]"
+            [routerLinkActiveOptions]="{ exact: true }" (click)="setActiveMenuItem(menuItem)">
+            <a>
+              <i [className]="'fa fa-lg ' + menuItem.iconClass"></i> {{menuItem.displayName}}
+            </a>
+          </li>
+        </div>
+      </ul>
+    </div>
   </div>
-  <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
-
-  <div class="menu-list">
-
-    <ul id="menu-content" class="menu-content collapse out">
-      <li [routerLinkActive]="['active']" [routerLink]="['/']" [routerLinkActiveOptions]="{ exact: true }">
+  <div class="menu-bottom">
+    <ul>
+      <li *ngFor="let menuItem of bottomMenuItems;" [routerLinkActive]="['active']" [routerLink]="[menuItem.routerLink]" [routerLinkActiveOptions]="{ exact: true }"
+        (click)="setActiveMenuItem(menuItem)">
         <a>
-          <i class="fa fa-dashboard fa-lg"></i> Dashboard
+          <i [className]="'fa fa-lg ' + menuItem.iconClass"></i>
         </a>
       </li>
-      <li [routerLinkActive]="['active']" [routerLink]="['/docs']" [routerLinkActiveOptions]="{ exact: true }">
-        <a>
-          <i class="fa fa-dashboard fa-lg"></i> Api
-        </a>
-      </li>
-      <li [routerLinkActive]="['active']" [routerLink]="['/login']" [routerLinkActiveOptions]="{ exact: true }">
-        <a>
-          <i class="fa fa-dashboard fa-lg"></i> Logout
-        </a>
-      </li>
-      <!-- <li data-toggle="collapse" data-target="#service" class="collapsed">
-        <a href="#">
-          <i class="fa fa-globe fa-lg"></i> Services
-          <span class="arrow"></span>
-        </a>
-      </li>
-      <ul class="sub-menu collapse" id="service">
-        <li>New Service 1</li>
-        <li>New Service 2</li>
-        <li>New Service 3</li>
-      </ul> -->
     </ul>
   </div>
 </div>
 
 <div id="main">
-  <router-outlet></router-outlet>
+  <div id="header">
+    {{activeMenuItem.title}}
+  </div>
+  <div id="content">
+    <router-outlet></router-outlet>
+  </div>
 </div>

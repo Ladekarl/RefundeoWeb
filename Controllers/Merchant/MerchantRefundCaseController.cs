@@ -37,7 +37,6 @@ namespace Refundeo.Controllers.Merchant
 
             var refundCases = context.RefundCases
             .Include(r => r.Documentation)
-            .Include(r => r.QRCode)
             .Include(r => r.MerchantInformation)
             .ThenInclude(i => i.Merchant)
             .Include(r => r.CustomerInformation)
@@ -61,7 +60,6 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCase = await context.RefundCases
-            .Include(r => r.QRCode)
             .Include(r => r.Documentation)
             .Include(r => r.CustomerInformation)
             .ThenInclude(i => i.Customer)
