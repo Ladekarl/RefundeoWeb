@@ -1,3 +1,4 @@
+using System;
 using Refundeo.Models.Account;
 
 namespace Refundeo.Models.RefundCase
@@ -11,6 +12,8 @@ namespace Refundeo.Models.RefundCase
         public bool IsAccepted { get; set; }
         public string QRCode { get; set; }
         public string Documentation { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime DateRequested { get; set; }
         public MerchantInformationDTO Merchant { get; set; }
         public CustomerInformationDTO Customer { get; set; }
     }

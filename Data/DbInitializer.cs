@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,6 +27,8 @@ namespace Refundeo.Data
             public double Amount { get; set; }
             public string MerchantName { get; set; }
             public string CustomerName { get; set; }
+            public DateTime DateRequested { get; set; }
+            public bool IsRequested { get; set; }
         }
 
         private static List<string> rolesToCreate = new List<string> {
@@ -64,23 +67,25 @@ namespace Refundeo.Data
             },
         };
 
-        private static List<DbInitializeRefundCase> refundCasesToCreate = new List<DbInitializeRefundCase>
+        private static DbInitializeRefundCase refundCaseRequested = new DbInitializeRefundCase
         {
-            new DbInitializeRefundCase {
-                QRCodeHeight = 30,
-                QRCodeWidth = 30,
-                QRCodeMargin = 0,
-                Amount = 150,
-                MerchantName = "Merchant",
-                CustomerName = "User"
-            },
-            new DbInitializeRefundCase {
-                QRCodeHeight = 30,
-                QRCodeWidth = 30,
-                QRCodeMargin = 0,
-                Amount = 1500,
-                MerchantName = "Merchant"
-            },
+            QRCodeHeight = 30,
+            QRCodeWidth = 30,
+            QRCodeMargin = 0,
+            Amount = 150,
+            IsRequested = true,
+            DateRequested = DateTime.UtcNow,
+            MerchantName = "Merchant",
+            CustomerName = "User"
+        };
+
+        private static DbInitializeRefundCase refundCaseNotRequested = new DbInitializeRefundCase
+        {
+            QRCodeHeight = 30,
+            QRCodeWidth = 30,
+            QRCodeMargin = 0,
+            Amount = 3000,
+            MerchantName = "Merchant"
         };
 
         public static async Task InitializeAsync(UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
@@ -92,8 +97,9 @@ namespace Refundeo.Data
 
         private static async Task InitializeRefundCasesAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context)
         {
-            foreach (var refundCase in refundCasesToCreate)
+            for (int i = 0; i <= 10; i++)
             {
+                var refundCase = refundCaseRequested;
                 var existingCase = await context.RefundCases
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(m => m.Merchant)
@@ -102,6 +108,20 @@ namespace Refundeo.Data
                 {
                     await CreateRefundCaseAsync(context, refundCase);
                 }
+                refundCase.Amount++;
+            }
+            for (int i = 0; i <= 10; i++)
+            {
+                var refundCase = refundCaseNotRequested;
+                var existingCase = await context.RefundCases
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.Merchant)
+                .FirstOrDefaultAsync(r => r.MerchantInformation.Merchant.UserName == refundCase.MerchantName && r.Amount == refundCase.Amount);
+                if (existingCase == null)
+                {
+                    await CreateRefundCaseAsync(context, refundCase);
+                }
+                refundCase.Amount++;
             }
         }
 
@@ -156,7 +176,10 @@ namespace Refundeo.Data
             {
                 Amount = dbInitializeRefundCase.Amount,
                 RefundAmount = dbInitializeRefundCase.Amount,
-                MerchantInformation = merchantInformation
+                MerchantInformation = merchantInformation,
+                IsRequested = dbInitializeRefundCase.IsRequested,
+                DateCreated = DateTime.UtcNow,
+                DateRequested = dbInitializeRefundCase.DateRequested
             };
 
             if (customerInformation != null)

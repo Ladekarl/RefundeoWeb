@@ -7,7 +7,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AdminAuthGuard, AuthGuard } from './guards/index';
 import { routing } from './app.routing';
 import { JwtInterceptor } from './helpers/index';
-import { AuthenticationService, UserService, MenuService, RefundCasesService } from './services/index';
+import { AuthenticationService, UserService, MenuService, RefundCasesService, ColorsService } from './services/index';
 import { HomeComponent, RefundCasesComponent } from './components/home/index';
 import { LoginComponent } from './components/login/index';
 import { HttpModule } from '@angular/http';
@@ -18,6 +18,9 @@ import { DashboardComponent } from './components/home/dashboard/dashboard.compon
 import { DataViewModule } from 'primeng/dataview';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { ChartModule } from 'primeng/chart';
+import { DropdownModule } from 'primeng/dropdown';
+
 
 @NgModule({
     declarations: [
@@ -35,7 +38,9 @@ import { ConfirmationService } from 'primeng/api';
         FormsModule,
         DataViewModule,
         ConfirmDialogModule,
+        DropdownModule,
         HttpClientModule,
+        ChartModule,
         HttpModule,
         routing
     ],
@@ -45,6 +50,7 @@ import { ConfirmationService } from 'primeng/api';
         AuthenticationService,
         ConfirmationService,
         SwaggerService,
+        ColorsService,
         RefundCasesService,
         MenuService,
         UserService,

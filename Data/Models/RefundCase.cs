@@ -1,3 +1,5 @@
+using System;
+
 namespace Refundeo.Data.Models
 {
     public class RefundCase
@@ -11,5 +13,7 @@ namespace Refundeo.Data.Models
         public MerchantInformation MerchantInformation { get; set; }
         public virtual QRCode QRCode { get; set; }
         public virtual Documentation Documentation { get; set; }
+        public DateTime DateCreated { get; set; }
+        public virtual DateTime DateRequested { get; set; }
     }
 }

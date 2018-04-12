@@ -47,8 +47,10 @@ namespace Refundeo.Controllers
                 IsAccepted = refundCase.IsAccepted,
                 QRCode = ConvertByteArrayToBase64(refundCase?.QRCode?.Image),
                 Documentation = ConvertByteArrayToBase64(refundCase?.Documentation?.Image),
+                DateCreated = refundCase.DateCreated,
+                DateRequested = refundCase.DateRequested,
                 Customer = ConvertCustomerInformationToDTO(refundCase.CustomerInformation),
-                Merchant = ConvertMerchantInformationToDTO(refundCase.MerchantInformation)
+                Merchant = ConvertMerchantInformationToDTO(refundCase.MerchantInformation),
             };
         }
 

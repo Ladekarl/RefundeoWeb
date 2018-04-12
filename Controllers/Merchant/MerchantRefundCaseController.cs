@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,87 @@ namespace Refundeo.Controllers.Merchant
             }
 
             return GenerateRefundCaseDTOResponse(refundCases);
+        }
+
+        [HttpGet("{first}/{amount}/{sortBy}/{dir}")]
+        public async Task<IActionResult> GetPaginatedMerchantRefundCases(int first, int amount, string sortBy, int dir)
+        {
+            var user = await GetCallingUserAsync();
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var sortProp = (new RefundCase()).GetType().GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+            if (sortProp == null || (dir != -1 && dir != 1))
+            {
+                return BadRequest();
+            }
+
+            var totalRecords = (await context.MerchantInformations
+            .Include(m => m.Merchant)
+            .Include(m => m.RefundCases)
+            .SingleAsync(m => m.Merchant.Id == user.Id)).RefundCases
+            .Count();
+
+            var query = context.RefundCases
+            .Include(r => r.Documentation)
+            .Include(r => r.MerchantInformation.Merchant)
+            .Include(r => r.CustomerInformation.Customer)
+            .Where(r => r.MerchantInformation.Merchant.Id == user.Id);
+
+            if (dir == 1)
+            {
+                if (sortProp.PropertyType == typeof(DateTime))
+                {
+                    query = query
+                    .OrderBy(r => ((DateTime)sortProp.GetValue(r)).Date)
+                    .ThenBy(r => ((DateTime)sortProp.GetValue(r)).TimeOfDay);
+                }
+                else
+                {
+                    query = query
+                    .OrderBy(r => sortProp);
+                }
+            }
+            else if (dir == -1)
+            {
+                if (sortProp.PropertyType == typeof(DateTime))
+                {
+                    query = query
+                    .OrderByDescending(r => ((DateTime)sortProp.GetValue(r)).Date)
+                    .ThenBy(r => ((DateTime)sortProp.GetValue(r)).TimeOfDay);
+                }
+                else
+                {
+                    query = query
+                    .OrderByDescending(r => sortProp);
+                }
+            }
+
+            var refundCases = await query
+            .Skip(first)
+            .Take(amount)
+            .ToListAsync();
+
+            if (refundCases == null)
+            {
+                return NotFound();
+            }
+
+            var dtos = new List<RefundCaseDTO>();
+            foreach (var refundCase in refundCases)
+            {
+                dtos.Add(ConvertRefundCaseToDTO(refundCase));
+            }
+
+            return new ObjectResult(new
+            {
+                totalRecords = totalRecords,
+                refundCases = dtos
+            });
         }
 
         [HttpGet("{id}")]

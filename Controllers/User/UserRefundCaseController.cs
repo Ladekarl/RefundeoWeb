@@ -122,7 +122,7 @@ namespace Refundeo.Controllers.User
             return new NoContentResult();
         }
 
-        [HttpPost("{id}/refund")]
+        [HttpPost("{id}/request")]
         public async Task<IActionResult> RequestRefund(long id, [FromBody] RequestRefundDTO model)
         {
             var user = await GetCallingUserAsync();
@@ -153,6 +153,7 @@ namespace Refundeo.Controllers.User
             }
 
             refundCaseToUpdate.IsRequested = model.IsRequested;
+            refundCaseToUpdate.DateRequested = DateTime.UtcNow;
             context.RefundCases.Update(refundCaseToUpdate);
             await context.SaveChangesAsync();
             return new NoContentResult();

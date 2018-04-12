@@ -101,7 +101,8 @@ namespace Refundeo.Controllers.Admin
                 Amount = model.Amount,
                 RefundAmount = model.Amount,
                 MerchantInformation = merchantInformation,
-                CustomerInformation = customerInformation
+                CustomerInformation = customerInformation,
+                DateCreated = DateTime.UtcNow
             };
 
             var refundCaseResult = await context.RefundCases.AddAsync(refundCase);
