@@ -4,24 +4,24 @@ $theme-color: #303880;
         border-top: none;
         border-left: none;
         border-right: none;
-        border-bottom: 1px solid $theme-color;
+        border-bottom: 1px solid $theme-color !important;
         color: $theme-color;
     }
 }
 
 .ui-widget-content {
-    border: none;
+    border: none !important;
 }
 
 .ui-widget {
-    font-family: inherit;
+    font-family: inherit !important;
     font-size: 13px;
 }
 
 .ui-widget-header {
-    background: none;
+    background: none !important;
 }
 
 .ui-corner-all {
-    border-radius: 1px;
+    border-radius: 1px !important;
 }
