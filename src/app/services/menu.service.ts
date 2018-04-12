@@ -8,12 +8,12 @@ export class MenuService {
   private static merchantMenuItems: MenuItem[] = [{
     routerLink: '/',
     displayName: 'Dashboard',
-    title: 'Refundeo Dashboard',
+    title: 'Dashboard',
     iconClass: 'fa-home'
   }, {
     routerLink: '/refundcases',
     displayName: 'Refund cases',
-    title: 'Refundeo Refund Cases',
+    title: 'Refund Cases',
     iconClass: 'fa-exchange'
   }, {
     routerLink: '/docs',
@@ -24,9 +24,9 @@ export class MenuService {
 
   private static adminMenuItems: MenuItem[] = [{
     routerLink: '/',
-    displayName: 'Dashboard',
-    title: 'Refundeo Dashboard',
-    iconClass: 'fa-dashboard'
+    displayName: 'Home',
+    title: 'Home',
+    iconClass: 'fa-home'
   }, {
     routerLink: '/docs',
     displayName: 'API',

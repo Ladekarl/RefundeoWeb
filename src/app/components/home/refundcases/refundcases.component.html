@@ -60,8 +60,8 @@
           <div class="ui-g-12 ui-sm-12 text-danger">Not Accepted</div>
         </div>
         <div class="ui-g-12 ui-sm-12">
-          <button type="button" (click)="accept(refundCase)" pButton icon="fa-check" label="Accept" class="ui-button-success"></button>
-          <button type="button" (click)="reject(refundCase)" pButton icon="fa-times" label="Reject" class="ui-button-danger"></button>
+          <button type="button" (click)="accept(refundCase, true)" pButton icon="fa-check" label="Accept" class="ui-button-success"></button>
+          <button type="button" (click)="accept(refundCase, false)" pButton icon="fa-times" label="Reject" class="ui-button-danger"></button>
         </div>
       </div>
     </div>

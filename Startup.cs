@@ -108,7 +108,7 @@ namespace Refundeo
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-                app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"], "0.0.0.0"));
+                app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             }
             else
             {

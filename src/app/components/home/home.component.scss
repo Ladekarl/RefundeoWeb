@@ -193,6 +193,9 @@ $nav-menu-line-height: 60px;
 
 @media (max-width: $collapse-break) {
     .nav-side-menu {
+        .last-item {
+            border-bottom: none;
+        }
         .menu-body {
             position: relative;
             z-index: 2;
