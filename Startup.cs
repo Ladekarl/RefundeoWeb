@@ -116,7 +116,7 @@ namespace Refundeo
                 var options = new RewriteOptions()
                 .AddRedirectToHttps();
                 app.UseRewriter(options);
-                app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
+                //app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             }
             app.UseSwagger();
             app.UseAuthentication();
