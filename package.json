@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "ng": "ng", 
+    "ng": "ng",
     "start": "ng serve --host=0.0.0.0 --proxy-config proxy.config.json",
     "hmr": "ng serve --hmr -e=hmr --host=0.0.0.0 --proxy-config proxy.config.json",
     "build": "ng build",
@@ -40,6 +40,7 @@
     "@angular/cli": "~1.7.3",
     "@angular/compiler-cli": "^5.2.0",
     "@angular/language-service": "^5.2.0",
+    "@angularclass/hmr": "^2.1.3",
     "@types/jasmine": "~2.8.3",
     "@types/jasminewd2": "~2.0.2",
     "@types/node": "^6.0.104",
