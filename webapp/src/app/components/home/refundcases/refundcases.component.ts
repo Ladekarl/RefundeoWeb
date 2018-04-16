@@ -18,7 +18,7 @@ export class RefundCasesComponent {
     { label: 'Status', value: '!isRequested' },
     { label: 'Purchase amount', value: '!amount' },
     { label: 'Refund amount', value: '!refundAmount' },
-    { label: 'Customer', value: '!customer.id' },
+    { label: 'Customer', value: '!customerinformation' },
     { label: 'Documentation', value: '!documentation' }
   ];
   sortKey: string;
