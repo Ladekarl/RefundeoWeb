@@ -5,17 +5,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Refundeo.Data;
-using Refundeo.Data.Models;
-using Refundeo.Models.Account;
+using Refundeo.Core.Helpers;
+using Refundeo.Core.Data;
+using Refundeo.Core.Data.Models;
+using Refundeo.Core.Models.Account;
+using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
 {
     [Route("/api/user/account")]
-    public class UserAccountController : AuthenticationController
+    public class UserAccountController : Controller
     {
-        public UserAccountController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, config, userManager, signManager)
+        private IAuthenticationService _authenticationService;
+        private UserManager<RefundeoUser> _userManager;
+        private IUtilityService _utilityService;
+        private RefundeoDbContext _context;
+        public UserAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IAuthenticationService authenticationService, IUtilityService utilityService)
         {
+            _authenticationService = authenticationService;
+            _userManager = userManager;
+            _utilityService = utilityService;
+            _context = context;
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
@@ -23,9 +33,9 @@ namespace Refundeo.Controllers.User
         public async Task<IList<CustomerInformationDTO>> GetAllCustomers()
         {
             var userModels = new List<CustomerInformationDTO>();
-            foreach (var u in await context.CustomerInformations.Include(i => i.Customer).ToListAsync())
+            foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).ToListAsync())
             {
-                userModels.Add(ConvertCustomerInformationToDTO(u));
+                userModels.Add(_utilityService.ConvertCustomerInformationToDTO(u));
             }
             return userModels;
         }
@@ -40,20 +50,20 @@ namespace Refundeo.Controllers.User
             }
 
             var user = new RefundeoUser { UserName = model.Username };
-            var createUserResult = await userManager.CreateAsync(user, model.Password);
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
 
             if (!createUserResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(createUserResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_USER);
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_USER);
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             if (!addToRoleResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
             var customerInformation = new CustomerInformation
@@ -63,10 +73,10 @@ namespace Refundeo.Controllers.User
                 Country = model.Country
             };
 
-            await context.CustomerInformations.AddAsync(customerInformation);
-            await context.SaveChangesAsync();
+            await _context.CustomerInformations.AddAsync(customerInformation);
+            await _context.SaveChangesAsync();
 
-            return await GenerateTokenResultAsync(user);
+            return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_USER)]
@@ -78,13 +88,13 @@ namespace Refundeo.Controllers.User
                 return new BadRequestResult();
             }
 
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var customerInformation = await context.CustomerInformations
+            var customerInformation = await _context.CustomerInformations
             .Include(i => i.Customer)
             .FirstOrDefaultAsync(i => i.Customer == user);
 
@@ -95,17 +105,17 @@ namespace Refundeo.Controllers.User
 
             user.UserName = model.Username;
 
-            var updateUserResult = await userManager.UpdateAsync(user);
+            var updateUserResult = await _userManager.UpdateAsync(user);
             if (!updateUserResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(updateUserResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(updateUserResult.Errors);
             }
 
             customerInformation.FirstName = model.Firstname;
             customerInformation.LastName = model.Lastname;
             customerInformation.Country = model.Country;
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new NoContentResult();
         }
@@ -114,16 +124,16 @@ namespace Refundeo.Controllers.User
         [HttpDelete]
         public async Task<IActionResult> DeleteUser()
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return GenerateBadRequestObjectResult($"User does not exist");
+                return _utilityService.GenerateBadRequestObjectResult($"User does not exist");
             }
 
-            var result = await userManager.DeleteAsync(user);
+            var result = await _userManager.DeleteAsync(user);
             if (!result.Succeeded)
             {
-                return GenerateBadRequestObjectResult(result.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(result.Errors);
             }
 
             return new NoContentResult();

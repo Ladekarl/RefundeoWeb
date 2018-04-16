@@ -5,17 +5,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Refundeo.Data;
-using Refundeo.Data.Models;
-using Refundeo.Models.Account;
+using Refundeo.Core.Data;
+using Refundeo.Core.Data.Models;
+using Refundeo.Core.Helpers;
+using Refundeo.Core.Models.Account;
+using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.Merchant
 {
     [Route("/api/merchant/account")]
-    public class MerchantAccountController : AuthenticationController
+    public class MerchantAccountController : Controller
     {
-        public MerchantAccountController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, config, userManager, signManager)
+        private RefundeoDbContext _context;
+        private UserManager<RefundeoUser> _userManager;
+        private IUtilityService _utilityService;
+        private IAuthenticationService _authenticationService;
+        public MerchantAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IUtilityService utilityService, IAuthenticationService authenticationService)
         {
+            _context = context;
+            _userManager = userManager;
+            _utilityService = utilityService;
+            _authenticationService = authenticationService;
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
@@ -23,9 +33,9 @@ namespace Refundeo.Controllers.Merchant
         public async Task<IList<MerchantInformationDTO>> GetAllMerchants()
         {
             var userModels = new List<MerchantInformationDTO>();
-            foreach (var u in await context.MerchantInformations.Include(i => i.Merchant).ToListAsync())
+            foreach (var u in await _context.MerchantInformations.Include(i => i.Merchant).ToListAsync())
             {
-                userModels.Add(ConvertMerchantInformationToDTO(u));
+                userModels.Add(_utilityService.ConvertMerchantInformationToDTO(u));
             }
             return userModels;
         }
@@ -40,18 +50,18 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var user = new RefundeoUser { UserName = model.Username };
-            var createUserResult = await userManager.CreateAsync(user, model.Password);
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
 
             if (!createUserResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(createUserResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_MERCHANT);
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_MERCHANT);
 
             if (!addToRoleResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(addToRoleResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
             var merchantInformation = new MerchantInformation
@@ -62,10 +72,10 @@ namespace Refundeo.Controllers.Merchant
                 Merchant = user
             };
 
-            await context.MerchantInformations.AddAsync(merchantInformation);
-            await context.SaveChangesAsync();
+            await _context.MerchantInformations.AddAsync(merchantInformation);
+            await _context.SaveChangesAsync();
 
-            return await GenerateTokenResultAsync(user);
+            return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_MERCHANT)]
@@ -77,13 +87,13 @@ namespace Refundeo.Controllers.Merchant
                 return new BadRequestResult();
             }
 
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return GenerateBadRequestObjectResult("Merchant does not exist");
+                return _utilityService.GenerateBadRequestObjectResult("Merchant does not exist");
             }
 
-            var merchantInformation = await context.MerchantInformations
+            var merchantInformation = await _context.MerchantInformations
             .Include(i => i.Merchant)
             .FirstOrDefaultAsync(i => i.Merchant == user);
 
@@ -94,18 +104,18 @@ namespace Refundeo.Controllers.Merchant
 
             user.UserName = model.Username;
 
-            var updateUserResult = await userManager.UpdateAsync(user);
+            var updateUserResult = await _userManager.UpdateAsync(user);
             if (!updateUserResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(updateUserResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(updateUserResult.Errors);
             }
 
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CVRNumber;
             merchantInformation.RefundPercentage = model.RefundPercentage;
 
-            context.MerchantInformations.Update(merchantInformation);
-            await context.SaveChangesAsync();
+            _context.MerchantInformations.Update(merchantInformation);
+            await _context.SaveChangesAsync();
 
             return new NoContentResult();
         }
@@ -114,16 +124,16 @@ namespace Refundeo.Controllers.Merchant
         [HttpDelete]
         public async Task<IActionResult> DeleteMerchant()
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return GenerateBadRequestObjectResult($"Merchant does not exist");
+                return _utilityService.GenerateBadRequestObjectResult($"Merchant does not exist");
             }
 
-            var result = await userManager.DeleteAsync(user);
+            var result = await _userManager.DeleteAsync(user);
             if (!result.Succeeded)
             {
-                return GenerateBadRequestObjectResult(result.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(result.Errors);
             }
 
             return new NoContentResult();

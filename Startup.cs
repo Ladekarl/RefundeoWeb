@@ -23,9 +23,12 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Refundeo.Data;
-using Refundeo.Data.Models;
-using Refundeo.Models;
+using Refundeo.Core.Data;
+using Refundeo.Core.Data.Models;
+using Refundeo.Core.Middleware;
+using Refundeo.Core.Models;
+using Refundeo.Core.Services;
+using Refundeo.Core.Services.Interfaces;
 using Swashbuckle.AspNetCore.Swagger;
 
 
@@ -67,6 +70,10 @@ namespace Refundeo
             services.AddAuthorization();
             services.AddMvc();
             services.AddCors();
+
+            services.AddTransient<IUtilityService, UtilityService>();
+            services.AddTransient<Core.Services.Interfaces.IAuthenticationService, Core.Services.AuthenticationService>();
+            services.AddTransient<IRefundCaseService, RefundCaseService>();
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
@@ -139,75 +146,6 @@ namespace Refundeo
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
-        }
-    }
-
-    public static class SwaggerAuthorizeExtensions
-    {
-        public static IApplicationBuilder UseSwaggerAuthorized(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<SwaggerAuthorizedMiddleware>();
-        }
-    }
-
-    public class SwaggerAuthorizedMiddleware
-    {
-        private readonly RequestDelegate _next;
-
-        public SwaggerAuthorizedMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
-
-        public async Task Invoke(HttpContext context, IConfiguration Configuration)
-        {
-            if (context.Request.Path.StartsWithSegments("/swagger"))
-            {
-                SecurityToken jwt;
-                var token = await context.GetTokenAsync("JwtBearer", "access_token");
-
-                if (token != null)
-                {
-                    var refundeoParameters = new RefundeoTokenValidationParameters(Configuration);
-                    var principal = new JwtSecurityTokenHandler().ValidateToken(token, refundeoParameters.TokenValidationParameters, out jwt);
-
-                    if (principal.IsInRole("Admin") ||
-                        principal.IsInRole("Merchant"))
-                    {
-                        await _next.Invoke(context);
-                        return;
-                    }
-                }
-
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                return;
-            }
-
-            await _next.Invoke(context);
-        }
-    }
-
-    public class RefundeoTokenValidationParameters
-    {
-        public TokenValidationParameters TokenValidationParameters { get; set; }
-        public RefundeoTokenValidationParameters(IConfiguration Configuration)
-        {
-            TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
-
-                ValidateIssuer = true,
-                ValidIssuer = Configuration["ValidIssuer"],
-
-                ValidateAudience = true,
-                ValidAudience = Configuration["ValidAudience"],
-
-                ValidateLifetime = true,
-
-                ClockSkew = TimeSpan.FromMinutes(5)
-            };
         }
     }
 }

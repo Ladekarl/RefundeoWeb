@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Refundeo.Data;
-using Refundeo.Data.Models;
-using Refundeo.Models.QRCode;
-using Refundeo.Models.RefundCase;
+using Refundeo.Core.Data;
+using Refundeo.Core.Data.Models;
+using Refundeo.Core.Helpers;
+using Refundeo.Core.Models.QRCode;
+using Refundeo.Core.Models.RefundCase;
+using Refundeo.Core.Services.Interfaces;
 using ZXing;
 using ZXing.QrCode;
 
@@ -19,23 +21,31 @@ namespace Refundeo.Controllers.User
 {
     [Authorize(Roles = RefundeoConstants.ROLE_USER)]
     [Route("/api/user/refundcase")]
-    public class UserRefundCaseController : RefundCaseController
+    public class UserRefundCaseController : Controller
     {
-        public UserRefundCaseController(RefundeoDbContext context, UserManager<RefundeoUser> userManager) : base(context, userManager)
+        private RefundeoDbContext _context;
+        private UserManager<RefundeoUser> _userManager;
+        private IRefundCaseService _refundCaseService;
+        private IUtilityService _utilityService;
+        public UserRefundCaseController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IRefundCaseService refundCaseService, IUtilityService utilityService)
         {
+            _context = context;
+            _userManager = userManager;
+            _refundCaseService = refundCaseService;
+            _utilityService = utilityService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllUserRefundCases()
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
 
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var refundCases = context.RefundCases
+            var refundCases = _context.RefundCases
             .Where(r => r.CustomerInformation.Customer == user)
             .Include(r => r.Documentation)
             .Include(r => r.QRCode)
@@ -49,19 +59,19 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return GenerateRefundCaseDTOResponse(refundCases);
+            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCases);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserRefundCaseById(long id)
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var refundCase = await context.RefundCases
+            var refundCase = await _context.RefundCases
             .Include(r => r.QRCode)
             .Include(r => r.Documentation)
             .Include(r => r.MerchantInformation)
@@ -75,13 +85,13 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return GenerateRefundCaseDTOResponse(refundCase);
+            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCase);
         }
 
         [HttpPost("{id}/doc")]
         public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocementationDTO model)
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Unauthorized();
@@ -92,7 +102,7 @@ namespace Refundeo.Controllers.User
             }
 
 
-            var refundCaseToUpdate = await context.RefundCases
+            var refundCaseToUpdate = await _context.RefundCases
             .Include(r => r.Documentation)
             .Include(r => r.CustomerInformation)
             .ThenInclude(i => i.Customer)
@@ -107,25 +117,25 @@ namespace Refundeo.Controllers.User
 
             try
             {
-                documentation.Image = ConvertBase64ToByteArray(model.Image);
+                documentation.Image = _refundCaseService.ConvertBase64ToByteArray(model.Image);
             }
             catch (System.FormatException)
             {
                 return BadRequest("Image should be base64 encoded");
             }
 
-            await context.Documentations.AddAsync(documentation);
-            await context.SaveChangesAsync();
+            await _context.Documentations.AddAsync(documentation);
+            await _context.SaveChangesAsync();
             refundCaseToUpdate.Documentation = documentation;
-            context.RefundCases.Update(refundCaseToUpdate);
-            await context.SaveChangesAsync();
+            _context.RefundCases.Update(refundCaseToUpdate);
+            await _context.SaveChangesAsync();
             return new NoContentResult();
         }
 
         [HttpPost("{id}/request")]
         public async Task<IActionResult> RequestRefund(long id, [FromBody] RequestRefundDTO model)
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Unauthorized();
@@ -136,7 +146,7 @@ namespace Refundeo.Controllers.User
                 return BadRequest();
             }
 
-            var refundCaseToUpdate = await context.RefundCases
+            var refundCaseToUpdate = await _context.RefundCases
             .Include(r => r.Documentation)
             .Include(r => r.CustomerInformation)
             .ThenInclude(i => i.Customer)
@@ -154,21 +164,21 @@ namespace Refundeo.Controllers.User
 
             refundCaseToUpdate.IsRequested = model.IsRequested;
             refundCaseToUpdate.DateRequested = DateTime.UtcNow;
-            context.RefundCases.Update(refundCaseToUpdate);
-            await context.SaveChangesAsync();
+            _context.RefundCases.Update(refundCaseToUpdate);
+            await _context.SaveChangesAsync();
             return new NoContentResult();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMerchantRefundCase(long id)
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var refundCase = await context.RefundCases
+            var refundCase = await _context.RefundCases
             .Include(r => r.CustomerInformation)
             .ThenInclude(i => i.Customer)
             .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
@@ -178,8 +188,8 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            context.RefundCases.Remove(refundCase);
-            await context.SaveChangesAsync();
+            _context.RefundCases.Remove(refundCase);
+            await _context.SaveChangesAsync();
             return new NoContentResult();
         }
     }

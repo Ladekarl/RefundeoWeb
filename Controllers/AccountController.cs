@@ -5,17 +5,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Refundeo.Data;
-using Refundeo.Data.Models;
-using Refundeo.Models.Account;
+using Refundeo.Core.Data;
+using Refundeo.Core.Data.Models;
+using Refundeo.Core.Helpers;
+using Refundeo.Core.Models.Account;
+using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers
 {
     [Route("/api/account")]
-    public class AccountController : AuthenticationController
+    public class AccountController : Controller
     {
-        public AccountController(RefundeoDbContext context, IConfiguration config, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager) : base(context, config, userManager, signManager)
+        private IAuthenticationService _authenticationService;
+        private UserManager<RefundeoUser> _userManager;
+        private IUtilityService _utilityService;
+        public AccountController(UserManager<RefundeoUser> userManager, IAuthenticationService authenticationService, IUtilityService utilityService)
         {
+            _authenticationService = authenticationService;
+            _userManager = userManager;
+            _utilityService = utilityService;
         }
 
         [AllowAnonymous]
@@ -28,7 +36,7 @@ namespace Refundeo.Controllers
                 return BadRequest();
             }
 
-            var result = await IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
+            var result = await _authenticationService.IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
             if (result.Id != SignInId.SUCCESS)
             {
                 return new BadRequestObjectResult(
@@ -39,14 +47,14 @@ namespace Refundeo.Controllers
                     });
             }
 
-            var user = await userManager.FindByNameAsync(userLogin.Username);
+            var user = await _userManager.FindByNameAsync(userLogin.Username);
 
             if (user == null)
             {
                 return new NoContentResult();
             }
 
-            return await GenerateTokenResultAsync(user);
+            return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
@@ -54,9 +62,9 @@ namespace Refundeo.Controllers
         public async Task<IList<UserDTO>> GetAllAccounts()
         {
             var userModels = new List<UserDTO>();
-            foreach (var u in await userManager.Users.ToListAsync())
+            foreach (var u in await _userManager.Users.ToListAsync())
             {
-                userModels.Add(await ConvertRefundeoUserToUserDTOAsync(u));
+                userModels.Add(await _utilityService.ConvertRefundeoUserToUserDTOAsync(u));
             }
             return userModels;
         }
@@ -65,28 +73,28 @@ namespace Refundeo.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAccountById(string id)
         {
-            var user = await userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
-            return new ObjectResult(await ConvertRefundeoUserToUserDTOAsync(user));
+            return new ObjectResult(await _utilityService.ConvertRefundeoUserToUserDTOAsync(user));
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
-            var user = await userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return GenerateBadRequestObjectResult($"Account with id={id} does not exist");
+                return _utilityService.GenerateBadRequestObjectResult($"Account with id={id} does not exist");
             }
 
-            var result = await userManager.DeleteAsync(user);
+            var result = await _userManager.DeleteAsync(user);
             if (!result.Succeeded)
             {
-                return GenerateBadRequestObjectResult(result.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(result.Errors);
             }
 
             return new NoContentResult();
@@ -96,7 +104,7 @@ namespace Refundeo.Controllers
         [HttpPut("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
         {
-            var user = await GetCallingUserAsync();
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Unauthorized();
@@ -107,22 +115,22 @@ namespace Refundeo.Controllers
                 return BadRequest();
             }
 
-            var signInResult = await IsValidUserAndPasswordCombinationAsync(user.UserName, model.OldPassword);
+            var signInResult = await _authenticationService.IsValidUserAndPasswordCombinationAsync(user.UserName, model.OldPassword);
             if (signInResult.Id != SignInId.SUCCESS)
             {
-                return GenerateBadRequestObjectResult(signInResult.Desc);
+                return _utilityService.GenerateBadRequestObjectResult(signInResult.Desc);
             }
 
             if (model.NewPassword != model.PasswordConfirmation)
             {
-                return GenerateBadRequestObjectResult("New password and password confirmation does not match");
+                return _utilityService.GenerateBadRequestObjectResult("New password and password confirmation does not match");
             }
 
-            var changePasswordResult = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
 
             if (!changePasswordResult.Succeeded)
             {
-                return GenerateBadRequestObjectResult(changePasswordResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(changePasswordResult.Errors);
             }
 
             return new NoContentResult();
