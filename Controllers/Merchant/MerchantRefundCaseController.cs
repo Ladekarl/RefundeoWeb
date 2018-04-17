@@ -73,9 +73,6 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var query = _context.RefundCases
-            .Include(r => r.Documentation)
-            .Include(r => r.MerchantInformation.Merchant)
-            .Include(r => r.CustomerInformation.Customer)
             .Where(r => r.MerchantInformation.Merchant.Id == user.Id);
 
             query = _paginationService.SortAndFilter(query, sortBy, dir, filterBy);
@@ -84,7 +81,13 @@ namespace Refundeo.Controllers.Merchant
             .AsNoTracking()
             .CountAsync();
 
-            var refundCases = await _paginationService.Paginate(query, first, amount)
+            query = query
+            .Include(r => r.Documentation)
+            .Include(r => r.MerchantInformation.Merchant)
+            .Include(r => r.CustomerInformation.Customer);
+
+            var refundCases = await _paginationService
+            .Paginate(query, first, amount)
             .AsNoTracking()
             .ToListAsync();
 
