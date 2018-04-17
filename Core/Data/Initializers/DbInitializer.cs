@@ -16,79 +16,10 @@ using Refundeo.Core.Models.RefundCase;
 using ZXing;
 using ZXing.QrCode;
 
-namespace Refundeo.Core.Data
+namespace Refundeo.Core.Data.Initializers
 {
     public static class DbInitializer
     {
-        private class DbInitializeRefundCase
-        {
-            public int QRCodeHeight { get; set; }
-            public int QRCodeWidth { get; set; }
-            public int QRCodeMargin { get; set; }
-            public double Amount { get; set; }
-            public string MerchantName { get; set; }
-            public string CustomerName { get; set; }
-            public DateTime DateRequested { get; set; }
-            public bool IsRequested { get; set; }
-        }
-
-        private static List<string> rolesToCreate = new List<string> {
-            RefundeoConstants.ROLE_ADMIN,
-            RefundeoConstants.ROLE_MERCHANT,
-            RefundeoConstants.ROLE_USER
-        };
-
-        private static List<UserRegisterDTO> usersTocreate = new List<UserRegisterDTO>
-        {
-            new UserRegisterDTO {
-                Username = "User",
-                Password = "User1234!",
-                Firstname = "Bob",
-                Lastname = "Dylan",
-                Country = "DK"
-            }
-        };
-
-        private static List<UserRegisterDTO> adminsToCreate = new List<UserRegisterDTO>
-        {
-            new UserRegisterDTO {
-                Username = "Admin",
-                Password = "Admin1234!"
-            }
-        };
-
-        private static List<MerchantRegisterDTO> merchantsToCreate = new List<MerchantRegisterDTO>
-        {
-            new MerchantRegisterDTO {
-                Username = "Merchant",
-                Password = "Merchant1234!",
-                CompanyName = "MerchantCompany",
-                CVRNumber = "12345678",
-                RefundPercentage = 25
-            },
-        };
-
-        private static DbInitializeRefundCase refundCaseRequested = new DbInitializeRefundCase
-        {
-            QRCodeHeight = 30,
-            QRCodeWidth = 30,
-            QRCodeMargin = 0,
-            Amount = 150,
-            IsRequested = true,
-            DateRequested = DateTime.UtcNow,
-            MerchantName = "Merchant",
-            CustomerName = "User"
-        };
-
-        private static DbInitializeRefundCase refundCaseNotRequested = new DbInitializeRefundCase
-        {
-            QRCodeHeight = 30,
-            QRCodeWidth = 30,
-            QRCodeMargin = 0,
-            Amount = 3000,
-            MerchantName = "Merchant"
-        };
-
         public static async Task InitializeAsync(UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
             await InitializeRolesAsync(roleManager);
@@ -98,37 +29,26 @@ namespace Refundeo.Core.Data
 
         private static async Task InitializeRefundCasesAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context)
         {
-            for (int i = 0; i <= 10; i++)
+            foreach (var refundCase in DbInitializeData.RefundCasesToCreate)
             {
-                var refundCase = refundCaseRequested;
-                var existingCase = await context.RefundCases
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.Merchant)
-                .FirstOrDefaultAsync(r => r.MerchantInformation.Merchant.UserName == refundCase.MerchantName && r.Amount == refundCase.Amount);
-                if (existingCase == null)
+                for (int i = 0; i <= 10; i++)
                 {
-                    await CreateRefundCaseAsync(context, refundCase);
+                    var existingCase = await context.RefundCases
+                    .Include(r => r.MerchantInformation)
+                    .ThenInclude(m => m.Merchant)
+                    .FirstOrDefaultAsync(r => r.MerchantInformation.Merchant.UserName == refundCase.MerchantName && r.Amount == refundCase.Amount);
+                    if (existingCase == null)
+                    {
+                        await CreateRefundCaseAsync(context, refundCase);
+                    }
+                    refundCase.Amount++;
                 }
-                refundCase.Amount++;
-            }
-            for (int i = 0; i <= 10; i++)
-            {
-                var refundCase = refundCaseNotRequested;
-                var existingCase = await context.RefundCases
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.Merchant)
-                .FirstOrDefaultAsync(r => r.MerchantInformation.Merchant.UserName == refundCase.MerchantName && r.Amount == refundCase.Amount);
-                if (existingCase == null)
-                {
-                    await CreateRefundCaseAsync(context, refundCase);
-                }
-                refundCase.Amount++;
             }
         }
 
         private static async Task InitializeRolesAsync(RoleManager<IdentityRole> roleManager)
         {
-            foreach (var role in rolesToCreate)
+            foreach (var role in DbInitializeData.RolesToCreate)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
@@ -139,21 +59,21 @@ namespace Refundeo.Core.Data
 
         private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context)
         {
-            foreach (var user in usersTocreate)
+            foreach (var user in DbInitializeData.UsersTocreate)
             {
                 if (!userManager.Users.Any(u => u.UserName == user.Username))
                 {
                     await CreateCustomerAsync(userManager, context, user.Username, user.Password, user.Firstname, user.Lastname, user.Country, "123456781234", "1234");
                 }
             }
-            foreach (var admin in adminsToCreate)
+            foreach (var admin in DbInitializeData.AdminsToCreate)
             {
                 if (!userManager.Users.Any(u => u.UserName == admin.Username))
                 {
                     await CreateAccountAsync(userManager, admin.Username, admin.Password, RefundeoConstants.ROLE_ADMIN);
                 }
             }
-            foreach (var merchant in merchantsToCreate)
+            foreach (var merchant in DbInitializeData.MerchantsToCreate)
             {
                 if (!userManager.Users.Any(u => u.UserName == merchant.Username))
                 {

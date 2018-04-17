@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Refundeo.Core.Data;
+using Refundeo.Core.Data.Initializers;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Middleware;
 using Refundeo.Core.Models;
@@ -74,6 +75,7 @@ namespace Refundeo
             services.AddTransient<IUtilityService, UtilityService>();
             services.AddTransient<Core.Services.Interfaces.IAuthenticationService, Core.Services.AuthenticationService>();
             services.AddTransient<IRefundCaseService, RefundCaseService>();
+            services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
@@ -109,6 +111,7 @@ namespace Refundeo
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext dbContext)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+
             if (HostingEnvironment.IsDevelopment())
             {
                 loggerFactory.AddDebug();
@@ -125,6 +128,7 @@ namespace Refundeo
                 app.UseRewriter(options);
                 //app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             }
+
             app.UseSwagger();
             app.UseAuthentication();
 

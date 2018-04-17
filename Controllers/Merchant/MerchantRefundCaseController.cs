@@ -28,12 +28,14 @@ namespace Refundeo.Controllers.Merchant
         private UserManager<RefundeoUser> _userManager;
         private IRefundCaseService _refundCaseService;
         private IUtilityService _utilityService;
-        public MerchantRefundCaseController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IRefundCaseService refundCaseService, IUtilityService utilityService)
+        private IPaginationService<RefundCase> _paginationService;
+        public MerchantRefundCaseController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IRefundCaseService refundCaseService, IUtilityService utilityService, IPaginationService<RefundCase> paginationService)
         {
             _context = context;
             _userManager = userManager;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
+            _paginationService = paginationService;
         }
         [HttpGet]
         public async Task<IActionResult> GetAllMerchantRefundCases()
@@ -60,8 +62,8 @@ namespace Refundeo.Controllers.Merchant
             return _refundCaseService.GenerateRefundCaseDTOResponse(refundCases);
         }
 
-        [HttpGet("{first}/{amount}/{sortBy}/{dir}")]
-        public async Task<IActionResult> GetPaginatedMerchantRefundCases(int first, int amount, string sortBy, int dir)
+        [HttpGet("{first}/{amount}/{sortBy}/{dir}/{filterBy}")]
+        public async Task<IActionResult> GetPaginatedMerchantRefundCases(int first, int amount, string sortBy, string dir, string filterBy)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
 
@@ -70,57 +72,20 @@ namespace Refundeo.Controllers.Merchant
                 return Unauthorized();
             }
 
-            var sortProp = (new RefundCase()).GetType().GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-
-            if (sortProp == null || (dir != -1 && dir != 1))
-            {
-                return BadRequest();
-            }
-
-            var totalRecords = (await _context.MerchantInformations
-            .Include(m => m.Merchant)
-            .Include(m => m.RefundCases)
-            .SingleAsync(m => m.Merchant.Id == user.Id)).RefundCases
-            .Count();
-
             var query = _context.RefundCases
             .Include(r => r.Documentation)
             .Include(r => r.MerchantInformation.Merchant)
             .Include(r => r.CustomerInformation.Customer)
             .Where(r => r.MerchantInformation.Merchant.Id == user.Id);
 
-            if (dir == 1)
-            {
-                if (sortProp.PropertyType == typeof(DateTime))
-                {
-                    query = query
-                    .OrderBy(r => ((DateTime)sortProp.GetValue(r)).Date)
-                    .ThenBy(r => ((DateTime)sortProp.GetValue(r)).TimeOfDay);
-                }
-                else
-                {
-                    query = query
-                    .OrderBy(r => sortProp);
-                }
-            }
-            else if (dir == -1)
-            {
-                if (sortProp.PropertyType == typeof(DateTime))
-                {
-                    query = query
-                    .OrderByDescending(r => ((DateTime)sortProp.GetValue(r)).Date)
-                    .ThenBy(r => ((DateTime)sortProp.GetValue(r)).TimeOfDay);
-                }
-                else
-                {
-                    query = query
-                    .OrderByDescending(r => sortProp);
-                }
-            }
+            query = _paginationService.SortAndFilter(query, sortBy, dir, filterBy);
 
-            var refundCases = await query
-            .Skip(first)
-            .Take(amount)
+            var totalRecords = await query
+            .AsNoTracking()
+            .CountAsync();
+
+            var refundCases = await _paginationService.Paginate(query, first, amount)
+            .AsNoTracking()
             .ToListAsync();
 
             if (refundCases == null)

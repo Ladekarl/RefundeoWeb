@@ -8,8 +8,8 @@ export class RefundCase {
     isRequested: boolean;
     isAccepted: boolean;
     documentation?: string;
-    dateCreated: string;
-    dateRequested: string;
+    dateCreated: Date;
+    dateRequested: Date;
     merchant?: Merchant;
     customer?: Customer;
 }

@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RefundCasesService } from '../../../services';
 import { RefundCase } from '../../../models';
 import { ConfirmationService, SelectItem } from 'primeng/api';
+import { ElementRef } from '@angular/core';
+import { DataView } from 'primeng/dataview';
 
 @Component({
   selector: 'app-refundcases',
@@ -9,21 +11,36 @@ import { ConfirmationService, SelectItem } from 'primeng/api';
   styleUrls: ['./refundcases.component.scss']
 })
 export class RefundCasesComponent {
+  @ViewChild('refundCasesDataView') refundCasesDataView: DataView;
+
   refundCases: RefundCase[];
+
   sortOptions: SelectItem[] = [
-    { label: 'Newest created', value: '!dateCreated' },
-    { label: 'Oldest created', value: 'dateCreated' },
+    { label: 'Newest', value: '!dateCreated' },
+    { label: 'Oldest', value: 'dateCreated' },
     { label: 'Newest requested', value: '!dateRequested' },
     { label: 'Oldest requested', value: 'dateRequested' },
     { label: 'Status', value: '!isRequested' },
     { label: 'Purchase amount', value: '!amount' },
     { label: 'Refund amount', value: '!refundAmount' },
-    { label: 'Customer', value: '!customerinformation' },
+    { label: 'Customer', value: 'customerinformation' },
     { label: 'Documentation', value: '!documentation' }
   ];
   sortKey: string;
-  sortField: string;
-  sortOrder: number;
+  sortField = 'dateCreated';
+  sortOrder = 'desc';
+
+  filterOptions: SelectItem[] = [
+    { label: 'None', value: 'none' },
+    { label: 'Requested', value: 'isRequested' },
+    { label: 'Claimed', value: 'customerinformation' },
+    { label: 'Accepted', value: 'isAccepted' },
+    { label: 'Documented', value: 'documentation' }
+  ];
+  filterKey: string;
+  filterField = 'none';
+  filterOrder = 'desc';
+
   totalRecords: number;
 
   constructor(private refundCasesService: RefundCasesService, private confirmationService: ConfirmationService) { }
@@ -32,19 +49,29 @@ export class RefundCasesComponent {
     const value = event.value;
 
     if (value.indexOf('!') === 0) {
-      this.sortOrder = -1;
+      this.sortOrder = 'desc';
       this.sortField = value.substring(1, value.length);
     } else {
-      this.sortOrder = 1;
+      this.sortOrder = 'asc';
       this.sortField = value;
     }
   }
 
+  onFilterChange(event) {
+    const value = event.value;
+
+    if (value.indexOf('!') === 0) {
+      this.filterOrder = 'desc';
+      this.filterField = value.substring(1, value.length);
+    } else {
+      this.filterOrder = 'asc';
+      this.filterField = value;
+    }
+    this.refundCasesDataView.sort();
+  }
 
   loadData(event) {
-    const sortBy = this.sortField || 'dateCreated';
-    const sortDir = this.sortOrder || -1;
-    this.refundCasesService.getPaginated(event.first, event.rows, sortBy, sortDir)
+    this.refundCasesService.getPaginated(event.first, event.rows, this.sortField, this.sortOrder, this.filterField)
       .subscribe((response: any) => {
         this.refundCases = response.refundCases;
         this.totalRecords = response.totalRecords;

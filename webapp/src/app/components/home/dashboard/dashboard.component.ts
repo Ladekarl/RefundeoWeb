@@ -21,10 +21,11 @@ export class DashboardComponent implements OnInit {
     this.refundCasesService.getAll().subscribe(refundCases => {
       const usersByCountryMap = this.getUsersByCountry(refundCases);
       const countries = Array.from(usersByCountryMap.keys());
+      const labels = countries.map(c => `${c} ${usersByCountryMap.get(c)}`);
       const amounts = Array.from(usersByCountryMap.values());
       const colorPalette = this.colorsService.getColorPallete(usersByCountryMap.keys.length);
       this.usersByCountry = {
-        labels: countries,
+        labels: labels,
         datasets: [
           {
             backgroundColor: colorPalette,
