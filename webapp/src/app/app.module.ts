@@ -7,7 +7,7 @@ import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AdminAuthGuard, AuthGuard} from './guards/index';
 import {routing} from './app.routing';
 import {JwtInterceptor} from './helpers/index';
-import {AuthenticationService, UserService, MenuService, RefundCasesService, ColorsService} from './services/index';
+import {AuthenticationService, UserService, MenuService, RefundCasesService, ColorsService, CustomerInfoService} from './services/index';
 import {HomeComponent, RefundCasesComponent} from './components/home/index';
 import {LoginComponent} from './components/login/index';
 import {HttpModule} from '@angular/http';
@@ -55,6 +55,7 @@ registerLocaleData(localeDa, 'da');
     ConfirmationService,
     SwaggerService,
     ColorsService,
+    CustomerInfoService,
     RefundCasesService,
     MenuService,
     UserService, {

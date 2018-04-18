@@ -24,13 +24,11 @@ namespace Refundeo.Controllers.User
     public class UserRefundCaseController : Controller
     {
         private RefundeoDbContext _context;
-        private UserManager<RefundeoUser> _userManager;
         private IRefundCaseService _refundCaseService;
         private IUtilityService _utilityService;
-        public UserRefundCaseController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IRefundCaseService refundCaseService, IUtilityService utilityService)
+        public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService, IUtilityService utilityService)
         {
             _context = context;
-            _userManager = userManager;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
         }

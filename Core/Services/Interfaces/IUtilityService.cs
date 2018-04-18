@@ -10,7 +10,9 @@ namespace Refundeo.Core.Services.Interfaces
 {
     public interface IUtilityService
     {
+        string GetCallingUserId(HttpRequest request);
         Task<RefundeoUser> GetCallingUserAsync(HttpRequest request);
+        Task<RefundeoUser> GetCallingUserFullAsync(HttpRequest request);
         Task<UserDTO> ConvertRefundeoUserToUserDTOAsync(RefundeoUser refundeoUser);
         CustomerInformationDTO ConvertCustomerInformationToDTO(CustomerInformation info);
         MerchantInformationDTO ConvertMerchantInformationToDTO(MerchantInformation info);

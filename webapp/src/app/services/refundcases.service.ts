@@ -25,7 +25,7 @@ export class RefundCasesService {
   }
 
   getAll() {
-    return this.http.get < RefundCase[] > ('/api/merchant/refundcase').map(RefundCasesService.mapDates);
+    return this.http.get<RefundCase[]>('/api/merchant/refundcase').map(RefundCasesService.mapDates);
   }
 
   getPaginated(first: number, amount: number, sortBy: string, sortDir: string, filterBy: string) {

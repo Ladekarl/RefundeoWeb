@@ -25,14 +25,12 @@ namespace Refundeo.Controllers.Merchant
     public class MerchantRefundCaseController : Controller
     {
         private RefundeoDbContext _context;
-        private UserManager<RefundeoUser> _userManager;
         private IRefundCaseService _refundCaseService;
         private IUtilityService _utilityService;
         private IPaginationService<RefundCase> _paginationService;
-        public MerchantRefundCaseController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IRefundCaseService refundCaseService, IUtilityService utilityService, IPaginationService<RefundCase> paginationService)
+        public MerchantRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService, IUtilityService utilityService, IPaginationService<RefundCase> paginationService)
         {
             _context = context;
-            _userManager = userManager;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
             _paginationService = paginationService;
