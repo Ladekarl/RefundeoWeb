@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Refundeo.Core.Data;
@@ -17,16 +18,18 @@ using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Core.Services
 {
-    public class AuthenticationService: IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         public IConfiguration Configuration { get; set; }
         private readonly SignInManager<RefundeoUser> _signManager;
         private readonly UserManager<RefundeoUser> _userManager;
-        public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager)
+        private readonly RefundeoDbContext _context;
+        public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager, RefundeoDbContext context)
         {
             Configuration = configuration;
             this._signManager = signManager;
             this._userManager = userManager;
+            this._context = context;
         }
 
         public async Task<IdentityResult> UpdateRolesAsync(RefundeoUser user, ICollection<string> roles)
@@ -60,12 +63,58 @@ namespace Refundeo.Core.Services
         {
             var token = await GenerateTokenAsync(user);
 
+            var merchantInformation = await _context.MerchantInformations.Where(m => m.Merchant.Id == user.Id).FirstOrDefaultAsync();
+            var customerInformation = await _context.CustomerInformations.Where(c => c.Customer.Id == user.Id).FirstOrDefaultAsync();
+
+            if (merchantInformation != null)
+            {
+                return await GenerateMerchantObjectResultAsync(token, user, merchantInformation);
+            }
+            else if (customerInformation != null)
+            {
+                return await GenerateCustomertObjectResultAsync(token, user, customerInformation);
+            }
+            else
+            {
+                return new ObjectResult(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo,
+                    id = user.Id,
+                    username = user.UserName,
+                    roles = await _userManager.GetRolesAsync(user)
+                });
+            }
+        }
+
+        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user, MerchantInformation merchantInformation)
+        {
             return new ObjectResult(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
                 id = user.Id,
                 username = user.UserName,
+                companyName = merchantInformation.CompanyName,
+                cvrNumber = merchantInformation.CVRNumber,
+                refundPercentage = merchantInformation.RefundPercentage,
+                roles = await _userManager.GetRolesAsync(user)
+            });
+        }
+
+        private async Task<ObjectResult> GenerateCustomertObjectResultAsync(JwtSecurityToken token, RefundeoUser user, CustomerInformation customerInformation)
+        {
+            return new ObjectResult(new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                expiration = token.ValidTo,
+                id = user.Id,
+                username = user.UserName,
+                firstName = customerInformation.FirstName,
+                lastName = customerInformation.LastName,
+                country = customerInformation.Country,
+                bankAccountNumber = customerInformation.BankAccountNumber,
+                bankRegNumber = customerInformation.BankRegNumber,
                 roles = await _userManager.GetRolesAsync(user)
             });
         }
