@@ -75,7 +75,7 @@ namespace Refundeo.Controllers.Merchant
             await _context.MerchantInformations.AddAsync(merchantInformation);
             await _context.SaveChangesAsync();
 
-            return await _authenticationService.GenerateTokenResultAsync(user);
+            return await _authenticationService.GenerateTokenResultAsync(user, null);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_MERCHANT)]

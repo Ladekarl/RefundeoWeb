@@ -62,7 +62,7 @@ namespace Refundeo.Controllers.Admin
                 return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
-            return await _authenticationService.GenerateTokenResultAsync(user);
+            return await _authenticationService.GenerateTokenResultAsync(user, null);
         }
 
         [HttpPut]

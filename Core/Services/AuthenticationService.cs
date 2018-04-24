@@ -59,7 +59,7 @@ namespace Refundeo.Core.Services
             return IdentityResult.Success;
         }
 
-        public async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user)
+        public async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user, string refreshToken)
         {
             var token = await GenerateTokenAsync(user);
 
@@ -68,11 +68,11 @@ namespace Refundeo.Core.Services
 
             if (merchantInformation != null)
             {
-                return await GenerateMerchantObjectResultAsync(token, user, merchantInformation);
+                return await GenerateMerchantObjectResultAsync(token, user, merchantInformation, refreshToken);
             }
             else if (customerInformation != null)
             {
-                return await GenerateCustomertObjectResultAsync(token, user, customerInformation);
+                return await GenerateCustomertObjectResultAsync(token, user, customerInformation, refreshToken);
             }
             else
             {
@@ -82,12 +82,13 @@ namespace Refundeo.Core.Services
                     expiration = token.ValidTo,
                     id = user.Id,
                     username = user.UserName,
+                    refreshToken = refreshToken,
                     roles = await _userManager.GetRolesAsync(user)
                 });
             }
         }
 
-        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user, MerchantInformation merchantInformation)
+        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user, MerchantInformation merchantInformation, string refreshToken)
         {
             return new ObjectResult(new
             {
@@ -98,11 +99,12 @@ namespace Refundeo.Core.Services
                 companyName = merchantInformation.CompanyName,
                 cvrNumber = merchantInformation.CVRNumber,
                 refundPercentage = merchantInformation.RefundPercentage,
-                roles = await _userManager.GetRolesAsync(user)
+                roles = await _userManager.GetRolesAsync(user),
+                refreshToken = refreshToken
             });
         }
 
-        private async Task<ObjectResult> GenerateCustomertObjectResultAsync(JwtSecurityToken token, RefundeoUser user, CustomerInformation customerInformation)
+        private async Task<ObjectResult> GenerateCustomertObjectResultAsync(JwtSecurityToken token, RefundeoUser user, CustomerInformation customerInformation, string refreshToken)
         {
             return new ObjectResult(new
             {
@@ -115,7 +117,8 @@ namespace Refundeo.Core.Services
                 country = customerInformation.Country,
                 bankAccountNumber = customerInformation.BankAccountNumber,
                 bankRegNumber = customerInformation.BankRegNumber,
-                roles = await _userManager.GetRolesAsync(user)
+                roles = await _userManager.GetRolesAsync(user),
+                refreshToken = refreshToken
             });
         }
 

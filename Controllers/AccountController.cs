@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,11 +21,13 @@ namespace Refundeo.Controllers
         private IAuthenticationService _authenticationService;
         private UserManager<RefundeoUser> _userManager;
         private IUtilityService _utilityService;
-        public AccountController(UserManager<RefundeoUser> userManager, IAuthenticationService authenticationService, IUtilityService utilityService)
+        private RefundeoDbContext _context;
+        public AccountController(UserManager<RefundeoUser> userManager, IAuthenticationService authenticationService, IUtilityService utilityService, RefundeoDbContext context)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
             _utilityService = utilityService;
+            _context = context;
         }
 
         [AllowAnonymous]
@@ -34,6 +38,21 @@ namespace Refundeo.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest();
+            }
+            if (userLogin.GrantType is "refresh_token")
+            {
+                if (userLogin.RefreshToken == null)
+                {
+                    return BadRequest();
+                }
+                var grantUser = await _context.Users.Where(u => u.RefreshToken == userLogin.RefreshToken).FirstOrDefaultAsync();
+
+                if (grantUser == null)
+                {
+                    return NotFound();
+                }
+
+                return await _authenticationService.GenerateTokenResultAsync(grantUser, null);
             }
 
             var result = await _authenticationService.IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
@@ -51,10 +70,22 @@ namespace Refundeo.Controllers
 
             if (user == null)
             {
-                return new NoContentResult();
+                return NotFound();
             }
 
-            return await _authenticationService.GenerateTokenResultAsync(user);
+            if (userLogin.Scopes.Contains("offline_access"))
+            {
+                var token = await _authenticationService.GenerateTokenAsync(user);
+
+                var refreshToken = Guid.NewGuid().ToString() + userLogin.Username;
+
+                user.RefreshToken = refreshToken;
+                await _userManager.UpdateAsync(user);
+
+                return await _authenticationService.GenerateTokenResultAsync(user, refreshToken);
+            }
+
+            return await _authenticationService.GenerateTokenResultAsync(user, null);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]

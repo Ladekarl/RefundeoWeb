@@ -76,7 +76,7 @@ namespace Refundeo.Controllers.User
             await _context.CustomerInformations.AddAsync(customerInformation);
             await _context.SaveChangesAsync();
 
-            return await _authenticationService.GenerateTokenResultAsync(user);
+            return await _authenticationService.GenerateTokenResultAsync(user, null);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_USER)]
