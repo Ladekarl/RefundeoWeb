@@ -84,7 +84,7 @@ export class RefundCasesComponent {
     this.confirmationService.confirm({
       message: `Are you sure you want to ${accept ? 'accept' : 'reject'} this refund?`,
       accept: () => {
-        this.refundCasesService.accept(refundCase).subscribe(data => {
+        this.refundCasesService.accept(sendObject).subscribe(data => {
           refundCase.isAccepted = accept;
         });
       }
