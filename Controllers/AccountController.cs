@@ -39,7 +39,7 @@ namespace Refundeo.Controllers
             {
                 return BadRequest();
             }
-            if (userLogin.GrantType is "refresh_token")
+            if (userLogin.GrantType != null && userLogin.GrantType == "refresh_token")
             {
                 if (userLogin.RefreshToken == null)
                 {
@@ -73,7 +73,7 @@ namespace Refundeo.Controllers
                 return NotFound();
             }
 
-            if (userLogin.Scopes.Contains("offline_access"))
+            if (userLogin.Scopes != null && userLogin.Scopes.Contains("offline_access"))
             {
                 var token = await _authenticationService.GenerateTokenAsync(user);
 
