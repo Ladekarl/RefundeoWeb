@@ -1,33 +1,92 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.Account;
 using Refundeo.Core.Services.Interfaces;
+using IAuthenticationService = Refundeo.Core.Services.Interfaces.IAuthenticationService;
 
 namespace Refundeo.Controllers
 {
     [Route("/api/account")]
     public class AccountController : Controller
     {
-        private IAuthenticationService _authenticationService;
-        private UserManager<RefundeoUser> _userManager;
-        private IUtilityService _utilityService;
-        private RefundeoDbContext _context;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly UserManager<RefundeoUser> _userManager;
+        private readonly IUtilityService _utilityService;
+        private readonly RefundeoDbContext _context;
+
         public AccountController(UserManager<RefundeoUser> userManager, IAuthenticationService authenticationService, IUtilityService utilityService, RefundeoDbContext context)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
             _utilityService = utilityService;
             _context = context;
+        }
+
+        [AllowAnonymous]
+        [Route("/Token/Facebook")]
+        [HttpPost]
+        public async Task<IActionResult> LoginFacebook([FromBody] string accessToken)
+        {
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return BadRequest("Invalid OAuth access token");
+            }
+
+            var fbUser = await VerifyFacebookAccessToken(accessToken);
+
+            if (fbUser == null)
+            {
+                return BadRequest("Invalid OAuth access token");
+            }
+
+            var user = await _userManager.FindByNameAsync(fbUser.Username);
+
+            if (user != null)
+            {
+                return await _authenticationService.GenerateTokenResultAsync(user, null);
+            }
+            var newUser = new RefundeoUser { UserName = fbUser.Username };
+            var createUserResult = await _userManager.CreateAsync(newUser, _authenticationService.GenerateRandomPassword());
+
+            if (!createUserResult.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
+            }
+
+            var addToRoleResult = await _userManager.AddToRoleAsync(newUser, RefundeoConstants.ROLE_USER);
+
+            await _context.SaveChangesAsync();
+
+            if (!addToRoleResult.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            var customerInformation = new CustomerInformation
+            {
+                FirstName = fbUser.FirstName,
+                LastName = fbUser.LastName,
+                Country = "Unknown"
+            };
+
+            await _context.CustomerInformations.AddAsync(customerInformation);
+            await _context.SaveChangesAsync();
+
+            return await _authenticationService.GenerateTokenResultAsync(newUser, null);
         }
 
         [AllowAnonymous]
@@ -77,7 +136,7 @@ namespace Refundeo.Controllers
             {
                 var token = await _authenticationService.GenerateTokenAsync(user);
 
-                var refreshToken = Guid.NewGuid().ToString() + userLogin.Username;
+                var refreshToken = Guid.NewGuid() + userLogin.Username;
 
                 user.RefreshToken = refreshToken;
                 await _userManager.UpdateAsync(user);
@@ -165,6 +224,22 @@ namespace Refundeo.Controllers
             }
 
             return new NoContentResult();
+        }
+
+        private async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)
+        {
+            FacebookUserViewModel fbUser = null;
+            var path = "https://graph.facebook.com/me?access_token=" + accessToken;
+            var client = new HttpClient();
+            var uri = new Uri(path);
+            var response = await client.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                fbUser = Newtonsoft.Json.JsonConvert.DeserializeObject<FacebookUserViewModel>(content);
+            }
+
+            return fbUser;
         }
     }
 }

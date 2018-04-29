@@ -1,33 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Initializers;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Middleware;
-using Refundeo.Core.Models;
 using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 using Swashbuckle.AspNetCore.Swagger;
@@ -49,7 +34,7 @@ namespace Refundeo
 
             if (env.IsDevelopment())
             {
-                builder.AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true);
+                builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
                 builder.AddUserSecrets<Startup>();
             }
             else
@@ -73,16 +58,24 @@ namespace Refundeo
             services.AddCors();
 
             services.AddTransient<IUtilityService, UtilityService>();
-            services.AddTransient<Core.Services.Interfaces.IAuthenticationService, Core.Services.AuthenticationService>();
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IRefundCaseService, RefundCaseService>();
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
 
-            services.AddIdentity<RefundeoUser, IdentityRole>()
-                .AddEntityFrameworkStores<RefundeoDbContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentity<RefundeoUser, IdentityRole>(opts =>
+            {
+                opts.Password.RequireDigit = false;
+                opts.Password.RequireLowercase = true;
+                opts.Password.RequireUppercase = false;
+                opts.Password.RequireNonAlphanumeric = false;
+                opts.Password.RequiredLength = 8;
+                opts.Password.RequiredUniqueChars = 4;
+            })
+            .AddEntityFrameworkStores<RefundeoDbContext>()
+            .AddDefaultTokenProviders();
 
             services.AddSwaggerGen(c =>
             {
@@ -97,7 +90,7 @@ namespace Refundeo
             .AddJwtBearer("JwtBearer", jwtBearerOptions =>
                 jwtBearerOptions.TokenValidationParameters = new RefundeoTokenValidationParameters(Configuration).TokenValidationParameters);
 
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton(Configuration);
 
             if (!HostingEnvironment.IsDevelopment())
             {
