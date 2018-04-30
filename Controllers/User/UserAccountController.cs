@@ -10,6 +10,7 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Models.Account;
 using Refundeo.Core.Services.Interfaces;
+using System.Linq;
 
 namespace Refundeo.Controllers.User
 {
@@ -50,21 +51,6 @@ namespace Refundeo.Controllers.User
             }
 
             var user = new RefundeoUser { UserName = model.Username };
-            var createUserResult = await _userManager.CreateAsync(user, model.Password);
-
-            if (!createUserResult.Succeeded)
-            {
-                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
-            }
-
-            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_USER);
-
-            await _context.SaveChangesAsync();
-
-            if (!addToRoleResult.Succeeded)
-            {
-                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
-            }
 
             var customerInformation = new CustomerInformation
             {
@@ -73,10 +59,9 @@ namespace Refundeo.Controllers.User
                 Country = model.Country
             };
 
-            await _context.CustomerInformations.AddAsync(customerInformation);
-            await _context.SaveChangesAsync();
+            bool shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
 
-            return await _authenticationService.GenerateTokenResultAsync(user, null);
+            return await _authenticationService.RegisterUserAsync(user, model.Password, customerInformation, shouldCreateRefreshToken);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_USER)]

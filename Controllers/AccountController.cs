@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
@@ -39,42 +40,28 @@ namespace Refundeo.Controllers
         [AllowAnonymous]
         [Route("/Token/Facebook")]
         [HttpPost]
-        public async Task<IActionResult> LoginFacebook([FromBody] string accessToken)
+        public async Task<IActionResult> LoginFacebook([FromBody] LoginFacebookDTO model)
         {
-            if (string.IsNullOrEmpty(accessToken))
+            if (string.IsNullOrEmpty(model.AccessToken))
             {
                 return BadRequest("Invalid OAuth access token");
             }
 
-            var fbUser = await VerifyFacebookAccessToken(accessToken);
+            var fbUser = await VerifyFacebookAccessToken(model.AccessToken);
 
             if (fbUser == null)
             {
                 return BadRequest("Invalid OAuth access token");
             }
 
-            var user = await _userManager.FindByNameAsync(fbUser.Username);
+            var user = await _userManager.FindByNameAsync(fbUser.Email);
 
             if (user != null)
             {
                 return await _authenticationService.GenerateTokenResultAsync(user, null);
             }
-            var newUser = new RefundeoUser { UserName = fbUser.Username };
-            var createUserResult = await _userManager.CreateAsync(newUser, _authenticationService.GenerateRandomPassword());
 
-            if (!createUserResult.Succeeded)
-            {
-                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
-            }
-
-            var addToRoleResult = await _userManager.AddToRoleAsync(newUser, RefundeoConstants.ROLE_USER);
-
-            await _context.SaveChangesAsync();
-
-            if (!addToRoleResult.Succeeded)
-            {
-                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
-            }
+            var newUser = new RefundeoUser { UserName = fbUser.Email };
 
             var customerInformation = new CustomerInformation
             {
@@ -83,10 +70,9 @@ namespace Refundeo.Controllers
                 Country = "Unknown"
             };
 
-            await _context.CustomerInformations.AddAsync(customerInformation);
-            await _context.SaveChangesAsync();
+            bool shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
 
-            return await _authenticationService.GenerateTokenResultAsync(newUser, null);
+            return await _authenticationService.RegisterUserAsync(newUser, _authenticationService.GenerateRandomPassword(), customerInformation, shouldCreateRefreshToken);
         }
 
         [AllowAnonymous]
@@ -104,6 +90,7 @@ namespace Refundeo.Controllers
                 {
                     return BadRequest();
                 }
+
                 var grantUser = await _context.Users.Where(u => u.RefreshToken == userLogin.RefreshToken).FirstOrDefaultAsync();
 
                 if (grantUser == null)
@@ -115,6 +102,7 @@ namespace Refundeo.Controllers
             }
 
             var result = await _authenticationService.IsValidUserAndPasswordCombinationAsync(userLogin.Username, userLogin.Password);
+
             if (result.Id != SignInId.SUCCESS)
             {
                 return new BadRequestObjectResult(
@@ -135,16 +123,12 @@ namespace Refundeo.Controllers
             if (userLogin.Scopes != null && userLogin.Scopes.Contains("offline_access"))
             {
                 var token = await _authenticationService.GenerateTokenAsync(user);
-
-                var refreshToken = Guid.NewGuid() + userLogin.Username;
-
-                user.RefreshToken = refreshToken;
-                await _userManager.UpdateAsync(user);
+                var refreshToken = await _authenticationService.CreateAndSaveRefreshTokenAsync(user);
 
                 return await _authenticationService.GenerateTokenResultAsync(user, refreshToken);
             }
 
-            return await _authenticationService.GenerateTokenResultAsync(user, null);
+            return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
@@ -229,14 +213,14 @@ namespace Refundeo.Controllers
         private async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)
         {
             FacebookUserViewModel fbUser = null;
-            var path = "https://graph.facebook.com/me?access_token=" + accessToken;
+            var path = "https://graph.facebook.com/me?fields=id,first_name,last_name,email,gender,birthday,location{location}&access_token=" + accessToken;
             var client = new HttpClient();
             var uri = new Uri(path);
             var response = await client.GetAsync(uri);
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                fbUser = Newtonsoft.Json.JsonConvert.DeserializeObject<FacebookUserViewModel>(content);
+                fbUser = JsonConvert.DeserializeObject<FacebookUserViewModel>(content);
             }
 
             return fbUser;

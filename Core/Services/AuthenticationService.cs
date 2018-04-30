@@ -24,12 +24,14 @@ namespace Refundeo.Core.Services
         private readonly SignInManager<RefundeoUser> _signManager;
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly RefundeoDbContext _context;
-        public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager, RefundeoDbContext context)
+        private readonly IUtilityService _utilityService;
+        public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager, RefundeoDbContext context, IUtilityService utilityService)
         {
             Configuration = configuration;
             this._signManager = signManager;
             this._userManager = userManager;
             this._context = context;
+            this._utilityService = utilityService;
         }
 
         public async Task<IdentityResult> UpdateRolesAsync(RefundeoUser user, ICollection<string> roles)
@@ -59,7 +61,7 @@ namespace Refundeo.Core.Services
             return IdentityResult.Success;
         }
 
-        public async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user, string refreshToken)
+        public async Task<ObjectResult> GenerateTokenResultAsync(RefundeoUser user, string refreshToken = null)
         {
             var token = await GenerateTokenAsync(user);
 
@@ -229,6 +231,44 @@ namespace Refundeo.Core.Services
             }
 
             return new string(chars.ToArray());
+        }
+
+        public async Task<ObjectResult> RegisterUserAsync(RefundeoUser user, string password, CustomerInformation customerInformation, bool shouldCreateRefreshToken = false)
+        {
+            var createUserResult = await _userManager.CreateAsync(user, password);
+
+            if (!createUserResult.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
+            }
+
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_USER);
+
+            await _context.SaveChangesAsync();
+
+            if (!addToRoleResult.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            await _context.CustomerInformations.AddAsync(customerInformation);
+            await _context.SaveChangesAsync();
+
+            string refreshToken = null;
+            if (shouldCreateRefreshToken)
+            {
+                refreshToken = await CreateAndSaveRefreshTokenAsync(user);
+            }
+
+            return await GenerateTokenResultAsync(user, refreshToken);
+        }
+
+        public async Task<string> CreateAndSaveRefreshTokenAsync(RefundeoUser user)
+        {
+            var refreshToken = Guid.NewGuid() + user.UserName;
+            user.RefreshToken = refreshToken;
+            await _userManager.UpdateAsync(user);
+            return refreshToken;
         }
     }
 }
