@@ -56,9 +56,16 @@ namespace Refundeo.Controllers
 
             var user = await _userManager.FindByNameAsync(fbUser.Email);
 
+            bool shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
+
             if (user != null)
             {
-                return await _authenticationService.GenerateTokenResultAsync(user, null);
+                string refreshToken = null;
+                if (shouldCreateRefreshToken)
+                {
+                    refreshToken = await _authenticationService.CreateAndSaveRefreshTokenAsync(user);
+                }
+                return await _authenticationService.GenerateTokenResultAsync(user, refreshToken);
             }
 
             var newUser = new RefundeoUser { UserName = fbUser.Email };
@@ -69,9 +76,6 @@ namespace Refundeo.Controllers
                 LastName = fbUser.LastName,
                 Country = "Unknown"
             };
-
-            bool shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
-
             return await _authenticationService.RegisterUserAsync(newUser, _authenticationService.GenerateRandomPassword(), customerInformation, shouldCreateRefreshToken);
         }
 
