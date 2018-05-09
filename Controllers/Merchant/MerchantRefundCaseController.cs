@@ -130,54 +130,53 @@ namespace Refundeo.Controllers.Merchant
             return _refundCaseService.GenerateRefundCaseDTOResponse(refundCase);
         }
 
-        // Do merchants ever need to create refund cases?
-        // [HttpPost]
-        // public async Task<IActionResult> CreateMerchantRefundCase([FromBody] CreateRefundCaseDTO model)
-        // {
-        //     var user = await GetCallingUserAsync();
-        //     if (user == null)
-        //     {
-        //         return Unauthorized();
-        //     }
+        [HttpPost]
+        public async Task<IActionResult> CreateMerchantRefundCase([FromBody] CreateRefundCaseDTO model)
+        {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
 
-        //     if (!ModelState.IsValid)
-        //     {
-        //         return BadRequest();
-        //     }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
-        //     var merchantInformation = await context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant.Id == user.Id);
-        //     if (merchantInformation == null)
-        //     {
-        //         return NotFound();
-        //     }
+            var merchantInformation = await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant.Id == user.Id);
+            if (merchantInformation == null)
+            {
+                return NotFound();
+            }
 
-        //     var refundCase = new RefundCase
-        //     {
-        //         Amount = model.Amount,
-        //         RefundAmount = model.Amount,
-        //         MerchantInformation = merchantInformation
-        //     };
+            var refundCase = new RefundCase
+            {
+                Amount = model.Amount,
+                RefundAmount = model.Amount,
+                MerchantInformation = merchantInformation
+            };
 
-        //     var refundCaseResult = await context.RefundCases.AddAsync(refundCase);
+            var refundCaseResult = await _context.RefundCases.AddAsync(refundCase);
 
-        //     await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-        //     var qrCode = new QRCode
-        //     {
-        //         Image = GenerateQRCode(model.QRCodeHeight, model.QRCodeWidth, model.QRCodeMargin, new QRCodePayloadDTO
-        //         {
-        //             RefundCaseId = refundCase.Id,
-        //             MerchantId = user.Id,
-        //             RefundAmount = model.Amount
-        //         })
-        //     };
-        //     await context.QRCodes.AddAsync(qrCode);
-        //     refundCase.QRCode = qrCode;
-        //     context.RefundCases.Update(refundCase);
-        //     await context.SaveChangesAsync();
+            var qrCode = new QRCode
+            {
+                Image = _refundCaseService.GenerateQRCode(model.QRCodeHeight, model.QRCodeWidth, model.QRCodeMargin, new QRCodePayloadDTO
+                {
+                    RefundCaseId = refundCase.Id,
+                    MerchantId = user.Id,
+                    RefundAmount = model.Amount
+                })
+            };
+            await _context.QRCodes.AddAsync(qrCode);
+            refundCase.QRCode = qrCode;
+            _context.RefundCases.Update(refundCase);
+            await _context.SaveChangesAsync();
 
-        //     return GenerateRefundCaseDTOResponse(refundCaseResult.Entity);
-        // }
+            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCaseResult.Entity);
+        }
 
         // Do Merchants ever need to update a refund case?
 
