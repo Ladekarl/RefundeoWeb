@@ -25,6 +25,7 @@ $nav-menu-line-height: 60px;
     width: $nav-width;
     font-size: 15px;
     font-weight: 200;
+    resize: horizontal;
     overflow: auto;
     .menu-body {
         background-color: $nav-background-color;

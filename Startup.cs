@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Refundeo.Core.Data;
-using Refundeo.Core.Data.Initializers;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Middleware;
 using Refundeo.Core.Services;
@@ -23,18 +22,18 @@ namespace Refundeo
     public class Startup
     {
         private IConfiguration Configuration { get; }
-        public IHostingEnvironment HostingEnvironment { get; }
+        private IHostingEnvironment HostingEnvironment { get; }
 
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
             {
-                builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+                builder.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
                 builder.AddUserSecrets<Startup>();
             }
             else
@@ -79,6 +78,8 @@ namespace Refundeo
 
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "Refundeo", Version = "v1"}); });
 
+            services.AddSingleton(Configuration);
+
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = "JwtBearer";
@@ -87,8 +88,6 @@ namespace Refundeo
                 .AddJwtBearer("JwtBearer", jwtBearerOptions =>
                     jwtBearerOptions.TokenValidationParameters = new RefundeoTokenValidationParameters(Configuration)
                         .TokenValidationParameters);
-
-            services.AddSingleton(Configuration);
 
             if (!HostingEnvironment.IsDevelopment())
             {
@@ -120,8 +119,6 @@ namespace Refundeo
 
             app.UseSwagger();
             app.UseAuthentication();
-
-            DbInitializer.InitializeAsync(userManager, roleManager, dbContext).Wait();
 
             app.Use(async (context, next) =>
             {

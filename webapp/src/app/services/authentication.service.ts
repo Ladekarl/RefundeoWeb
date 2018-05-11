@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { CurrentUser } from '../models/currentUser';
+import {JwtHelperService} from '@auth0/angular-jwt';
+import {CurrentUser} from '../models/currentUser';
 
 @Injectable()
 export class AuthenticationService {
@@ -59,7 +59,7 @@ export class AuthenticationService {
     }
 
     login(username: string, password: string): Observable<CurrentUser> {
-        return this.http.post<any>('/Token', { username: username, password: password })
+        return this.http.post<any>('/Token', {username: username, password: password})
             .map((response: CurrentUser) => {
                 if (response && response.token) {
                     this.setCurrentUser(response);

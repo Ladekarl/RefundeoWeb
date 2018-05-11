@@ -1,5 +1,5 @@
-import { Customer } from './customer';
-import { Merchant } from './merchant';
+import {Customer} from './customer';
+import {Merchant} from './merchant';
 
 export class RefundCase {
     id: number;

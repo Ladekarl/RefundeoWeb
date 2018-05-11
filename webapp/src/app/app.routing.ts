@@ -1,10 +1,10 @@
-import { Routes, RouterModule } from '@angular/router';
+import {Routes, RouterModule} from '@angular/router';
 
-import { HomeComponent, DashboardComponent, RefundCasesComponent } from './components/home/index';
-import { LoginComponent } from './components/login/index';
-import { AuthGuard, AdminAuthGuard } from './guards/index';
-import { SwaggerComponent } from './components/swagger/index';
-import { AdminComponent } from './components/admin/index';
+import {HomeComponent, DashboardComponent, RefundCasesComponent} from './components/home';
+import {LoginComponent} from './components/login';
+import {AuthGuard, AdminAuthGuard} from './guards';
+import {SwaggerComponent} from './components/swagger';
+import {AdminComponent} from './components/admin';
 
 const appRoutes: Routes = [
     {
@@ -34,8 +34,8 @@ const appRoutes: Routes = [
             },
         ]
     },
-    { path: 'login', component: LoginComponent },
-    { path: '**', redirectTo: '' }
+    {path: 'login', component: LoginComponent},
+    {path: '**', redirectTo: ''}
 ];
 
 export const routing = RouterModule.forRoot(appRoutes);

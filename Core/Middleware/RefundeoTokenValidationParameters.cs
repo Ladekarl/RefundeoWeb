@@ -9,19 +9,19 @@ namespace Refundeo.Core.Middleware
     {
         public TokenValidationParameters TokenValidationParameters { get; }
 
-        public RefundeoTokenValidationParameters(IConfiguration configuration)
+        public RefundeoTokenValidationParameters(IConfiguration Configuration)
         {
             TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
 
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
 
                 ValidateIssuer = true,
-                ValidIssuer = configuration["ValidIssuer"],
+                ValidIssuer = Configuration["ValidIssuer"],
 
                 ValidateAudience = true,
-                ValidAudience = configuration["ValidAudience"],
+                ValidAudience = Configuration["ValidAudience"],
 
                 ValidateLifetime = true,
 

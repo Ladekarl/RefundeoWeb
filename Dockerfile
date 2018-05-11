@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore-build:2.0.0
+FROM microsoft/aspnetcore-build:2.0.2
 ENV ASPNETCORE_ENVIRONMENT Development
 COPY . /app
 WORKDIR /app

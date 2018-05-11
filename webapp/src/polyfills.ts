@@ -67,7 +67,7 @@ import 'core-js/es7/reflect';
 */
 // (window as any).__Zone_enable_cross_context_check = true;
 
-import { SwaggerUIBundle, SwaggerUIStandalonePreset } from 'swagger-ui-dist';
+import {SwaggerUIBundle, SwaggerUIStandalonePreset} from 'swagger-ui-dist';
 
 export const swaggerUIBundle = SwaggerUIBundle;
 export const swaggerUIStandalonePreset = SwaggerUIStandalonePreset;

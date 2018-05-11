@@ -1,20 +1,20 @@
-import { AfterViewInit, Component, ElementRef, OnInit } from '@angular/core';
-import { SwaggerService } from '../../services/index';
+import {AfterViewInit, Component, ElementRef, OnInit} from '@angular/core';
+import {SwaggerService} from '../../services/index';
 
 @Component({
-  selector: 'app-swagger',
-  templateUrl: './swagger.component.html',
-  styleUrls: ['swagger.component.scss']
+    selector: 'app-swagger',
+    templateUrl: './swagger.component.html',
+    styleUrls: ['swagger.component.scss']
 })
 export class SwaggerComponent implements OnInit, AfterViewInit {
 
-  constructor(private el: ElementRef, private swaggerService: SwaggerService) {
-  }
+    constructor(private el: ElementRef, private swaggerService: SwaggerService) {
+    }
 
-  ngOnInit() {
-  }
+    ngOnInit() {
+    }
 
-  ngAfterViewInit() {
-    this.swaggerService.getSwagger(this.el.nativeElement.querySelector('.swagger-container'));
-  }
+    ngAfterViewInit() {
+        this.swaggerService.getSwagger(this.el.nativeElement.querySelector('.swagger-container'));
+    }
 }

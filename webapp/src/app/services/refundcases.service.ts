@@ -2,58 +2,58 @@ import {Injectable} from '@angular/core';
 import {RefundCase} from '../models';
 import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
-import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class RefundCasesService {
 
-  constructor(private http: HttpClient) {}
-
-  private static mapDates(refundCases: RefundCase[]): RefundCase[] {
-    if (refundCases) {
-      refundCases.forEach(RefundCasesService.mapDate);
+    constructor(private http: HttpClient) {
     }
-    return refundCases;
-  }
 
-  private static mapDate(refundCase: RefundCase): RefundCase {
-    if (refundCase) {
-      refundCase.dateCreated = new Date(refundCase.dateCreated);
-      refundCase.dateRequested = new Date(refundCase.dateRequested);
+    private static mapDates(refundCases: RefundCase[]): RefundCase[] {
+        if (refundCases) {
+            refundCases.forEach(RefundCasesService.mapDate);
+        }
+        return refundCases;
     }
-    return refundCase;
-  }
 
-  getAll() {
-    return this.http.get<RefundCase[]>('/api/merchant/refundcase').map(RefundCasesService.mapDates);
-  }
+    private static mapDate(refundCase: RefundCase): RefundCase {
+        if (refundCase) {
+            refundCase.dateCreated = new Date(refundCase.dateCreated);
+            refundCase.dateRequested = new Date(refundCase.dateRequested);
+        }
+        return refundCase;
+    }
 
-  getPaginated(first: number, amount: number, sortBy: string, sortDir: string, filterBy: string) {
-    return this
-      .http
-      .get(`/api/merchant/refundcase/${first}/${amount}/${sortBy}/${sortDir}/${filterBy}`)
-      .map((r: any) => {
-        RefundCasesService.mapDates(r.refundCases);
-        return r;
-      });
-  }
+    getAll() {
+        return this.http.get<RefundCase[]>('/api/merchant/refundcase').map(RefundCasesService.mapDates);
+    }
 
-  getById(id: number) {
-    return this
-      .http
-      .get(`/api/merchant/refundcase/${id}`)
-      .map(RefundCasesService.mapDate);
-  }
+    getPaginated(first: number, amount: number, sortBy: string, sortDir: string, filterBy: string) {
+        return this
+            .http
+            .get(`/api/merchant/refundcase/${first}/${amount}/${sortBy}/${sortDir}/${filterBy}`)
+            .map((r: any) => {
+                RefundCasesService.mapDates(r.refundCases);
+                return r;
+            });
+    }
 
-  accept(refundCase: RefundCase) {
-    return this
-      .http
-      .post(`/api/merchant/refundcase/${refundCase.id}/accept`, {isAccepted: refundCase.isAccepted});
-  }
+    getById(id: number) {
+        return this
+            .http
+            .get(`/api/merchant/refundcase/${id}`)
+            .map(RefundCasesService.mapDate);
+    }
 
-  delete(id: number) {
-    return this
-      .http
-      .delete(`/api/merchant/refundcase/${id}`);
-  }
+    accept(refundCase: RefundCase) {
+        return this
+            .http
+            .post(`/api/merchant/refundcase/${refundCase.id}/accept`, {isAccepted: refundCase.isAccepted});
+    }
+
+    delete(id: number) {
+        return this
+            .http
+            .delete(`/api/merchant/refundcase/${id}`);
+    }
 }

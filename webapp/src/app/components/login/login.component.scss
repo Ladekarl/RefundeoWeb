@@ -184,10 +184,10 @@ label.form-invalid:after {
     left: -9999px;
 }
 
-[type="checkbox"]:not(:checked)+label,
-[type="checkbox"]:checked+label,
-[type="radio"]:not(:checked)+label,
-[type="radio"]:checked+label {
+[type="checkbox"]:not(:checked) + label,
+[type="checkbox"]:checked + label,
+[type="radio"]:not(:checked) + label,
+[type="radio"]:checked + label {
     position: relative;
     padding-left: 25px;
     padding-top: 1px;
@@ -196,10 +196,10 @@ label.form-invalid:after {
 
 /* checkbox aspect */
 
-[type="checkbox"]:not(:checked)+label:before,
-[type="checkbox"]:checked+label:before,
-[type="radio"]:not(:checked)+label:before,
-[type="radio"]:checked+label:before {
+[type="checkbox"]:not(:checked) + label:before,
+[type="checkbox"]:checked + label:before,
+[type="radio"]:not(:checked) + label:before,
+[type="radio"]:checked + label:before {
     content: '';
     position: absolute;
     left: 0;
@@ -214,10 +214,10 @@ label.form-invalid:after {
 
 /* checked mark aspect */
 
-[type="checkbox"]:not(:checked)+label:after,
-[type="checkbox"]:checked+label:after,
-[type="radio"]:not(:checked)+label:after,
-[type="radio"]:checked+label:after {
+[type="checkbox"]:not(:checked) + label:after,
+[type="checkbox"]:checked + label:after,
+[type="radio"]:not(:checked) + label:after,
+[type="radio"]:checked + label:after {
     position: absolute;
     color: #555555;
     transition: all .2s;
@@ -225,45 +225,45 @@ label.form-invalid:after {
 
 /* checked mark aspect changes */
 
-[type="checkbox"]:not(:checked)+label:after,
-[type="radio"]:not(:checked)+label:after {
+[type="checkbox"]:not(:checked) + label:after,
+[type="radio"]:not(:checked) + label:after {
     opacity: 0;
     transform: scale(0);
 }
 
-[type="checkbox"]:checked+label:after,
-[type="radio"]:checked+label:after {
+[type="checkbox"]:checked + label:after,
+[type="radio"]:checked + label:after {
     opacity: 1;
     transform: scale(1);
 }
 
 /* disabled checkbox */
 
-[type="checkbox"]:disabled:not(:checked)+label:before,
-[type="checkbox"]:disabled:checked+label:before,
-[type="radio"]:disabled:not(:checked)+label:before,
-[type="radio"]:disabled:checked+label:before {
+[type="checkbox"]:disabled:not(:checked) + label:before,
+[type="checkbox"]:disabled:checked + label:before,
+[type="radio"]:disabled:not(:checked) + label:before,
+[type="radio"]:disabled:checked + label:before {
     box-shadow: none;
     border-color: #8c8c8c;
     background-color: #878787;
 }
 
-[type="checkbox"]:disabled:checked+label:after,
-[type="radio"]:disabled:checked+label:after {
+[type="checkbox"]:disabled:checked + label:after,
+[type="radio"]:disabled:checked + label:after {
     color: #555555;
 }
 
-[type="checkbox"]:disabled+label,
-[type="radio"]:disabled+label {
+[type="checkbox"]:disabled + label,
+[type="radio"]:disabled + label {
     color: #8c8c8c;
 }
 
 /* accessibility */
 
-[type="checkbox"]:checked:focus+label:before,
-[type="checkbox"]:not(:checked):focus+label:before,
-[type="checkbox"]:checked:focus+label:before,
-[type="checkbox"]:not(:checked):focus+label:before {
+[type="checkbox"]:checked:focus + label:before,
+[type="checkbox"]:not(:checked):focus + label:before,
+[type="checkbox"]:checked:focus + label:before,
+[type="checkbox"]:not(:checked):focus + label:before {
     border: 1px dotted #f6f6f6;
 }
 
@@ -277,28 +277,28 @@ label:hover:before {
 
 /* radio aspect */
 
-[type="checkbox"]:not(:checked)+label:before,
-[type="checkbox"]:checked+label:before {
+[type="checkbox"]:not(:checked) + label:before,
+[type="checkbox"]:checked + label:before {
     border-radius: 3px;
 }
 
-[type="radio"]:not(:checked)+label:before,
-[type="radio"]:checked+label:before {
+[type="radio"]:not(:checked) + label:before,
+[type="radio"]:checked + label:before {
     border-radius: 35px;
 }
 
 /* selected mark aspect */
 
-[type="checkbox"]:not(:checked)+label:after,
-[type="checkbox"]:checked+label:after {
+[type="checkbox"]:not(:checked) + label:after,
+[type="checkbox"]:checked + label:after {
     content: '✔';
     top: 0;
     left: 2px;
     font-size: 14px;
 }
 
-[type="radio"]:not(:checked)+label:after,
-[type="radio"]:checked+label:after {
+[type="radio"]:not(:checked) + label:after,
+[type="radio"]:checked + label:after {
     content: '\2022';
     top: 0;
     left: 3px;

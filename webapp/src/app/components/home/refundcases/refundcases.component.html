@@ -1,100 +1,107 @@
-<p-dataView [value]="refundCases" #refundCasesDataView [paginator]="totalRecords > 10" [rows]="10" paginatorPosition="bottom" [lazy]="true" (onLazyLoad)="loadData($event)"
-  [totalRecords]="totalRecords" [sortField]="sortField" [sortOrder]="sortOrder" [filterBy]="filterField" [rowsPerPageOptions]="[5,10,20,50,100]">
-  <p-header>
-    <div class="ui-helper-clearfix header-row">
-      <div class="ui-g">
-        <div class="ui-g-6">
-          <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By" (onChange)="onSortChange($event)" [autoWidth]="false"
-            [style]="{'min-width':'15em'}"></p-dropdown>
+<p-dataView [value]="refundCases" #refundCasesDataView [paginator]="totalRecords > 10" [rows]="10"
+            paginatorPosition="bottom" [lazy]="true" (onLazyLoad)="loadData($event)"
+            [totalRecords]="totalRecords" [sortField]="sortField" [sortOrder]="sortOrder" [filterBy]="filterField"
+            [rowsPerPageOptions]="[5,10,20,50,100]">
+    <p-header>
+        <div class="ui-helper-clearfix header-row">
+            <div class="ui-g">
+                <div class="ui-g-6">
+                    <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By"
+                                (onChange)="onSortChange($event)" [autoWidth]="false"
+                                [style]="{'min-width':'15em'}"></p-dropdown>
+                </div>
+                <div class="ui-g-6">
+                    <p-dropdown [options]="filterOptions" [(ngModel)]="filterKey" placeholder="Filter By"
+                                (onChange)="onFilterChange($event)"
+                                [autoWidth]="false" [style]="{'min-width':'15em'}"></p-dropdown>
+                </div>
+                {{totalRecords}}
+            </div>
         </div>
-        <div class="ui-g-6">
-          <p-dropdown [options]="filterOptions" [(ngModel)]="filterKey" placeholder="Filter By" (onChange)="onFilterChange($event)"
-            [autoWidth]="false" [style]="{'min-width':'15em'}"></p-dropdown>
+        <div class="ui-helper-clearfix header-row">
+            <div class="ui-g">
+                <div class="ui-g-1 ui-md-1 header-col">
+                    <b i18n>Created</b>
+                </div>
+                <div class="ui-g-2 ui-md-2 header-col">
+                    <b i18n>Purchase Amount</b>
+                </div>
+                <div class="ui-g-2 ui-md-2 header-col">
+                    <b i18n>Refund Amount</b>
+                </div>
+                <div class="ui-g-2 ui-md-2 header-col">
+                    <b i18n>Customer</b>
+                </div>
+                <div class="ui-g-2 ui-md-2 header-col">
+                    <b i18n>Documentation</b>
+                </div>
+                <div class="ui-g-2 ui-md-2 header-col">
+                    <b i18n>Status</b>
+                </div>
+                <div class="ui-g-1 ui-md-1 header-col">
+                    <b i18n>Requested</b>
+                </div>
+            </div>
         </div>
-        {{totalRecords}}
-      </div>
-    </div>
-    <div class="ui-helper-clearfix header-row">
-      <div class="ui-g">
-        <div class="ui-g-1 ui-md-1 header-col">
-          <b i18n>Created</b>
-        </div>
-        <div class="ui-g-2 ui-md-2 header-col">
-          <b i18n>Purchase Amount</b>
-        </div>
-        <div class="ui-g-2 ui-md-2 header-col">
-          <b i18n>Refund Amount</b>
-        </div>
-        <div class="ui-g-2 ui-md-2 header-col">
-          <b i18n>Customer</b>
-        </div>
-        <div class="ui-g-2 ui-md-2 header-col">
-          <b i18n>Documentation</b>
-        </div>
-        <div class="ui-g-2 ui-md-2 header-col">
-          <b i18n>Status</b>
-        </div>
-        <div class="ui-g-1 ui-md-1 header-col">
-          <b i18n>Requested</b>
-        </div>
-      </div>
-    </div>
-  </p-header>
-  <ng-template let-refundCase pTemplate="listItem">
-    <div class="ui-g table-row">
-      <div class="ui-g-1 ui-md-1 table-col">
-        {{refundCase.dateCreated | date:'short'}}
-      </div>
-      <div class="ui-g-2 ui-md-2 table-col">
-        {{refundCase.amount}}
-      </div>
-      <div class="ui-g-2 ui-md-2 table-col">
-        <b>{{refundCase.refundAmount}}</b>
-      </div>
-      <div class="ui-g-2 ui-md-2 table-col">
-        <div *ngIf="refundCase.customer" class="ui-g">
-          <div class="ui-g-6 ui-sm-12 detail-description">Name: </div>
-          <div class="ui-g-6 ui-sm-12 detail-value">
-            <b>{{refundCase.customer?.firstname + ' ' + refundCase.customer?.lastname}}</b>
-          </div>
+    </p-header>
+    <ng-template let-refundCase pTemplate="listItem">
+        <div class="ui-g table-row">
+            <div class="ui-g-1 ui-md-1 table-col">
+                {{refundCase.dateCreated | date:'short'}}
+            </div>
+            <div class="ui-g-2 ui-md-2 table-col">
+                {{refundCase.amount}}
+            </div>
+            <div class="ui-g-2 ui-md-2 table-col">
+                <b>{{refundCase.refundAmount}}</b>
+            </div>
+            <div class="ui-g-2 ui-md-2 table-col">
+                <div *ngIf="refundCase.customer" class="ui-g">
+                    <div class="ui-g-6 ui-sm-12 detail-description">Name:</div>
+                    <div class="ui-g-6 ui-sm-12 detail-value">
+                        <b>{{refundCase.customer?.firstname + ' ' + refundCase.customer?.lastname}}</b>
+                    </div>
 
-          <div class="ui-g-6 ui-sm-12 detail-description">Username: </div>
-          <div class="ui-g-6 ui-sm-12 detail-value">
-            <b>{{refundCase.customer?.username}}</b>
-          </div>
+                    <div class="ui-g-6 ui-sm-12 detail-description">Username:</div>
+                    <div class="ui-g-6 ui-sm-12 detail-value">
+                        <b>{{refundCase.customer?.username}}</b>
+                    </div>
 
-          <div class="ui-g-6 ui-sm-12 detail-description">Country: </div>
-          <div class="ui-g-6 ui-sm-12 detail-value">
-            <b>{{refundCase.customer?.country}}</b>
-          </div>
+                    <div class="ui-g-6 ui-sm-12 detail-description">Country:</div>
+                    <div class="ui-g-6 ui-sm-12 detail-value">
+                        <b>{{refundCase.customer?.country}}</b>
+                    </div>
+                </div>
+                <div *ngIf="!refundCase.customer" class="ui-g-12 ui-sm-12 text-danger" i18n>
+                    Not Claimed
+                </div>
+            </div>
+            <div class="ui-g-2 ui-md-2 table-col">
+                <img *ngIf="refundCase.documentation" class="img-fluid"
+                     [src]="'data:image/png;base64,' + refundCase.documentation"/>
+                <span *ngIf="!refundCase.documentation" class="text-danger" i18n>No documentation</span>
+            </div>
+            <div *ngIf="refundCase.isRequested" class="ui-g-2 ui-md-2 table-col">
+                <div *ngIf="refundCase.isAccepted">
+                    <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
+                </div>
+                <div *ngIf="!refundCase.isAccepted">
+                    <div class="ui-g-12 ui-sm-12 text-danger" i18n>Requested</div>
+                </div>
+                <div class="ui-g-12 ui-sm-12">
+                    <button type="button" (click)="accept(refundCase, true)" pButton icon="fa-check" label="Accept"
+                            class="ui-button-success"></button>
+                    <button type="button" (click)="accept(refundCase, false)" pButton icon="fa-times" label="Reject"
+                            class="ui-button-danger"></button>
+                </div>
+            </div>
+            <div *ngIf="!refundCase.isRequested" class="ui-g-2 ui-md-2 table-col text-danger" i18n>
+                Not requested
+            </div>
+            <div class="ui-g-1 ui-md-1 table-col">
+                <span *ngIf="refundCase.isRequested">{{refundCase.dateRequested | date:'short'}}</span>
+                <span *ngIf="!refundCase.isRequested" class="text-danger" i18n> Not requested</span>
+            </div>
         </div>
-        <div *ngIf="!refundCase.customer" class="ui-g-12 ui-sm-12 text-danger" i18n>
-          Not Claimed
-        </div>
-      </div>
-      <div class="ui-g-2 ui-md-2 table-col">
-        <img *ngIf="refundCase.documentation" class="img-fluid" [src]="'data:image/png;base64,' + refundCase.documentation" />
-        <span *ngIf="!refundCase.documentation" class="text-danger" i18n>No documentation</span>
-      </div>
-      <div *ngIf="refundCase.isRequested" class="ui-g-2 ui-md-2 table-col">
-        <div *ngIf="refundCase.isAccepted">
-          <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
-        </div>
-        <div *ngIf="!refundCase.isAccepted">
-          <div class="ui-g-12 ui-sm-12 text-danger" i18n>Requested</div>
-        </div>
-        <div class="ui-g-12 ui-sm-12">
-          <button type="button" (click)="accept(refundCase, true)" pButton icon="fa-check" label="Accept" class="ui-button-success"></button>
-          <button type="button" (click)="accept(refundCase, false)" pButton icon="fa-times" label="Reject" class="ui-button-danger"></button>
-        </div>
-      </div>
-      <div *ngIf="!refundCase.isRequested" class="ui-g-2 ui-md-2 table-col text-danger" i18n>
-        Not requested
-      </div>
-      <div class="ui-g-1 ui-md-1 table-col">
-        <span *ngIf="refundCase.isRequested">{{refundCase.dateRequested | date:'short'}}</span>
-        <span *ngIf="!refundCase.isRequested" class="text-danger" i18n> Not requested</span>
-      </div>
-    </div>
-  </ng-template>
+    </ng-template>
 </p-dataView>
