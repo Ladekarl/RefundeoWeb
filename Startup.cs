@@ -22,15 +22,15 @@ namespace Refundeo
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         public IHostingEnvironment HostingEnvironment { get; }
 
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
             {
@@ -66,42 +66,38 @@ namespace Refundeo
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
 
             services.AddIdentity<RefundeoUser, IdentityRole>(opts =>
-            {
-                opts.Password.RequireDigit = false;
-                opts.Password.RequireLowercase = true;
-                opts.Password.RequireUppercase = false;
-                opts.Password.RequireNonAlphanumeric = false;
-                opts.Password.RequiredLength = 8;
-                opts.Password.RequiredUniqueChars = 4;
-            })
-            .AddEntityFrameworkStores<RefundeoDbContext>()
-            .AddDefaultTokenProviders();
+                {
+                    opts.Password.RequireDigit = false;
+                    opts.Password.RequireLowercase = true;
+                    opts.Password.RequireUppercase = false;
+                    opts.Password.RequireNonAlphanumeric = false;
+                    opts.Password.RequiredLength = 8;
+                    opts.Password.RequiredUniqueChars = 4;
+                })
+                .AddEntityFrameworkStores<RefundeoDbContext>()
+                .AddDefaultTokenProviders();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Refundeo", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "Refundeo", Version = "v1"}); });
 
             services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = "JwtBearer";
-                options.DefaultChallengeScheme = "JwtBearer";
-            })
-            .AddJwtBearer("JwtBearer", jwtBearerOptions =>
-                jwtBearerOptions.TokenValidationParameters = new RefundeoTokenValidationParameters(Configuration).TokenValidationParameters);
+                {
+                    options.DefaultAuthenticateScheme = "JwtBearer";
+                    options.DefaultChallengeScheme = "JwtBearer";
+                })
+                .AddJwtBearer("JwtBearer", jwtBearerOptions =>
+                    jwtBearerOptions.TokenValidationParameters = new RefundeoTokenValidationParameters(Configuration)
+                        .TokenValidationParameters);
 
             services.AddSingleton(Configuration);
 
             if (!HostingEnvironment.IsDevelopment())
             {
-                services.Configure<MvcOptions>(options =>
-                {
-                    options.Filters.Add(new RequireHttpsAttribute());
-                });
+                services.Configure<MvcOptions>(options => { options.Filters.Add(new RequireHttpsAttribute()); });
             }
         }
 
-        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext dbContext)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
+            UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext dbContext)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
@@ -117,7 +113,7 @@ namespace Refundeo
             {
                 app.UseSwaggerAuthorized();
                 var options = new RewriteOptions()
-                .AddRedirectToHttps();
+                    .AddRedirectToHttps();
                 app.UseRewriter(options);
                 //app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             }

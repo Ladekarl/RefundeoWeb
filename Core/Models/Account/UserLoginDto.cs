@@ -1,6 +1,6 @@
 namespace Refundeo.Core.Models.Account
 {
-    public class UserLoginDTO
+    public class UserLoginDto
     {
         public string Username { get; set; }
         public string Password { get; set; }

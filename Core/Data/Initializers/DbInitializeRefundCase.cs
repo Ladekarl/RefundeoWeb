@@ -4,9 +4,9 @@ namespace Refundeo.Core.Data.Initializers
 {
     public class DbInitializeRefundCase
     {
-        public int QRCodeHeight { get; set; }
-        public int QRCodeWidth { get; set; }
-        public int QRCodeMargin { get; set; }
+        public int QrCodeHeight { get; set; }
+        public int QrCodeWidth { get; set; }
+        public int QrCodeMargin { get; set; }
         public double Amount { get; set; }
         public string MerchantName { get; set; }
         public string CustomerName { get; set; }

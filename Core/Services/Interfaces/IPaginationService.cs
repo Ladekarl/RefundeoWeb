@@ -1,13 +1,13 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Refundeo.Core.Services.Interfaces
 {
     public interface IPaginationService<T> where T : class
     {
-        IQueryable<T> PaginateSortAndFilter(IQueryable<T> query, int first, int amount, string sortBy, string dir, string filterBy);
+        IQueryable<T> PaginateSortAndFilter(IQueryable<T> query, int first, int amount, string sortBy, string dir,
+            string filterBy);
+
         IQueryable<T> PaginateAndSort(IQueryable<T> query, int first, int amount, string sortBy, string dir);
         IQueryable<T> SortAndFilter(IQueryable<T> query, string sortBy, string dir, string filterBy);
         IQueryable<T> Sort(IQueryable<T> query, PropertyInfo sortProp, string dir);

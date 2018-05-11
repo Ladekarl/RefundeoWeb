@@ -1,12 +1,12 @@
-using System.Collections.Generic;
-
 namespace Refundeo.Core.Models.Account
 {
-    public class ChangeUserDTO
+    public class UserRegisterDto
     {
         public string Username { get; set; }
+        public string Password { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public string Country { get; set; }
+        public string[] Scopes { get; set; }
     }
 }

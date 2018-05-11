@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -15,23 +14,26 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Services.Interfaces;
+using SignInResult = Refundeo.Core.Helpers.SignInResult;
 
 namespace Refundeo.Core.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        public IConfiguration Configuration { get; set; }
+        private IConfiguration Configuration { get; }
         private readonly SignInManager<RefundeoUser> _signManager;
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly RefundeoDbContext _context;
         private readonly IUtilityService _utilityService;
-        public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager, SignInManager<RefundeoUser> signManager, RefundeoDbContext context, IUtilityService utilityService)
+
+        public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager,
+            SignInManager<RefundeoUser> signManager, RefundeoDbContext context, IUtilityService utilityService)
         {
             Configuration = configuration;
-            this._signManager = signManager;
-            this._userManager = userManager;
-            this._context = context;
-            this._utilityService = utilityService;
+            _signManager = signManager;
+            _userManager = userManager;
+            _context = context;
+            _utilityService = utilityService;
         }
 
         public async Task<IdentityResult> UpdateRolesAsync(RefundeoUser user, ICollection<string> roles)
@@ -40,18 +42,20 @@ namespace Refundeo.Core.Services
             var rolesAdded = roles.Except(currentRoles);
             var rolesRemoved = currentRoles.Except(roles);
 
-            if (rolesAdded.Any())
+            var rolesAddedList = rolesAdded.ToList();
+            if (rolesAddedList.Any())
             {
-                var result = await _userManager.AddToRolesAsync(user, rolesAdded);
+                var result = await _userManager.AddToRolesAsync(user, rolesAddedList);
                 if (!result.Succeeded)
                 {
                     return result;
                 }
             }
 
-            if (rolesRemoved.Any())
+            var rolesRemovedList = rolesRemoved.ToList();
+            if (!rolesRemovedList.Any()) return IdentityResult.Success;
             {
-                var result = await _userManager.RemoveFromRolesAsync(user, rolesRemoved);
+                var result = await _userManager.RemoveFromRolesAsync(user, rolesRemovedList);
                 if (!result.Succeeded)
                 {
                     return result;
@@ -65,32 +69,34 @@ namespace Refundeo.Core.Services
         {
             var token = await GenerateTokenAsync(user);
 
-            var merchantInformation = await _context.MerchantInformations.Where(m => m.Merchant.Id == user.Id).FirstOrDefaultAsync();
-            var customerInformation = await _context.CustomerInformations.Where(c => c.Customer.Id == user.Id).FirstOrDefaultAsync();
+            var merchantInformation = await _context.MerchantInformations.Where(m => m.Merchant.Id == user.Id)
+                .FirstOrDefaultAsync();
+            var customerInformation = await _context.CustomerInformations.Where(c => c.Customer.Id == user.Id)
+                .FirstOrDefaultAsync();
 
             if (merchantInformation != null)
             {
                 return await GenerateMerchantObjectResultAsync(token, user, merchantInformation, refreshToken);
             }
-            else if (customerInformation != null)
+
+            if (customerInformation != null)
             {
                 return await GenerateCustomertObjectResultAsync(token, user, customerInformation, refreshToken);
             }
-            else
+
+            return new ObjectResult(new
             {
-                return new ObjectResult(new
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo,
-                    id = user.Id,
-                    username = user.UserName,
-                    refreshToken = refreshToken,
-                    roles = await _userManager.GetRolesAsync(user)
-                });
-            }
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                expiration = token.ValidTo,
+                id = user.Id,
+                username = user.UserName,
+                refreshToken,
+                roles = await _userManager.GetRolesAsync(user)
+            });
         }
 
-        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user, MerchantInformation merchantInformation, string refreshToken)
+        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
+            MerchantInformation merchantInformation, string refreshToken)
         {
             return new ObjectResult(new
             {
@@ -102,11 +108,12 @@ namespace Refundeo.Core.Services
                 cvrNumber = merchantInformation.CVRNumber,
                 refundPercentage = merchantInformation.RefundPercentage,
                 roles = await _userManager.GetRolesAsync(user),
-                refreshToken = refreshToken
+                refreshToken
             });
         }
 
-        private async Task<ObjectResult> GenerateCustomertObjectResultAsync(JwtSecurityToken token, RefundeoUser user, CustomerInformation customerInformation, string refreshToken)
+        private async Task<ObjectResult> GenerateCustomertObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
+            CustomerInformation customerInformation, string refreshToken)
         {
             return new ObjectResult(new
             {
@@ -120,35 +127,37 @@ namespace Refundeo.Core.Services
                 bankAccountNumber = customerInformation.BankAccountNumber,
                 bankRegNumber = customerInformation.BankRegNumber,
                 roles = await _userManager.GetRolesAsync(user),
-                refreshToken = refreshToken
+                refreshToken
             });
         }
 
-        public async Task<Helpers.SignInResult> IsValidUserAndPasswordCombinationAsync(string username, string password)
+        public async Task<SignInResult> IsValidUserAndPasswordCombinationAsync(string username, string password)
         {
             if (String.IsNullOrEmpty(username))
             {
-                return new Helpers.SignInResult.NoUsername();
+                return new SignInResult.NoUsername();
             }
+
             if (String.IsNullOrEmpty(password))
             {
-                return new Helpers.SignInResult.NoPassword();
+                return new SignInResult.NoPassword();
             }
 
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null)
             {
-                return new Helpers.SignInResult.UserDoesNotExist();
+                return new SignInResult.UserDoesNotExist();
             }
 
             var isValid = await _signManager.UserManager.CheckPasswordAsync(user, password);
 
             if (!isValid)
             {
-                return new Helpers.SignInResult.WrongPassword();
+                return new SignInResult.WrongPassword();
             }
-            return new Helpers.SignInResult.Success();
+
+            return new SignInResult.Success();
         }
 
         public async Task<JwtSecurityToken> GenerateTokenAsync(RefundeoUser user)
@@ -167,7 +176,7 @@ namespace Refundeo.Core.Services
                     new SigningCredentials(
                         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
                         SecurityAlgorithms.HmacSha256)),
-                        new JwtPayload(claims));
+                new JwtPayload(claims));
         }
 
         public ICollection<Claim> GenerateClaims(RefundeoUser user)
@@ -177,7 +186,8 @@ namespace Refundeo.Core.Services
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
+                new Claim(JwtRegisteredClaimNames.Exp,
+                    new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Aud, Configuration["ValidAudience"]),
                 new Claim(JwtRegisteredClaimNames.Iss, Configuration["ValidIssuer"])
             };
@@ -186,21 +196,23 @@ namespace Refundeo.Core.Services
 
         public string GenerateRandomPassword(PasswordOptions opts = null)
         {
-            if (opts == null) opts = new PasswordOptions()
-            {
-                RequiredLength = 8,
-                RequiredUniqueChars = 4,
-                RequireDigit = false,
-                RequireLowercase = true,
-                RequireNonAlphanumeric = false,
-                RequireUppercase = false
-            };
+            if (opts == null)
+                opts = new PasswordOptions
+                {
+                    RequiredLength = 8,
+                    RequiredUniqueChars = 4,
+                    RequireDigit = false,
+                    RequireLowercase = true,
+                    RequireNonAlphanumeric = false,
+                    RequireUppercase = false
+                };
 
-            string[] randomChars = new[] {
-            "ABCDEFGHJKLMNOPQRSTUVWXYZ",    // uppercase
-            "abcdefghijkmnopqrstuvwxyz",    // lowercase
-            "0123456789",                   // digits
-            "!@$?_-"                        // non-alphanumeric
+            string[] randomChars =
+            {
+                "ABCDEFGHJKLMNOPQRSTUVWXYZ", // uppercase
+                "abcdefghijkmnopqrstuvwxyz", // lowercase
+                "0123456789", // digits
+                "!@$?_-" // non-alphanumeric
             };
 
             Random rand = new Random(Environment.TickCount);
@@ -222,8 +234,10 @@ namespace Refundeo.Core.Services
                 chars.Insert(rand.Next(0, chars.Count),
                     randomChars[3][rand.Next(0, randomChars[3].Length)]);
 
-            for (int i = chars.Count; i < opts.RequiredLength
-                || chars.Distinct().Count() < opts.RequiredUniqueChars; i++)
+            for (int i = chars.Count;
+                i < opts.RequiredLength
+                || chars.Distinct().Count() < opts.RequiredUniqueChars;
+                i++)
             {
                 string rcs = randomChars[rand.Next(0, randomChars.Length)];
                 chars.Insert(rand.Next(0, chars.Count),
@@ -233,7 +247,8 @@ namespace Refundeo.Core.Services
             return new string(chars.ToArray());
         }
 
-        public async Task<ObjectResult> RegisterUserAsync(RefundeoUser user, string password, CustomerInformation customerInformation, bool shouldCreateRefreshToken = false)
+        public async Task<ObjectResult> RegisterUserAsync(RefundeoUser user, string password,
+            CustomerInformation customerInformation, bool shouldCreateRefreshToken = false)
         {
             var createUserResult = await _userManager.CreateAsync(user, password);
 
@@ -242,7 +257,7 @@ namespace Refundeo.Core.Services
                 return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_USER);
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.RoleUser);
 
             await _context.SaveChangesAsync();
 

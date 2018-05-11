@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +12,9 @@ namespace Refundeo.Core.Services.Interfaces
         string GetCallingUserId(HttpRequest request);
         Task<RefundeoUser> GetCallingUserAsync(HttpRequest request);
         Task<RefundeoUser> GetCallingUserFullAsync(HttpRequest request);
-        Task<UserDTO> ConvertRefundeoUserToUserDTOAsync(RefundeoUser refundeoUser);
-        CustomerInformationDTO ConvertCustomerInformationToDTO(CustomerInformation info);
-        MerchantInformationDTO ConvertMerchantInformationToDTO(MerchantInformation info);
+        Task<UserDto> ConvertRefundeoUserToUserDtoAsync(RefundeoUser refundeoUser);
+        CustomerInformationDto ConvertCustomerInformationToDto(CustomerInformation info);
+        MerchantInformationDto ConvertMerchantInformationToDto(MerchantInformation info);
         ObjectResult GenerateBadRequestObjectResult(params string[] errors);
         ObjectResult GenerateBadRequestObjectResult(IEnumerable errors);
     }

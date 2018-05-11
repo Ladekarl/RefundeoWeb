@@ -1,32 +1,27 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
-using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
-using ZXing;
-using ZXing.QrCode;
 
 namespace Refundeo.Controllers.User
 {
-    [Authorize(Roles = RefundeoConstants.ROLE_USER)]
+    [Authorize(Roles = RefundeoConstants.RoleUser)]
     [Route("/api/user/refundcase")]
     public class UserRefundCaseController : Controller
     {
-        private RefundeoDbContext _context;
-        private IRefundCaseService _refundCaseService;
-        private IUtilityService _utilityService;
-        public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService, IUtilityService utilityService)
+        private readonly RefundeoDbContext _context;
+        private readonly IRefundCaseService _refundCaseService;
+        private readonly IUtilityService _utilityService;
+
+        public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
+            IUtilityService utilityService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -44,20 +39,20 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCases = _context.RefundCases
-            .Where(r => r.CustomerInformation.Customer == user)
-            .Include(r => r.Documentation)
-            .Include(r => r.QRCode)
-            .Include(r => r.MerchantInformation)
-            .ThenInclude(i => i.Merchant)
-            .Include(r => r.CustomerInformation)
-            .ThenInclude(i => i.Customer);
+                .Where(r => r.CustomerInformation.Customer == user)
+                .Include(r => r.Documentation)
+                .Include(r => r.QRCode)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Merchant)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer);
 
             if (refundCases == null)
             {
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCases);
+            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -70,30 +65,31 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCase = await _context.RefundCases
-            .Include(r => r.QRCode)
-            .Include(r => r.Documentation)
-            .Include(r => r.MerchantInformation)
-            .ThenInclude(i => i.Merchant)
-            .Include(r => r.CustomerInformation)
-            .ThenInclude(i => i.Customer)
-            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .Include(r => r.QRCode)
+                .Include(r => r.Documentation)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Merchant)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCase == null)
             {
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCase);
+            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
         }
 
         [HttpPost("{id}/doc")]
-        public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocementationDTO model)
+        public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocementationDto model)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Unauthorized();
             }
+
             if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image))
             {
                 return BadRequest();
@@ -101,10 +97,10 @@ namespace Refundeo.Controllers.User
 
 
             var refundCaseToUpdate = await _context.RefundCases
-            .Include(r => r.Documentation)
-            .Include(r => r.CustomerInformation)
-            .ThenInclude(i => i.Customer)
-            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .Include(r => r.Documentation)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
@@ -131,7 +127,7 @@ namespace Refundeo.Controllers.User
         }
 
         [HttpPost("{id}/request")]
-        public async Task<IActionResult> RequestRefund(long id, [FromBody] RequestRefundDTO model)
+        public async Task<IActionResult> RequestRefund(long id, [FromBody] RequestRefundDto model)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
@@ -145,10 +141,10 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCaseToUpdate = await _context.RefundCases
-            .Include(r => r.Documentation)
-            .Include(r => r.CustomerInformation)
-            .ThenInclude(i => i.Customer)
-            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .Include(r => r.Documentation)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
@@ -177,9 +173,9 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCase = await _context.RefundCases
-            .Include(r => r.CustomerInformation)
-            .ThenInclude(i => i.Customer)
-            .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCase == null)
             {

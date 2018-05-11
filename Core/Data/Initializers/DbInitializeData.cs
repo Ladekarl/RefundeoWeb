@@ -7,22 +7,25 @@ namespace Refundeo.Core.Data.Initializers
 {
     public static class DbInitializeData
     {
-        public static List<string> RolesToCreate = new List<string> {
-            RefundeoConstants.ROLE_ADMIN,
-            RefundeoConstants.ROLE_MERCHANT,
-            RefundeoConstants.ROLE_USER
+        public static readonly List<string> RolesToCreate = new List<string>
+        {
+            RefundeoConstants.RoleAdmin,
+            RefundeoConstants.RoleMerchant,
+            RefundeoConstants.RoleUser
         };
 
-        public static List<UserRegisterDTO> UsersTocreate = new List<UserRegisterDTO>
+        public static readonly List<UserRegisterDto> UsersTocreate = new List<UserRegisterDto>
         {
-            new UserRegisterDTO {
+            new UserRegisterDto
+            {
                 Username = "User",
                 Password = "User1234!",
                 Firstname = "Bob",
                 Lastname = "Dylan",
                 Country = "DK"
             },
-            new UserRegisterDTO {
+            new UserRegisterDto
+            {
                 Username = "Mike",
                 Password = "User1234!",
                 Firstname = "Mike",
@@ -31,32 +34,34 @@ namespace Refundeo.Core.Data.Initializers
             }
         };
 
-        public static List<UserRegisterDTO> AdminsToCreate = new List<UserRegisterDTO>
+        public static readonly List<UserRegisterDto> AdminsToCreate = new List<UserRegisterDto>
         {
-            new UserRegisterDTO {
+            new UserRegisterDto
+            {
                 Username = "Admin",
                 Password = "Admin1234!"
             }
         };
 
-        public static List<MerchantRegisterDTO> MerchantsToCreate = new List<MerchantRegisterDTO>
+        public static readonly List<MerchantRegisterDto> MerchantsToCreate = new List<MerchantRegisterDto>
         {
-            new MerchantRegisterDTO {
+            new MerchantRegisterDto
+            {
                 Username = "Merchant",
                 Password = "Merchant1234!",
                 CompanyName = "MerchantCompany",
-                CVRNumber = "12345678",
+                CvrNumber = "12345678",
                 RefundPercentage = 25
             },
         };
 
-        public static List<DbInitializeRefundCase> RefundCasesToCreate = new List<DbInitializeRefundCase>
+        public static readonly List<DbInitializeRefundCase> RefundCasesToCreate = new List<DbInitializeRefundCase>
         {
             new DbInitializeRefundCase
             {
-                QRCodeHeight = 30,
-                QRCodeWidth = 30,
-                QRCodeMargin = 0,
+                QrCodeHeight = 30,
+                QrCodeWidth = 30,
+                QrCodeMargin = 0,
                 Amount = 150,
                 IsRequested = true,
                 DateRequested = DateTime.UtcNow,
@@ -65,9 +70,9 @@ namespace Refundeo.Core.Data.Initializers
             },
             new DbInitializeRefundCase
             {
-                QRCodeHeight = 30,
-                QRCodeWidth = 30,
-                QRCodeMargin = 0,
+                QrCodeHeight = 30,
+                QrCodeWidth = 30,
+                QrCodeMargin = 0,
                 Amount = 9999,
                 IsRequested = true,
                 DateRequested = DateTime.UtcNow,
@@ -76,9 +81,9 @@ namespace Refundeo.Core.Data.Initializers
             },
             new DbInitializeRefundCase
             {
-                QRCodeHeight = 30,
-                QRCodeWidth = 30,
-                QRCodeMargin = 0,
+                QrCodeHeight = 30,
+                QrCodeWidth = 30,
+                QrCodeMargin = 0,
                 Amount = 3000,
                 MerchantName = "Merchant"
             }

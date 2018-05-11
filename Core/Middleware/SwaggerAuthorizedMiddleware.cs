@@ -3,11 +3,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Refundeo.Core.Middleware
 {
-public class SwaggerAuthorizedMiddleware
+    public class SwaggerAuthorizedMiddleware
     {
         private readonly RequestDelegate _next;
 
@@ -16,17 +15,17 @@ public class SwaggerAuthorizedMiddleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IConfiguration Configuration)
+        public async Task Invoke(HttpContext context, IConfiguration configuration)
         {
             if (context.Request.Path.StartsWithSegments("/swagger"))
             {
-                SecurityToken jwt;
                 var token = await context.GetTokenAsync("JwtBearer", "access_token");
 
                 if (token != null)
                 {
-                    var refundeoParameters = new RefundeoTokenValidationParameters(Configuration);
-                    var principal = new JwtSecurityTokenHandler().ValidateToken(token, refundeoParameters.TokenValidationParameters, out jwt);
+                    var refundeoParameters = new RefundeoTokenValidationParameters(configuration);
+                    var principal = new JwtSecurityTokenHandler().ValidateToken(token,
+                        refundeoParameters.TokenValidationParameters, out _);
 
                     if (principal.IsInRole("Admin") ||
                         principal.IsInRole("Merchant"))

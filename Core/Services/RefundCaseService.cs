@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Models.RefundCase;
@@ -16,50 +14,52 @@ namespace Refundeo.Core.Services
 {
     public class RefundCaseService : IRefundCaseService
     {
-        private IUtilityService _utilityService;
+        private readonly IUtilityService _utilityService;
+
         public RefundCaseService(IUtilityService utilityService)
         {
             _utilityService = utilityService;
         }
 
-        public ObjectResult GenerateRefundCaseDTOResponse(IEnumerable<RefundCase> refundCases)
+        public ObjectResult GenerateRefundCaseDtoResponse(IEnumerable<RefundCase> refundCases)
         {
-            var dtos = new List<RefundCaseDTO>();
+            var dtos = new List<RefundCaseDto>();
             foreach (var refundCase in refundCases)
             {
-                dtos.Add(ConvertRefundCaseToDTO(refundCase));
+                dtos.Add(ConvertRefundCaseToDto(refundCase));
             }
+
             return new ObjectResult(dtos);
         }
 
-        public ObjectResult GenerateRefundCaseDTOResponse(RefundCase refundCase)
+        public ObjectResult GenerateRefundCaseDtoResponse(RefundCase refundCase)
         {
-            return new ObjectResult(ConvertRefundCaseToDTO(refundCase));
+            return new ObjectResult(ConvertRefundCaseToDto(refundCase));
         }
 
-        public RefundCaseDTO ConvertRefundCaseToDTO(RefundCase refundCase)
+        public RefundCaseDto ConvertRefundCaseToDto(RefundCase refundCase)
         {
-            return new RefundCaseDTO
+            return new RefundCaseDto
             {
                 Id = refundCase.Id,
                 Amount = refundCase.Amount,
                 RefundAmount = refundCase.RefundAmount,
                 IsRequested = refundCase.IsRequested,
                 IsAccepted = refundCase.IsAccepted,
-                QRCode = ConvertByteArrayToBase64(refundCase?.QRCode?.Image),
-                Documentation = ConvertByteArrayToBase64(refundCase?.Documentation?.Image),
+                QrCode = ConvertByteArrayToBase64(refundCase.QRCode?.Image),
+                Documentation = ConvertByteArrayToBase64(refundCase.Documentation?.Image),
                 DateCreated = refundCase.DateCreated,
                 DateRequested = refundCase.DateRequested,
-                Customer = _utilityService.ConvertCustomerInformationToDTO(refundCase.CustomerInformation),
-                Merchant = _utilityService.ConvertMerchantInformationToDTO(refundCase.MerchantInformation),
+                Customer = _utilityService.ConvertCustomerInformationToDto(refundCase.CustomerInformation),
+                Merchant = _utilityService.ConvertMerchantInformationToDto(refundCase.MerchantInformation),
             };
         }
 
-        public byte[] GenerateQRCode(int height, int width, int margin, QRCodePayloadDTO payload)
+        public byte[] GenerateQrCode(int height, int width, int margin, QRCodePayloadDto payload)
         {
             var qrCodeWriter = new BarcodeWriterPixelData
             {
-                Format = ZXing.BarcodeFormat.QR_CODE,
+                Format = BarcodeFormat.QR_CODE,
                 Options = new QrCodeEncodingOptions
                 {
                     Height = height,
@@ -68,35 +68,33 @@ namespace Refundeo.Core.Services
                 }
             };
             var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(payload));
-            byte[] image = null;
-            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
+            byte[] image;
+            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height,
+                System.Drawing.Imaging.PixelFormat.Format32bppRgb))
             using (var ms = new MemoryStream())
             {
                 var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height),
-                System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                    System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                 try
                 {
                     System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0,
-                    pixelData.Pixels.Length);
+                        pixelData.Pixels.Length);
                 }
                 finally
                 {
                     bitmap.UnlockBits(bitmapData);
                 }
+
                 bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 image = ms.ToArray();
             }
+
             return image;
         }
 
         public string ConvertByteArrayToBase64(byte[] ba)
         {
-            string base64String = null;
-            if (ba != null)
-            {
-                return Convert.ToBase64String(ba);
-            }
-            return base64String;
+            return ba != null ? Convert.ToBase64String(ba) : null;
         }
 
         public byte[] ConvertBase64ToByteArray(string base64String)
@@ -106,6 +104,7 @@ namespace Refundeo.Core.Services
             {
                 ba = Convert.FromBase64String(base64String);
             }
+
             return ba;
         }
     }

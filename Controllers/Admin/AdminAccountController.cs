@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
@@ -12,42 +11,43 @@ using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.Admin
 {
-    [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
+    [Authorize(Roles = RefundeoConstants.RoleAdmin)]
     [Route("/api/admin/account")]
     public class AdminAccountController : Controller
     {
-        private RefundeoDbContext _context;
-        private UserManager<RefundeoUser> _userManager;
-        private IUtilityService _utilityService;
-        private IAuthenticationService _authenticationService;
-        public AdminAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IUtilityService utilityService, IAuthenticationService authenticationService)
+        private readonly UserManager<RefundeoUser> _userManager;
+        private readonly IUtilityService _utilityService;
+        private readonly IAuthenticationService _authenticationService;
+
+        public AdminAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
+            IUtilityService utilityService, IAuthenticationService authenticationService)
         {
-            _context = context;
             _userManager = userManager;
             _utilityService = utilityService;
             _authenticationService = authenticationService;
         }
 
         [HttpGet]
-        public async Task<IList<UserDTO>> GetAllAdmins()
+        public async Task<IList<UserDto>> GetAllAdmins()
         {
-            var userModels = new List<UserDTO>();
-            foreach (var u in await _userManager.GetUsersInRoleAsync(RefundeoConstants.ROLE_ADMIN))
+            var userModels = new List<UserDto>();
+            foreach (var u in await _userManager.GetUsersInRoleAsync(RefundeoConstants.RoleAdmin))
             {
-                userModels.Add(await _utilityService.ConvertRefundeoUserToUserDTOAsync(u));
+                userModels.Add(await _utilityService.ConvertRefundeoUserToUserDtoAsync(u));
             }
+
             return userModels;
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegisterDTO model)
+        public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegisterDto model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var user = new RefundeoUser { UserName = model.Username };
+            var user = new RefundeoUser {UserName = model.Username};
             var createUserResult = await _userManager.CreateAsync(user, model.Password);
 
             if (!createUserResult.Succeeded)
@@ -55,18 +55,18 @@ namespace Refundeo.Controllers.Admin
                 return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
             }
 
-            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.ROLE_ADMIN);
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.RoleAdmin);
 
             if (!addToRoleResult.Succeeded)
             {
                 return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
-            return await _authenticationService.GenerateTokenResultAsync(user, null);
+            return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [HttpPut]
-        public async Task<IActionResult> ChangeAdmin([FromBody] ChangeAdminDTO model)
+        public async Task<IActionResult> ChangeAdmin([FromBody] ChangeAdminDto model)
         {
             if (!ModelState.IsValid || string.IsNullOrEmpty(model.Username))
             {
@@ -96,7 +96,7 @@ namespace Refundeo.Controllers.Admin
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return _utilityService.GenerateBadRequestObjectResult($"Admin does not exist");
+                return _utilityService.GenerateBadRequestObjectResult("Admin does not exist");
             }
 
             var result = await _userManager.DeleteAsync(user);

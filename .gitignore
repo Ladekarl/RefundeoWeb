@@ -13,6 +13,16 @@ nupkg/
 *.user
 *.userosscache
 *.sln.docstates
+**/.idea/**/workspace.xml
+**/.idea/**/tasks.xml
+**/.idea/shelf/*
+**/.idea/dictionaries
+
+# Rider
+# Rider auto-generates .iml files, and contentModel.xml
+**/.idea/**/*.iml
+**/.idea/**/contentModel.xml
+**/.idea/**/modules.xml
 
 # Build results
 [Dd]ebug/
@@ -74,6 +84,18 @@ testem.log
 **/e2e/*.js
 **/e2e/*.map
 
+# Sensitive or high-churn files
+**/.idea/**/dataSources/
+**/.idea/**/dataSources.ids
+**/.idea/**/dataSources.xml
+**/.idea/**/dataSources.local.xml
+**/.idea/**/sqlDataSources.xml
+**/.idea/**/dynamic.xml
+
+_UpgradeReport_Files/
+[Pp]ackages/
+
 # System Files
 .DS_Store
 Thumbs.db
+Desktop.ini

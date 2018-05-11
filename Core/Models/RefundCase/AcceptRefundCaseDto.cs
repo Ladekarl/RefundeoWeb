@@ -1,6 +1,6 @@
 namespace Refundeo.Core.Models.RefundCase
 {
-    public class AcceptRefundCaseDTO
+    public class AcceptRefundCaseDto
     {
         public bool IsAccepted { get; set; }
     }

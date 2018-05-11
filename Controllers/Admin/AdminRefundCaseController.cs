@@ -1,30 +1,24 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
-using ZXing;
-using ZXing.QrCode;
 
 namespace Refundeo.Controllers.Admin
 {
-    [Authorize(Roles = RefundeoConstants.ROLE_ADMIN)]
+    [Authorize(Roles = RefundeoConstants.RoleAdmin)]
     [Route("/api/admin/refundcase")]
     public class AdminRefundCaseController : Controller
     {
         private RefundeoDbContext _context;
         private IRefundCaseService _refundCaseService;
+
         public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService)
         {
             _context = context;
@@ -48,7 +42,7 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCases);
+            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -68,11 +62,11 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCase);
+            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRefundCase([FromBody] AdminCreateRefundCaseDTO model)
+        public async Task<IActionResult> CreateRefundCase([FromBody] AdminCreateRefundCaseDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -80,8 +74,8 @@ namespace Refundeo.Controllers.Admin
             }
 
             var merchantInformation = await _context.MerchantInformations
-            .Include(i => i.Merchant)
-            .FirstOrDefaultAsync(i => i.Merchant.Id == model.MerchantId);
+                .Include(i => i.Merchant)
+                .FirstOrDefaultAsync(i => i.Merchant.Id == model.MerchantId);
 
             if (merchantInformation == null)
             {
@@ -92,13 +86,12 @@ namespace Refundeo.Controllers.Admin
             if (model.CustomerId != null)
             {
                 customerInformation = await _context.CustomerInformations
-                .Include(i => i.Customer)
-                .FirstOrDefaultAsync(i => i.Customer.Id == model.CustomerId);
+                    .Include(i => i.Customer)
+                    .FirstOrDefaultAsync(i => i.Customer.Id == model.CustomerId);
 
                 if (customerInformation == null)
                 {
                     return BadRequest("Customer not found");
-
                 }
             }
 
@@ -117,12 +110,13 @@ namespace Refundeo.Controllers.Admin
 
             var qrCode = new QRCode
             {
-                Image = _refundCaseService.GenerateQRCode(model.QRCodeHeight, model.QRCodeWidth, model.QRCodeMargin, new QRCodePayloadDTO
-                {
-                    RefundCaseId = refundCase.Id,
-                    MerchantId = merchantInformation.Merchant.Id,
-                    RefundAmount = model.Amount
-                })
+                Image = _refundCaseService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
+                    new QRCodePayloadDto
+                    {
+                        RefundCaseId = refundCase.Id,
+                        MerchantId = merchantInformation.Merchant.Id,
+                        RefundAmount = model.Amount
+                    })
             };
 
             await _context.QRCodes.AddAsync(qrCode);
@@ -130,11 +124,11 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            return _refundCaseService.GenerateRefundCaseDTOResponse(refundCaseResult.Entity);
+            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCaseResult.Entity);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRefundCase(long id, [FromBody] AdminUpdateRefundCaseDTO model)
+        public async Task<IActionResult> UpdateRefundCase(long id, [FromBody] AdminUpdateRefundCaseDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -142,21 +136,23 @@ namespace Refundeo.Controllers.Admin
             }
 
             var refundCaseToUpdate = await _context.RefundCases
-            .Include(r => r.CustomerInformation)
-            .ThenInclude(i => i.Customer)
-            .Include(r => r.MerchantInformation)
-            .ThenInclude(i => i.Merchant)
-            .Include(r => r.Documentation)
-            .Include(r => r.QRCode)
-            .FirstOrDefaultAsync(r => r.Id == id);
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Merchant)
+                .Include(r => r.Documentation)
+                .Include(r => r.QRCode)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if (refundCaseToUpdate == null)
             {
                 return NotFound();
             }
 
-            var merchantInformation = await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant.Id == model.MerchantId);
-            var customerInformation = await _context.CustomerInformations.FirstOrDefaultAsync(i => i.Customer.Id == model.CustomerId);
+            var merchantInformation =
+                await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant.Id == model.MerchantId);
+            var customerInformation =
+                await _context.CustomerInformations.FirstOrDefaultAsync(i => i.Customer.Id == model.CustomerId);
 
             if (merchantInformation == null || customerInformation == null)
             {
@@ -169,7 +165,7 @@ namespace Refundeo.Controllers.Admin
             refundCaseToUpdate.IsRequested = model.IsRequested;
             refundCaseToUpdate.IsAccepted = model.IsAccepted;
             refundCaseToUpdate.Documentation.Image = _refundCaseService.ConvertBase64ToByteArray(model.Documentation);
-            refundCaseToUpdate.QRCode.Image = _refundCaseService.ConvertBase64ToByteArray(model.QRCode);
+            refundCaseToUpdate.QRCode.Image = _refundCaseService.ConvertBase64ToByteArray(model.QrCode);
             refundCaseToUpdate.RefundAmount = model.RefundAmount;
 
             _context.RefundCases.Update(refundCaseToUpdate);

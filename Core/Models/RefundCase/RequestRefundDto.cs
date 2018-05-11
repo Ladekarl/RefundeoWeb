@@ -1,6 +1,6 @@
 namespace Refundeo.Core.Models.RefundCase
 {
-    public class RequestRefundDTO
+    public class RequestRefundDto
     {
         public bool IsRequested { get; set; }
     }

@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Services.Interfaces;
 using System.Linq.Dynamic.Core;
@@ -12,15 +10,18 @@ namespace Refundeo.Core.Services
 {
     public class PaginationService<T> : IPaginationService<T> where T : class
     {
-        private static readonly string ORDER_BY = nameof(Queryable.OrderBy);
-        private static readonly string ORDER_BY_DESCENDING = nameof(Queryable.OrderByDescending);
-        private static readonly string THEN_BY = nameof(Queryable.ThenBy);
-        private static readonly string THEN_BY_DESCENDING = nameof(Queryable.ThenByDescending);
+        private static readonly string OrderBy = nameof(Queryable.OrderBy);
+        private static readonly string OrderByDescending = nameof(Queryable.OrderByDescending);
+        private static readonly string ThenBy = nameof(Queryable.ThenBy);
+        private static readonly string ThenByDescending = nameof(Queryable.ThenByDescending);
 
-        public IQueryable<T> PaginateSortAndFilter(IQueryable<T> query, int first, int amount, string sortBy, string dir, string filterBy)
+        public IQueryable<T> PaginateSortAndFilter(IQueryable<T> query, int first, int amount, string sortBy,
+            string dir, string filterBy)
         {
-            var sortProp = typeof(T).GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            var filterProp = typeof(T).GetProperty(filterBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var sortProp = typeof(T).GetProperty(sortBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var filterProp = typeof(T).GetProperty(filterBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
             if (filterProp != null)
             {
@@ -31,12 +32,14 @@ namespace Refundeo.Core.Services
             {
                 query = Sort(query, sortProp, dir);
             }
+
             return Paginate(query, first, amount);
         }
 
         public IQueryable<T> PaginateAndSort(IQueryable<T> query, int first, int amount, string sortBy, string dir)
         {
-            var sortProp = typeof(T).GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var sortProp = typeof(T).GetProperty(sortBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
             if (sortProp != null)
             {
@@ -48,8 +51,10 @@ namespace Refundeo.Core.Services
 
         public IQueryable<T> SortAndFilter(IQueryable<T> query, string sortBy, string dir, string filterBy)
         {
-            var sortProp = typeof(T).GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            var filterProp = typeof(T).GetProperty(filterBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var sortProp = typeof(T).GetProperty(sortBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var filterProp = typeof(T).GetProperty(filterBy,
+                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             if (filterProp != null)
             {
                 query = Filter(query, filterProp);
@@ -70,11 +75,12 @@ namespace Refundeo.Core.Services
 
         public IQueryable<T> Filter(IQueryable<T> query, PropertyInfo filterProp)
         {
-            if (filterProp.PropertyType == typeof(Boolean))
+            if (filterProp.PropertyType == typeof(bool))
             {
                 query = query.Where($"{filterProp.Name}");
             }
-            if (filterProp.PropertyType == typeof(String))
+
+            if (filterProp.PropertyType == typeof(string))
             {
                 query = query.Where($"!String.IsNullOrEmpty({filterProp.Name})");
             }
@@ -82,20 +88,21 @@ namespace Refundeo.Core.Services
             {
                 query = query.Where($"{filterProp.Name} != null");
             }
+
             return query;
         }
 
         public IQueryable<T> Sort(IQueryable<T> query, PropertyInfo sortProp, string dir)
         {
-            var orderBy = dir == "asc" ? ORDER_BY : ORDER_BY_DESCENDING;
-            var thenBy = dir == "asc" ? THEN_BY : THEN_BY_DESCENDING;
+            var orderBy = dir == "asc" ? OrderBy : OrderByDescending;
+            var thenBy = dir == "asc" ? ThenBy : ThenByDescending;
 
             String orderByProp = sortProp.Name;
             String thenByProp = null;
 
             if (sortProp.PropertyType == typeof(CustomerInformation))
             {
-                orderByProp += $".{nameof(CustomerInformation.FirstName)}"; ;
+                orderByProp += $".{nameof(CustomerInformation.FirstName)}";
                 thenByProp = $"{sortProp.Name}.{nameof(CustomerInformation.LastName)}";
             }
 
@@ -121,17 +128,18 @@ namespace Refundeo.Core.Services
                 expr = Expression.Property(expr, pi);
                 type = pi.PropertyType;
             }
+
             var delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
             var lambda = Expression.Lambda(delegateType, expr, arg);
 
             var result = typeof(Queryable).GetMethods().Single(
                     method => method.Name == methodName
-                            && method.IsGenericMethodDefinition
-                            && method.GetGenericArguments().Length == 2
-                            && method.GetParameters().Length == 2)
-                    .MakeGenericMethod(typeof(T), type)
-                    .Invoke(null, new object[] { source, lambda });
-            return (IOrderedQueryable<T>)result;
+                              && method.IsGenericMethodDefinition
+                              && method.GetGenericArguments().Length == 2
+                              && method.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(T), type)
+                .Invoke(null, new object[] {source, lambda});
+            return (IOrderedQueryable<T>) result;
         }
     }
 }

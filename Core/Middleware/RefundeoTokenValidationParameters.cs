@@ -7,20 +7,21 @@ namespace Refundeo.Core.Middleware
 {
     public class RefundeoTokenValidationParameters
     {
-        public TokenValidationParameters TokenValidationParameters { get; set; }
-        public RefundeoTokenValidationParameters(IConfiguration Configuration)
+        public TokenValidationParameters TokenValidationParameters { get; }
+
+        public RefundeoTokenValidationParameters(IConfiguration configuration)
         {
             TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
 
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSecurityKey"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"])),
 
                 ValidateIssuer = true,
-                ValidIssuer = Configuration["ValidIssuer"],
+                ValidIssuer = configuration["ValidIssuer"],
 
                 ValidateAudience = true,
-                ValidAudience = Configuration["ValidAudience"],
+                ValidAudience = configuration["ValidAudience"],
 
                 ValidateLifetime = true,
 

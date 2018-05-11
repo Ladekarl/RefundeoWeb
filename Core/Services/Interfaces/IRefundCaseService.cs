@@ -8,10 +8,10 @@ namespace Refundeo.Core.Services.Interfaces
 {
     public interface IRefundCaseService
     {
-        ObjectResult GenerateRefundCaseDTOResponse(IEnumerable<RefundCase> refundCases);
-        ObjectResult GenerateRefundCaseDTOResponse(RefundCase refundCase);
-        RefundCaseDTO ConvertRefundCaseToDTO(RefundCase refundCase);
-        byte[] GenerateQRCode(int height, int width, int margin, QRCodePayloadDTO payload);
+        ObjectResult GenerateRefundCaseDtoResponse(IEnumerable<RefundCase> refundCases);
+        ObjectResult GenerateRefundCaseDtoResponse(RefundCase refundCase);
+        RefundCaseDto ConvertRefundCaseToDto(RefundCase refundCase);
+        byte[] GenerateQrCode(int height, int width, int margin, QRCodePayloadDto payload);
         string ConvertByteArrayToBase64(byte[] ba);
         byte[] ConvertBase64ToByteArray(string base64String);
     }

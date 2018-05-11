@@ -1,8 +1,9 @@
+using System.Collections.Generic;
+
 namespace Refundeo.Core.Models.Account
 {
-    public class CustomerInformationDTO
+    public class ChangeUserDto
     {
-        public string Id { get; set; }
         public string Username { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }

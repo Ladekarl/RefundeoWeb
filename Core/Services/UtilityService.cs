@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Linq;
-using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +17,7 @@ namespace Refundeo.Core.Services
     {
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly RefundeoDbContext _context;
+
         public UtilityService(RefundeoDbContext context, UserManager<RefundeoUser> userManager)
         {
             _userManager = userManager;
@@ -32,6 +31,7 @@ namespace Refundeo.Core.Services
             {
                 return null;
             }
+
             return await _userManager.FindByIdAsync(userId);
         }
 
@@ -42,10 +42,11 @@ namespace Refundeo.Core.Services
             {
                 return null;
             }
+
             return await _context.Users
-            .Include(u => u.MerchantInformation)
-            .Include(u => u.CustomerInformation)
-            .FirstOrDefaultAsync(u => u.Id == userId);
+                .Include(u => u.MerchantInformation)
+                .Include(u => u.CustomerInformation)
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public string GetCallingUserId(HttpRequest request)
@@ -54,27 +55,28 @@ namespace Refundeo.Core.Services
             return userClaim?.Value;
         }
 
-        public async Task<UserDTO> ConvertRefundeoUserToUserDTOAsync(RefundeoUser refundeoUser)
+        public async Task<UserDto> ConvertRefundeoUserToUserDtoAsync(RefundeoUser refundeoUser)
         {
-            UserDTO userDTO = null;
+            UserDto userDto = null;
             if (refundeoUser != null)
             {
-                userDTO = new UserDTO
+                userDto = new UserDto
                 {
                     Id = refundeoUser.Id,
                     Username = refundeoUser.UserName,
                     Roles = await _userManager.GetRolesAsync(refundeoUser)
                 };
             }
-            return userDTO;
+
+            return userDto;
         }
 
-        public CustomerInformationDTO ConvertCustomerInformationToDTO(CustomerInformation info)
+        public CustomerInformationDto ConvertCustomerInformationToDto(CustomerInformation info)
         {
-            CustomerInformationDTO dto = null;
+            CustomerInformationDto dto = null;
             if (info != null)
             {
-                dto = new CustomerInformationDTO
+                dto = new CustomerInformationDto
                 {
                     Id = info.Customer?.Id,
                     Username = info.Customer?.UserName,
@@ -83,22 +85,24 @@ namespace Refundeo.Core.Services
                     Country = info.Country
                 };
             }
+
             return dto;
         }
 
-        public MerchantInformationDTO ConvertMerchantInformationToDTO(MerchantInformation info)
+        public MerchantInformationDto ConvertMerchantInformationToDto(MerchantInformation info)
         {
-            MerchantInformationDTO dto = null;
+            MerchantInformationDto dto = null;
             if (info != null)
             {
-                dto = new MerchantInformationDTO
+                dto = new MerchantInformationDto
                 {
                     Id = info.Merchant?.Id,
                     CompanyName = info.CompanyName,
-                    CVRNumber = info.CVRNumber,
+                    CvrNumber = info.CVRNumber,
                     RefundPercentage = info.RefundPercentage
                 };
             }
+
             return dto;
         }
 
@@ -111,7 +115,7 @@ namespace Refundeo.Core.Services
         {
             return new BadRequestObjectResult(new
             {
-                errors = errors
+                errors
             });
         }
     }

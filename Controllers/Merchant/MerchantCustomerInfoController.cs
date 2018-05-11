@@ -11,18 +11,17 @@ using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.Merchant
 {
-    [Authorize(Roles = RefundeoConstants.ROLE_MERCHANT)]
+    [Authorize(Roles = RefundeoConstants.RoleMerchant)]
     [Route("/api/merchant/customerinfo")]
     public class MerchantCustomerInfoController : Controller
     {
-        private UserManager<RefundeoUser> _userManager;
-        private IUtilityService _utilityService;
-        private RefundeoDbContext _context;
+        private readonly IUtilityService _utilityService;
+        private readonly RefundeoDbContext _context;
 
-        public MerchantCustomerInfoController(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IUtilityService utilityService)
+        public MerchantCustomerInfoController(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
+            IUtilityService utilityService)
         {
             _context = context;
-            _userManager = userManager;
             _utilityService = utilityService;
         }
 
@@ -32,15 +31,15 @@ namespace Refundeo.Controllers.Merchant
             var userId = _utilityService.GetCallingUserId(Request);
 
             var customerInfos = await _context.MerchantInformations
-            .Where(m => m.Merchant.Id == userId)
-            .SelectMany(m => m.RefundCases.Where(c => c.CustomerInformation != null))
-            .Select(r => new
-            {
-                Id = r.CustomerInformation.Id,
-                FirstName = r.CustomerInformation.FirstName,
-                LastName = r.CustomerInformation.LastName,
-                Country = r.CustomerInformation.Country
-            }).ToListAsync();
+                .Where(m => m.Merchant.Id == userId)
+                .SelectMany(m => m.RefundCases.Where(c => c.CustomerInformation != null))
+                .Select(r => new
+                {
+                    r.CustomerInformation.Id,
+                    r.CustomerInformation.FirstName,
+                    r.CustomerInformation.LastName,
+                    r.CustomerInformation.Country
+                }).ToListAsync();
 
             if (customerInfos == null)
             {
