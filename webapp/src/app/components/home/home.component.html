@@ -32,6 +32,7 @@
                     <div class="menu-bottom-content">
                         <li *ngFor="let menuItem of bottomMenuItems.reverse();" [routerLinkActive]="['active']"
                             [routerLink]="[menuItem.routerLink]"
+                            class="menu-bottom-item"
                             [routerLinkActiveOptions]="{ exact: true }" (click)="setActiveMenuItem(menuItem)">
                             <a>
                                 <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i><span class="menu-text">{{menuItem.displayName}}</span>

@@ -1,5 +1,5 @@
 $nav-width: 250px;
-$collapse-break: 767px;
+$collapse-break: 768px;
 $nav-background-color: #e9ecef;
 $nav-color: #303880;
 $nav-active-color: #303880;
@@ -25,14 +25,15 @@ $nav-menu-line-height: 60px;
     width: $nav-width;
     font-size: 15px;
     font-weight: 200;
-    top: 0;
-    float: left;
-    position: fixed;
     height: 100%;
-    overflow: auto;
+    overflow-x: hidden;
     background-color: $nav-background-color;
+    overflow-y: auto;
     .menu-body {
         width: 100%;
+        top: 0;
+        float: left;
+        background-color: $nav-background-color;
         height: 100%;
         @include no-select;
         .brand {
@@ -249,8 +250,11 @@ $nav-menu-line-height: 60px;
 }
 
 @media (min-width: $collapse-break) {
-    .nav-side-menu .menu-list .menu-content {
-        display: block;
+    .nav-side-menu {
+        position: absolute;
+        .menu-list .menu-content {
+            display: block;
+        }
     }
     #main {
         box-shadow: rgba(0, 0, 0, 0.3) 0 0 5px 0;
