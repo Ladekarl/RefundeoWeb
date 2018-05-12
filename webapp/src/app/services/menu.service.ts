@@ -40,15 +40,15 @@ export class MenuService {
     }];
 
     private static bottomMenuItems: MenuItem[] = [{
-        routerLink: '/login',
-        displayName: 'Logout',
-        title: 'Logout',
-        iconClass: 'fa-sign-out'
-    }, {
         routerLink: '/settings',
         displayName: 'Settings',
         title: 'Settings',
         iconClass: 'fa-cog'
+    }, {
+        routerLink: '/login',
+        displayName: 'Logout',
+        title: 'Logout',
+        iconClass: 'fa-sign-out'
     }];
 
     constructor(private authenticationService: AuthenticationService) {

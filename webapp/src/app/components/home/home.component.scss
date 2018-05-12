@@ -25,13 +25,14 @@ $nav-menu-line-height: 60px;
     width: $nav-width;
     font-size: 15px;
     font-weight: 200;
-    resize: horizontal;
+    top: 0;
+    float: left;
+    position: fixed;
+    height: 100%;
     overflow: auto;
+    background-color: $nav-background-color;
     .menu-body {
-        background-color: $nav-background-color;
-        position: fixed;
-        top: 0px;
-        width: $nav-width;
+        width: 100%;
         height: 100%;
         @include no-select;
         .brand {
@@ -43,7 +44,7 @@ $nav-menu-line-height: 60px;
             border-bottom: thin solid $nav-border-bottom-color;
             a {
                 .logo-container {
-                    padding: 30px 90px 0px 90px;
+                    padding: 10% 30% 10% 30%;
                 }
                 text-decoration: none;
                 color: inherit;
@@ -60,15 +61,15 @@ $nav-menu-line-height: 60px;
     ul,
     li {
         list-style: none;
-        padding: 0px;
-        margin: 0px;
+        padding: 0;
+        margin: 0;
         line-height: $nav-menu-line-height;
         cursor: pointer;
         @include no-select;
     }
     ul :not(collapsed) .arrow:before,
     li :not(collapsed) .arrow:before {
-        font-family: FontAwesome;
+        font-family: FontAwesome, serif;
         content: "\f078";
         padding-left: 10px;
         padding-right: 10px;
@@ -96,14 +97,14 @@ $nav-menu-line-height: 60px;
         border: none;
         line-height: $nav-menu-line-height;
         border-bottom: thin solid $nav-border-bottom-color;
-        margin-left: 0px;
+        margin-left: 0;
     }
     ul .sub-menu li:hover,
     li .sub-menu li:hover {
         background-color: $nav-active-color;
     }
     ul .sub-menu li:before {
-        font-family: FontAwesome;
+        font-family: FontAwesome, serif;
         content: "\f105";
         display: inline-block;
         padding-left: 10px;
@@ -118,24 +119,23 @@ $nav-menu-line-height: 60px;
             outline: 0;
         }
         .sub-menu li:before {
-            font-family: FontAwesome;
+            font-family: FontAwesome, serif;
             content: "\f105";
             display: inline-block;
             padding-left: 10px;
             padding-right: 10px;
             vertical-align: middle;
         }
-        padding-left: 0px; // border-left: 3px solid $nav-border-left-color;
+        padding-left: 0; // border-left: 3px solid $nav-border-left-color;
         border-top: thin solid $nav-border-color;
         @include no-select;
         a {
             text-decoration: none;
             color: $nav-inactive-text-color;
             @include no-select;
-            i {
-                padding-left: 25px;
+            .menu-icon {
+                padding: 0 30px 0 25px;
                 width: 20px;
-                padding-right: 30px;
                 text-align: center;
                 @include no-select;
             }
@@ -155,16 +155,16 @@ $nav-menu-line-height: 60px;
     }
     .menu-bottom {
         background-color: $nav-background-color;
-        position: fixed;
-        bottom: 0px;
-        width: $nav-width;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
         ul {
             margin: 0;
             width: 100%;
             padding: 0;
             overflow: hidden;
             display: table;
-            li {
+            .menu-bottom-item {
                 display: table-cell;
                 border-top: thin solid $nav-border-color;
                 border-bottom: none;
@@ -184,8 +184,8 @@ $nav-menu-line-height: 60px;
                 line-height: $nav-menu-line-height;
                 text-decoration: none;
                 i {
-                    padding-left: 0px;
-                    padding-right: 0px;
+                    padding-left: 0;
+                    padding-right: 0;
                 }
             }
         }
@@ -232,9 +232,9 @@ $nav-menu-line-height: 60px;
         overflow-x: hidden;
         overflow-y: scroll;
         top: 70px;
-        right: 0px;
-        bottom: 0px;
-        left: 0px;
+        right: 0;
+        bottom: 0;
+        left: 0;
         #header {
             font-size: 20px;
             padding-left: 50px;
@@ -262,16 +262,16 @@ $nav-menu-line-height: 60px;
         overflow: hidden;
         #header {
             position: absolute;
-            top: 0px;
-            right: 0px;
-            left: 0px;
+            top: 0;
+            right: 0;
+            left: 0;
         }
         #content {
             position: absolute;
             top: 60px;
             left: 0px;
-            right: 0px;
-            bottom: 0px;
+            right: 0;
+            bottom: 0;
             padding: 20px 100px 90px 100px;
             overflow-y: auto;
             overflow-x: hidden;
@@ -283,8 +283,8 @@ $nav-menu-line-height: 60px;
 }
 
 body {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
 
 #main {
