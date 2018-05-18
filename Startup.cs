@@ -28,12 +28,12 @@ namespace Refundeo
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
             {
-                builder.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+                builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
                 builder.AddUserSecrets<Startup>();
             }
             else
@@ -114,7 +114,6 @@ namespace Refundeo
                 var options = new RewriteOptions()
                     .AddRedirectToHttps();
                 app.UseRewriter(options);
-                //app.UseCors(builder => builder.WithOrigins(Configuration["AngularServer"]));
             }
 
             app.UseSwagger();
