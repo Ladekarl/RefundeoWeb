@@ -45,6 +45,7 @@ namespace Refundeo.Controllers.User
 
         [Authorize(Roles = RefundeoConstants.RoleUser)]
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer(string id)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
