@@ -79,8 +79,8 @@ namespace Refundeo.Controllers.User
 
             var customerInformation = new CustomerInformation
             {
-                FirstName = model.Firstname,
-                LastName = model.Lastname,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 Country = model.Country
             };
 
@@ -122,8 +122,8 @@ namespace Refundeo.Controllers.User
                 return _utilityService.GenerateBadRequestObjectResult(updateUserResult.Errors);
             }
 
-            customerInformation.FirstName = model.Firstname;
-            customerInformation.LastName = model.Lastname;
+            customerInformation.FirstName = model.FirstName;
+            customerInformation.LastName = model.LastName;
             customerInformation.Country = model.Country;
             customerInformation.BankAccountNumber = model.BankAccountNumber;
             customerInformation.BankRegNumber = model.BankRegNumber;

@@ -20,16 +20,16 @@ namespace Refundeo.Core.Data.Initializers
             {
                 Username = "User",
                 Password = "User1234!",
-                Firstname = "Bob",
-                Lastname = "Dylan",
+                FirstName = "Bob",
+                LastName = "Dylan",
                 Country = "DK"
             },
             new UserRegisterDto
             {
                 Username = "Mike",
                 Password = "User1234!",
-                Firstname = "Mike",
-                Lastname = "Tyson",
+                FirstName = "Mike",
+                LastName = "Tyson",
                 Country = "UK"
             }
         };

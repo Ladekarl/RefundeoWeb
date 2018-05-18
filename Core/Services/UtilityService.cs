@@ -80,8 +80,8 @@ namespace Refundeo.Core.Services
                 {
                     Id = info.Customer?.Id,
                     Username = info.Customer?.UserName,
-                    Firstname = info.FirstName,
-                    Lastname = info.LastName,
+                    FirstName = info.FirstName,
+                    LastName = info.LastName,
                     Country = info.Country
                 };
             }

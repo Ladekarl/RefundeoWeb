@@ -62,8 +62,8 @@ namespace Refundeo.Core.Data.Initializers
             {
                 if (!userManager.Users.Any(u => u.UserName == user.Username))
                 {
-                    await CreateCustomerAsync(userManager, context, user.Username, user.Password, user.Firstname,
-                        user.Lastname, user.Country, "123456781234", "1234");
+                    await CreateCustomerAsync(userManager, context, user.Username, user.Password, user.FirstName,
+                        user.LastName, user.Country, "123456781234", "1234");
                 }
             }
 
