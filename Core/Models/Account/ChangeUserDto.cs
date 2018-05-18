@@ -8,5 +8,7 @@ namespace Refundeo.Core.Models.Account
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public string Country { get; set; }
+        public string BankAccountNumber { get; set; }
+        public string BankRegNumber { get; set; }
     }
 }

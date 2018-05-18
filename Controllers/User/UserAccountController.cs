@@ -43,6 +43,24 @@ namespace Refundeo.Controllers.User
             return userModels;
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleUser)]
+        [Authorize(Roles = RefundeoConstants.RoleAdmin)]
+        public async Task<IActionResult> GetCustomer(string id)
+        {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+            var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
+            if (user.Id != id && !isAdmin)
+            {
+                return StatusCode(403);
+            }
+
+            var customer = await _context.CustomerInformations
+                .Where(c => c.Customer.Id == user.Id)
+                .FirstOrDefaultAsync();
+
+            return Ok(_utilityService.ConvertCustomerInformationToDto(customer));
+        }
+
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDto model)
@@ -61,7 +79,7 @@ namespace Refundeo.Controllers.User
                 Country = model.Country
             };
 
-            bool shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
+            var shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
 
             return await _authenticationService.RegisterUserAsync(user, model.Password, customerInformation,
                 shouldCreateRefreshToken);
@@ -102,6 +120,8 @@ namespace Refundeo.Controllers.User
             customerInformation.FirstName = model.Firstname;
             customerInformation.LastName = model.Lastname;
             customerInformation.Country = model.Country;
+            customerInformation.BankAccountNumber = model.BankAccountNumber;
+            customerInformation.BankRegNumber = model.BankRegNumber;
 
             await _context.SaveChangesAsync();
 
