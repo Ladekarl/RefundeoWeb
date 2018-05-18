@@ -43,8 +43,7 @@ namespace Refundeo.Controllers.User
             return userModels;
         }
 
-        [Authorize(Roles = RefundeoConstants.RoleUser)]
-        [Authorize(Roles = RefundeoConstants.RoleAdmin)]
+        [Authorize(Roles = RefundeoConstants.RoleAdmin + "," + RefundeoConstants.RoleUser)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer(string id)
         {
@@ -58,6 +57,11 @@ namespace Refundeo.Controllers.User
             var customer = await _context.CustomerInformations
                 .Where(c => c.Customer.Id == user.Id)
                 .FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
 
             return Ok(_utilityService.ConvertCustomerInformationToDto(customer));
         }
