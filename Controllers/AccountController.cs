@@ -72,7 +72,8 @@ namespace Refundeo.Controllers
             {
                 FirstName = fbUser.FirstName,
                 LastName = fbUser.LastName,
-                Country = fbUser.Location.Location.Country
+                Country = fbUser.Location.Location.Country,
+                IsOauth = true
             };
             return await _authenticationService.RegisterUserAsync(newUser,
                 _authenticationService.GenerateRandomPassword(), customerInformation, shouldCreateRefreshToken);

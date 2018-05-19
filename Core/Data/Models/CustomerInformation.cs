@@ -11,6 +11,7 @@ namespace Refundeo.Core.Data.Models
         public string Country { get; set; }
         public string BankAccountNumber { get; set; }
         public string BankRegNumber { get; set; }
+        public bool IsOauth { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
         public string PrivacyPolicy { get; set; }
         public virtual RefundeoUser Customer { get; set; }
