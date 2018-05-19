@@ -266,6 +266,8 @@ namespace Refundeo.Core.Services
                 return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
+            customerInformation.Customer = user;
+
             await _context.CustomerInformations.AddAsync(customerInformation);
             await _context.SaveChangesAsync();
 
