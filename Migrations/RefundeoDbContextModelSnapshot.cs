@@ -133,6 +133,8 @@ namespace Refundeo.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("AcceptedPrivacyPolicy");
+
                     b.Property<string>("BankAccountNumber");
 
                     b.Property<string>("BankRegNumber");
@@ -144,6 +146,8 @@ namespace Refundeo.Migrations
                     b.Property<string>("FirstName");
 
                     b.Property<string>("LastName");
+
+                    b.Property<string>("PrivacyPolicy");
 
                     b.HasKey("Id");
 

@@ -82,7 +82,9 @@ namespace Refundeo.Core.Services
                     Username = info.Customer?.UserName,
                     FirstName = info.FirstName,
                     LastName = info.LastName,
-                    Country = info.Country
+                    Country = info.Country,
+                    AcceptedPrivacyPolicy = info.AcceptedPrivacyPolicy,
+                    PrivacyPolicy = info.PrivacyPolicy
                 };
             }
 

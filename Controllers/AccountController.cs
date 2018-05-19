@@ -72,7 +72,8 @@ namespace Refundeo.Controllers
             {
                 FirstName = fbUser.FirstName,
                 LastName = fbUser.LastName,
-                Country = "Unknown"
+                Country = fbUser.Location.Location.Country,
+                Customer = newUser
             };
             return await _authenticationService.RegisterUserAsync(newUser,
                 _authenticationService.GenerateRandomPassword(), customerInformation, shouldCreateRefreshToken);
@@ -216,7 +217,7 @@ namespace Refundeo.Controllers
                 return _utilityService.GenerateBadRequestObjectResult(changePasswordResult.Errors);
             }
 
-            return new NoContentResult();
+            return NoContent();
         }
 
         private static async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)
