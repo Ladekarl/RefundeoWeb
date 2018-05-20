@@ -38,7 +38,7 @@ namespace Refundeo.Controllers.Merchant
 
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var refundCases = await _context.RefundCases
@@ -64,7 +64,7 @@ namespace Refundeo.Controllers.Merchant
 
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var query = _context.RefundCases
@@ -110,7 +110,7 @@ namespace Refundeo.Controllers.Merchant
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var refundCase = await _context.RefundCases
@@ -133,7 +133,7 @@ namespace Refundeo.Controllers.Merchant
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             if (!ModelState.IsValid)
@@ -177,7 +177,8 @@ namespace Refundeo.Controllers.Merchant
             return _refundCaseService.GenerateRefundCaseDtoResponse(refundCaseResult.Entity);
         }
 
-        // Do Merchants ever need to update a refund case?
+        // Do Merchants ever need to put refund case? This would make it unsafe since clients could alter this.
+        // We already have accept endpoint for accepting refund cases
 
         // [HttpPut("{id}")]
         // public async Task<IActionResult> UpdateMerchantRefundCase(long id, [FromBody] RefundCaseDTO model)
@@ -185,7 +186,7 @@ namespace Refundeo.Controllers.Merchant
         //     var user = await GetCallingUserAsync();
         //     if (user == null)
         //     {
-        //         return Unauthorized();
+        //         return Forbid();
         //     }
         //     if (!ModelState.IsValid)
         //     {
@@ -222,7 +223,7 @@ namespace Refundeo.Controllers.Merchant
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             if (!ModelState.IsValid)
@@ -253,7 +254,7 @@ namespace Refundeo.Controllers.Merchant
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var refundCase = await _context.RefundCases

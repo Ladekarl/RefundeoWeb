@@ -35,7 +35,7 @@ namespace Refundeo.Controllers.User
 
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var refundCases = _context.RefundCases
@@ -61,7 +61,7 @@ namespace Refundeo.Controllers.User
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var refundCase = await _context.RefundCases
@@ -87,7 +87,7 @@ namespace Refundeo.Controllers.User
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image))
@@ -132,7 +132,7 @@ namespace Refundeo.Controllers.User
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             if (!ModelState.IsValid)
@@ -169,7 +169,7 @@ namespace Refundeo.Controllers.User
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             var refundCase = await _context.RefundCases

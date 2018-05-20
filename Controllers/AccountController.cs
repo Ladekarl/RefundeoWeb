@@ -188,7 +188,7 @@ namespace Refundeo.Controllers
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             if (!ModelState.IsValid)
