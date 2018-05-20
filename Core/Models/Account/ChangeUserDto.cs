@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Refundeo.Core.Models.Account
 {
     public class ChangeUserDto
@@ -11,6 +9,8 @@ namespace Refundeo.Core.Models.Account
         public string BankAccountNumber { get; set; }
         public string BankRegNumber { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
+        public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }
+        public string TermsOfService { get; set; }
     }
 }

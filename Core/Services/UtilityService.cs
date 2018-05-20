@@ -84,7 +84,9 @@ namespace Refundeo.Core.Services
                     LastName = info.LastName,
                     Country = info.Country,
                     AcceptedPrivacyPolicy = info.AcceptedPrivacyPolicy,
+                    AcceptedTermsOfService = info.AcceptedTermsOfService,
                     PrivacyPolicy = info.PrivacyPolicy,
+                    TermsOfService = info.TermsOfService,
                     IsOauth = info.IsOauth
                 };
             }

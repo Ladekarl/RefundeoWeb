@@ -13,7 +13,9 @@ namespace Refundeo.Core.Data.Models
         public string BankRegNumber { get; set; }
         public bool IsOauth { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
+        public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }
+        public string TermsOfService { get; set; }
         public virtual RefundeoUser Customer { get; set; }
         public ICollection<RefundCase> RefundCases { get; set; }
     }

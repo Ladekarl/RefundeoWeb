@@ -9,6 +9,8 @@ namespace Refundeo.Core.Models.Account
         public string Country { get; set; }
         public bool IsOauth { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
+        public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }
+        public string TermsOfService { get; set; }
     }
 }
