@@ -51,7 +51,7 @@ namespace Refundeo.Controllers.User
             var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
             if (user.Id != id && !isAdmin)
             {
-                return StatusCode(403);
+                return Forbid();
             }
 
             var customer = await _context.CustomerInformations
