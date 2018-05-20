@@ -62,7 +62,6 @@ namespace Refundeo.Controllers
                 {
                     refreshToken = await _authenticationService.CreateAndSaveRefreshTokenAsync(user);
                 }
-
                 return await _authenticationService.GenerateTokenResultAsync(user, refreshToken);
             }
 
