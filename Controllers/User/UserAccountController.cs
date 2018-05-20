@@ -81,7 +81,9 @@ namespace Refundeo.Controllers.User
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                Country = model.Country
+                Country = model.Country,
+                AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy,
+                PrivacyPolicy = model.PrivacyPolicy
             };
 
             var shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
@@ -127,6 +129,8 @@ namespace Refundeo.Controllers.User
             customerInformation.Country = model.Country;
             customerInformation.BankAccountNumber = model.BankAccountNumber;
             customerInformation.BankRegNumber = model.BankRegNumber;
+            customerInformation.AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy;
+            customerInformation.PrivacyPolicy = model.PrivacyPolicy;
 
             await _context.SaveChangesAsync();
 

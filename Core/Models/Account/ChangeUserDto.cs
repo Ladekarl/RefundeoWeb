@@ -10,5 +10,7 @@ namespace Refundeo.Core.Models.Account
         public string Country { get; set; }
         public string BankAccountNumber { get; set; }
         public string BankRegNumber { get; set; }
+        public bool AcceptedPrivacyPolicy { get; set; }
+        public string PrivacyPolicy { get; set; }
     }
 }
