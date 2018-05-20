@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
+using Refundeo.Core.Models.Account;
 using Refundeo.Core.Services.Interfaces;
 using SignInResult = Refundeo.Core.Helpers.SignInResult;
 
@@ -81,7 +82,7 @@ namespace Refundeo.Core.Services
 
             if (customerInformation != null)
             {
-                return await GenerateCustomertObjectResultAsync(token, user, customerInformation, refreshToken);
+                return await GenerateCustomerObjectResultAsync(token, user, customerInformation, refreshToken);
             }
 
             return new ObjectResult(new
@@ -98,36 +99,40 @@ namespace Refundeo.Core.Services
         private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
             MerchantInformation merchantInformation, string refreshToken)
         {
-            return new ObjectResult(new
+            return new ObjectResult(new MerchantDto
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo,
-                id = user.Id,
-                username = user.UserName,
-                companyName = merchantInformation.CompanyName,
-                cvrNumber = merchantInformation.CVRNumber,
-                refundPercentage = merchantInformation.RefundPercentage,
-                roles = await _userManager.GetRolesAsync(user),
-                refreshToken
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = token.ValidTo,
+                Id = user.Id,
+                Username = user.UserName,
+                CompanyName = merchantInformation.CompanyName,
+                CvrNumber = merchantInformation.CVRNumber,
+                RefundPercentage = merchantInformation.RefundPercentage,
+                Roles = await _userManager.GetRolesAsync(user),
+                RefreshToken = refreshToken
             });
         }
 
-        private async Task<ObjectResult> GenerateCustomertObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
+        private async Task<ObjectResult> GenerateCustomerObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
             CustomerInformation customerInformation, string refreshToken)
         {
-            return new ObjectResult(new
+            return new ObjectResult(new CustomerDto
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo,
-                id = user.Id,
-                username = user.UserName,
-                firstName = customerInformation.FirstName,
-                lastName = customerInformation.LastName,
-                country = customerInformation.Country,
-                bankAccountNumber = customerInformation.BankAccountNumber,
-                bankRegNumber = customerInformation.BankRegNumber,
-                roles = await _userManager.GetRolesAsync(user),
-                refreshToken
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = token.ValidTo,
+                Id = user.Id,
+                Username = user.UserName,
+                FirstName = customerInformation.FirstName,
+                LastName = customerInformation.LastName,
+                Country = customerInformation.Country,
+                BankAccountNumber = customerInformation.BankAccountNumber,
+                BankRegNumber = customerInformation.BankRegNumber,
+                AcceptedTermsOfService = customerInformation.AcceptedTermsOfService,
+                AcceptedPrivacyPolicy = customerInformation.AcceptedPrivacyPolicy,
+                PrivacyPolicy = customerInformation.PrivacyPolicy,
+                TermsOfService = customerInformation.TermsOfService,
+                Roles = await _userManager.GetRolesAsync(user),
+                RefreshToken = refreshToken
             });
         }
 

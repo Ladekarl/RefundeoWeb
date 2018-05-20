@@ -16,10 +16,8 @@ namespace Refundeo.Core.Services.Interfaces
         Task<JwtSecurityToken> GenerateTokenAsync(RefundeoUser user);
         ICollection<Claim> GenerateClaims(RefundeoUser user);
         string GenerateRandomPassword(PasswordOptions opts = null);
-
         Task<ObjectResult> RegisterUserAsync(RefundeoUser user, string password,
             CustomerInformation customerInformation, bool shouldCreateRefreshToken = false);
-
         Task<string> CreateAndSaveRefreshTokenAsync(RefundeoUser user);
     }
 }
