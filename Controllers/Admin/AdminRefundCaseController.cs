@@ -165,7 +165,7 @@ namespace Refundeo.Controllers.Admin
             refundCaseToUpdate.IsRequested = model.IsRequested;
             refundCaseToUpdate.IsAccepted = model.IsAccepted;
             refundCaseToUpdate.IsRejected = model.IsRejected;
-            refundCaseToUpdate.Documentation.Image = _refundCaseService.ConvertBase64ToByteArray(model.Documentation);
+            refundCaseToUpdate.Documentation.Image = model.Documentation;
             refundCaseToUpdate.QRCode.Image = _refundCaseService.ConvertBase64ToByteArray(model.QrCode);
             refundCaseToUpdate.RefundAmount = model.RefundAmount;
 
