@@ -9,6 +9,7 @@ namespace Refundeo.Core.Data.Models
         public double RefundAmount { get; set; }
         public bool IsRequested { get; set; }
         public bool IsAccepted { get; set; }
+        public bool IsRejected { get; set; }
         public virtual CustomerInformation CustomerInformation { get; set; }
         public MerchantInformation MerchantInformation { get; set; }
         public virtual QRCode QRCode { get; set; }

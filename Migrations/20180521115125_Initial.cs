@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Refundeo.Migrations
 {
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -102,6 +102,7 @@ namespace Refundeo.Migrations
                     PasswordHash = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    RefreshToken = table.Column<string>(nullable: true),
                     SecurityStamp = table.Column<string>(nullable: true),
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true)
@@ -208,12 +209,17 @@ namespace Refundeo.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AcceptedPrivacyPolicy = table.Column<bool>(nullable: false),
+                    AcceptedTermsOfService = table.Column<bool>(nullable: false),
                     BankAccountNumber = table.Column<string>(nullable: true),
                     BankRegNumber = table.Column<string>(nullable: true),
                     Country = table.Column<string>(nullable: true),
                     CustomerId = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
-                    LastName = table.Column<string>(nullable: true)
+                    IsOauth = table.Column<bool>(nullable: false),
+                    LastName = table.Column<string>(nullable: true),
+                    PrivacyPolicy = table.Column<string>(nullable: true),
+                    TermsOfService = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -223,7 +229,7 @@ namespace Refundeo.Migrations
                         column: x => x.CustomerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -234,8 +240,11 @@ namespace Refundeo.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Amount = table.Column<double>(nullable: false),
                     CustomerInformationId = table.Column<long>(nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateRequested = table.Column<DateTime>(nullable: false),
                     DocumentationId = table.Column<long>(nullable: true),
                     IsAccepted = table.Column<bool>(nullable: false),
+                    IsRejected = table.Column<bool>(nullable: false),
                     IsRequested = table.Column<bool>(nullable: false),
                     MerchantInformationId = table.Column<long>(nullable: true),
                     QRCodeId = table.Column<long>(nullable: true),

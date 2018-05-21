@@ -11,8 +11,8 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    [Migration("20180520174907_TermsOfService")]
-    partial class TermsOfService
+    [Migration("20180521115125_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -221,6 +221,8 @@ namespace Refundeo.Migrations
                     b.Property<long?>("DocumentationId");
 
                     b.Property<bool>("IsAccepted");
+
+                    b.Property<bool>("IsRejected");
 
                     b.Property<bool>("IsRequested");
 

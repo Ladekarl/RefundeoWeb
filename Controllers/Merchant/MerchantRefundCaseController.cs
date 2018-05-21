@@ -181,9 +181,9 @@ namespace Refundeo.Controllers.Merchant
         // We already have accept endpoint for accepting refund cases
 
         // [HttpPut("{id}")]
-        // public async Task<IActionResult> UpdateMerchantRefundCase(long id, [FromBody] RefundCaseDTO model)
+        // public async Task<IActionResult> UpdateMerchantRefundCase(long id, [FromBody] RefundCaseDto model)
         // {
-        //     var user = await GetCallingUserAsync();
+        //     var user = await _utilityService.GetCallingUserAsync(Request);
         //     if (user == null)
         //     {
         //         return Forbid();
@@ -210,11 +210,12 @@ namespace Refundeo.Controllers.Merchant
         //     refundCaseToUpdate.QRCode.Image = ConvertBase64ToByteArray(model.QRCode);
         //     refundCaseToUpdate.RefundAmount = model.RefundAmount;
         //     refundCaseToUpdate.IsAccepted = model.IsAccepted;
+        //     refundCaseToUpdate.IsRejected = model.IsRejected
         //     refundCaseToUpdate.IsRequested = model.IsRequested;
 
         //     context.RefundCases.Update(refundCaseToUpdate);
         //     await context.SaveChangesAsync();
-        //     return new NoContentResult();
+        //     return NoContent();
         // }
 
         [HttpPost("{id}/accept")]
@@ -241,9 +242,11 @@ namespace Refundeo.Controllers.Merchant
             }
 
             refundCaseToUpdate.IsAccepted = model.IsAccepted;
+            refundCaseToUpdate.IsRejected = !model.IsAccepted;
+
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
-            return new NoContentResult();
+            return NoContent();
         }
 
         // TODO: Shouldn't this only be an option if the refund case has been processed?
@@ -267,7 +270,7 @@ namespace Refundeo.Controllers.Merchant
 
             _context.RefundCases.Remove(refundCase);
             await _context.SaveChangesAsync();
-            return new NoContentResult();
+            return NoContent();
         }
     }
 }

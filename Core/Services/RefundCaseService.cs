@@ -46,6 +46,7 @@ namespace Refundeo.Core.Services
                 RefundAmount = refundCase.RefundAmount,
                 IsRequested = refundCase.IsRequested,
                 IsAccepted = refundCase.IsAccepted,
+                IsRejected = refundCase.IsRejected,
                 QrCode = ConvertByteArrayToBase64(refundCase.QRCode?.Image),
                 Documentation = ConvertByteArrayToBase64(refundCase.Documentation?.Image),
                 DateCreated = refundCase.DateCreated,

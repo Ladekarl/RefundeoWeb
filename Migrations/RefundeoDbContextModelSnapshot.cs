@@ -221,6 +221,8 @@ namespace Refundeo.Migrations
 
                     b.Property<bool>("IsAccepted");
 
+                    b.Property<bool>("IsRejected");
+
                     b.Property<bool>("IsRequested");
 
                     b.Property<long?>("MerchantInformationId");
