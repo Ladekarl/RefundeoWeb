@@ -44,7 +44,9 @@ namespace Refundeo.Core.Helpers
             "image/vnd.sealedmedia.softseal.jpg",
             "image/vnd.svf",
             "image/vnd.wap.wbmp",
-            "image/vnd.xiff"
+            "image/vnd.xiff",
+            "image/bmp",
+            "image/webp"
         };
     }
 }
