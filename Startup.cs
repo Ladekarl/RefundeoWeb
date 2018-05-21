@@ -62,9 +62,9 @@ namespace Refundeo
             services.AddTransient<IRefundCaseService, RefundCaseService>();
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
 
-            services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
-
             services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
+
+            services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));

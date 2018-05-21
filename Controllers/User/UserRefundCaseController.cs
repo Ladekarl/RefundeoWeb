@@ -97,7 +97,7 @@ namespace Refundeo.Controllers.User
             }
 
             if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image) || string.IsNullOrEmpty(model.ImageName) ||
-                string.IsNullOrEmpty(model.ImageType))
+                string.IsNullOrEmpty(model.ImageType) || !RefundeoConstants.ValidImageTypes.Contains(model.ImageType))
             {
                 return BadRequest();
             }
