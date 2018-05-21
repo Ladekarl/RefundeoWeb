@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,6 +9,7 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
+using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
@@ -88,8 +88,8 @@ namespace Refundeo.Controllers.User
             return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
         }
 
-        [HttpPost("{id}/doc")]
-        public async Task<IActionResult> UploadDocumentation(long id, IFormFile model)
+        [HttpPost("/doc")]
+        public async Task<IActionResult> UploadDocumentation(DocementationDto model)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
@@ -97,7 +97,7 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            if (!ModelState.IsValid || model == null || model.Length == 0)
+            if (!ModelState.IsValid || model.File == null || model.File.Length == 0)
             {
                 return BadRequest();
             }
@@ -106,15 +106,15 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
-                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .FirstOrDefaultAsync(r => r.Id == model.RefundCaseId && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
                 return NotFound();
             }
 
-            var blobName = model.FileName;
-            var fileStream = model.OpenReadStream();
+            var blobName = model.File.FileName;
+            var fileStream = model.File.OpenReadStream();
 
             var containerName = _optionsAccessor.Value.DocumentationContainerNameOption;
 
