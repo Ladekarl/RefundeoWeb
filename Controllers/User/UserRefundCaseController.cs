@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -9,7 +10,6 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
-using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
@@ -89,7 +89,7 @@ namespace Refundeo.Controllers.User
         }
 
         [HttpPost("{id}/doc")]
-        public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocementationDto model)
+        public async Task<IActionResult> UploadDocumentation(long id, IFormFile model)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
@@ -97,7 +97,7 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            if (!ModelState.IsValid || model.File == null || model.File.Length == 0)
+            if (!ModelState.IsValid || model == null || model.Length == 0)
             {
                 return BadRequest();
             }
@@ -113,8 +113,8 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            var blobName = model.File.FileName;
-            var fileStream = model.File.OpenReadStream();
+            var blobName = model.FileName;
+            var fileStream = model.OpenReadStream();
 
             var containerName = _optionsAccessor.Value.DocumentationContainerNameOption;
 
