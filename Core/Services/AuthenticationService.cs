@@ -127,6 +127,7 @@ namespace Refundeo.Core.Services
                 Country = customerInformation.Country,
                 BankAccountNumber = customerInformation.BankAccountNumber,
                 BankRegNumber = customerInformation.BankRegNumber,
+                IsOauth  = customerInformation.IsOauth,
                 AcceptedTermsOfService = customerInformation.AcceptedTermsOfService,
                 AcceptedPrivacyPolicy = customerInformation.AcceptedPrivacyPolicy,
                 PrivacyPolicy = customerInformation.PrivacyPolicy,
