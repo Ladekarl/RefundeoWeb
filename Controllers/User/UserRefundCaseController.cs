@@ -9,12 +9,11 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
-using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
 {
-    [Authorize(Roles = RefundeoConstants.RoleUser)]
+    [Authorize(Roles = RefundeoConstants.RoleUser + "," + RefundeoConstants.RoleAdmin)]
     [Route("/api/user/refundcase")]
     public class UserRefundCaseController : Controller
     {

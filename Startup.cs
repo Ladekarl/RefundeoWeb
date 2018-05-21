@@ -60,8 +60,9 @@ namespace Refundeo
             services.AddTransient<IUtilityService, UtilityService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IRefundCaseService, RefundCaseService>();
-            services.AddTransient<IBlobStorageService, BlobStorageServiceService>();
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
+
+            services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
 
             services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
 

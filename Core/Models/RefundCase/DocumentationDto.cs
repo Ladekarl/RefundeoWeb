@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace Refundeo.Core.Models.RefundCase
 {
     public class DocumentationDto

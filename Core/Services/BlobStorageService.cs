@@ -15,11 +15,11 @@ namespace Refundeo.Core.Services
 {
     public class BlobStorageServiceService : IBlobStorageService
     {
-        private readonly string _connectionString;
+        private readonly IOptions<StorageAccountOptions> _optionsAccessor;
 
         public BlobStorageServiceService(IOptions<StorageAccountOptions> optionsAccessor)
         {
-            _connectionString = optionsAccessor.Value.StorageAccountConnectionStringOption;
+            _optionsAccessor = optionsAccessor;
         }
 
         public async Task<string> UploadAsync(string containerName, string blobName, string filePath)
@@ -141,7 +141,8 @@ namespace Refundeo.Core.Services
         private async Task<CloudBlobContainer> GetContainerAsync(string containerName)
         {
             var storageAccount = new CloudStorageAccount(
-                new StorageCredentials(_connectionString), false);
+                new StorageCredentials(_optionsAccessor.Value.StorageAccountNameOption,
+                    _optionsAccessor.Value.StorageAccountKeyOption), false);
 
             var blobClient = storageAccount.CreateCloudBlobClient();
 
