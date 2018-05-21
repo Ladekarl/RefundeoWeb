@@ -84,6 +84,16 @@ namespace Refundeo.Core.Data.Initializers
                 QrCodeHeight = 30,
                 QrCodeWidth = 30,
                 QrCodeMargin = 0,
+                Amount = 8000,
+                DateRequested = DateTime.UtcNow,
+                MerchantName = "Merchant",
+                CustomerName = "Mike"
+            },
+            new DbInitializeRefundCase
+            {
+                QrCodeHeight = 30,
+                QrCodeWidth = 30,
+                QrCodeMargin = 0,
                 Amount = 3000,
                 MerchantName = "Merchant"
             }
