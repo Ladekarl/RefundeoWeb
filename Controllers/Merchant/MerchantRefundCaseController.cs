@@ -53,7 +53,7 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCases);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 
         [HttpGet("{first}/{amount}/{sortBy}/{dir}/{filterBy}")]
@@ -94,7 +94,7 @@ namespace Refundeo.Controllers.Merchant
             var dtos = new List<RefundCaseDto>();
             foreach (var refundCase in refundCases)
             {
-                dtos.Add(_refundCaseService.ConvertRefundCaseToDto(refundCase));
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
             }
 
             return new ObjectResult(new
@@ -124,7 +124,7 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
         }
 
         [HttpPost]
@@ -174,7 +174,7 @@ namespace Refundeo.Controllers.Merchant
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCaseResult.Entity);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
 
         // Do Merchants ever need to put refund case? This would make it unsafe since clients could alter this.

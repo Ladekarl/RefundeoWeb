@@ -58,7 +58,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCases);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -84,7 +84,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
         }
 
         [HttpPost("{id}/doc")]

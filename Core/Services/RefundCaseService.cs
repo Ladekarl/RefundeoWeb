@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
@@ -15,30 +16,43 @@ namespace Refundeo.Core.Services
     public class RefundCaseService : IRefundCaseService
     {
         private readonly IUtilityService _utilityService;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public RefundCaseService(IUtilityService utilityService)
+        public RefundCaseService(IUtilityService utilityService, IBlobStorageService blobStorageService)
         {
             _utilityService = utilityService;
+            _blobStorageService = blobStorageService;
         }
 
-        public ObjectResult GenerateRefundCaseDtoResponse(IEnumerable<RefundCase> refundCases)
+        public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases)
         {
             var dtos = new List<RefundCaseDto>();
             foreach (var refundCase in refundCases)
             {
-                dtos.Add(ConvertRefundCaseToDto(refundCase));
+                dtos.Add(await ConvertRefundCaseToDtoAsync(refundCase));
             }
 
             return new ObjectResult(dtos);
         }
 
-        public ObjectResult GenerateRefundCaseDtoResponse(RefundCase refundCase)
+        public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase)
         {
-            return new ObjectResult(ConvertRefundCaseToDto(refundCase));
+            var dto = await ConvertRefundCaseToDtoAsync(refundCase);
+            return new ObjectResult(dto);
         }
 
-        public RefundCaseDto ConvertRefundCaseToDto(RefundCase refundCase)
+        public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase)
         {
+            string documentation = null;
+
+            if (refundCase.Documentation?.Image != null)
+            {
+                var blobUri = new Uri(refundCase.Documentation.Image);
+                var imageStream = await _blobStorageService.DownloadAsync(blobUri);
+                var imageBa = imageStream.ToArray();
+                documentation = ConvertByteArrayToBase64(imageBa);
+            }
+
             return new RefundCaseDto
             {
                 Id = refundCase.Id,
@@ -48,11 +62,11 @@ namespace Refundeo.Core.Services
                 IsAccepted = refundCase.IsAccepted,
                 IsRejected = refundCase.IsRejected,
                 QrCode = ConvertByteArrayToBase64(refundCase.QRCode?.Image),
-                Documentation = refundCase.Documentation?.Image,
+                Documentation = documentation,
                 DateCreated = refundCase.DateCreated,
                 DateRequested = refundCase.DateRequested,
                 Customer = _utilityService.ConvertCustomerInformationToDto(refundCase.CustomerInformation),
-                Merchant = _utilityService.ConvertMerchantInformationToDto(refundCase.MerchantInformation),
+                Merchant = _utilityService.ConvertMerchantInformationToDto(refundCase.MerchantInformation)
             };
         }
 

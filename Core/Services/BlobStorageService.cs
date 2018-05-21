@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -73,6 +74,17 @@ namespace Refundeo.Core.Services
             await blockBlob.DownloadToFileAsync(path, FileMode.Create);
         }
 
+        public async Task<MemoryStream> DownloadAsync(Uri uri)
+        {
+            var blockBlob = GetBlockBlob(uri);
+
+            using (var stream = new MemoryStream())
+            {
+                await blockBlob.DownloadToStreamAsync(stream);
+                return stream;
+            }
+        }
+
         public async Task DeleteAsync(string containerName, string blobName)
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
@@ -138,11 +150,21 @@ namespace Refundeo.Core.Services
             return blockBlob;
         }
 
+        public CloudBlockBlob GetBlockBlob(Uri uri)
+        {
+            var storageAccount = new CloudStorageAccount(
+                new StorageCredentials(_optionsAccessor.Value.StorageAccountNameOption,
+                    _optionsAccessor.Value.StorageAccountKeyOption), true);
+
+            return new CloudBlockBlob(uri, storageAccount.Credentials);
+        }
+
+
         private async Task<CloudBlobContainer> GetContainerAsync(string containerName)
         {
             var storageAccount = new CloudStorageAccount(
                 new StorageCredentials(_optionsAccessor.Value.StorageAccountNameOption,
-                    _optionsAccessor.Value.StorageAccountKeyOption), false);
+                    _optionsAccessor.Value.StorageAccountKeyOption), true);
 
             var blobClient = storageAccount.CreateCloudBlobClient();
 

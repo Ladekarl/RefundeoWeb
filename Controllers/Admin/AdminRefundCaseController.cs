@@ -42,7 +42,7 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCases);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 
         [HttpGet("{id}")]
@@ -62,7 +62,7 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
         }
 
         [HttpPost]
@@ -124,7 +124,7 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            return _refundCaseService.GenerateRefundCaseDtoResponse(refundCaseResult.Entity);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
 
         [HttpPut("{id}")]

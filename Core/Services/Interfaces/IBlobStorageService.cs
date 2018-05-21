@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -13,6 +14,7 @@ namespace Refundeo.Core.Services.Interfaces
         Task<string> UploadAsync(string containerName, string blobName, string base64, string imageType);
         Task<MemoryStream> DownloadAsync(string containerName, string blobName);
         Task DownloadAsync(string containerName, string blobName, string path);
+        Task<MemoryStream> DownloadAsync(Uri uri);
         Task DeleteAsync(string containerName, string blobName);
         Task<bool> ExistsAsync(string containerName, string blobName);
         Task<List<AzureBlobItem>> ListAsync(string containerName);
@@ -20,5 +22,6 @@ namespace Refundeo.Core.Services.Interfaces
         Task<List<string>> ListFoldersAsync(string containerName);
         Task<List<string>> ListFoldersAsync(string containerName, string rootFolder);
         Task<CloudBlockBlob> GetBlockBlobAsync(string containerName, string blobName);
+        CloudBlockBlob GetBlockBlob(Uri uri);
     }
 }
