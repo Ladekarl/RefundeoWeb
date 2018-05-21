@@ -9,7 +9,6 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
-using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
@@ -88,7 +87,7 @@ namespace Refundeo.Controllers.User
             return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
         }
 
-        [HttpPost("/doc")]
+        [HttpPost("doc")]
         public async Task<IActionResult> UploadDocumentation(DocementationDto model)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
