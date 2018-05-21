@@ -8,8 +8,9 @@ namespace Refundeo.Core.Services.Interfaces
 {
     public interface IBlobStorageService
     {
-        Task UploadAsync(string containerName, string blobName, string filePath);
-        Task UploadAsync(string containerName, string blobName, Stream stream);
+        Task<string> UploadAsync(string containerName, string blobName, string filePath);
+        Task<string> UploadAsync(string containerName, string blobName, Stream stream);
+        Task<string> UploadAsync(string containerName, string blobName, string base64, string imageType);
         Task<MemoryStream> DownloadAsync(string containerName, string blobName);
         Task DownloadAsync(string containerName, string blobName, string path);
         Task DeleteAsync(string containerName, string blobName);

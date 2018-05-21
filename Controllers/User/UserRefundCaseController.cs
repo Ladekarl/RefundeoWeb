@@ -9,6 +9,7 @@ using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
+using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
@@ -87,8 +88,8 @@ namespace Refundeo.Controllers.User
             return _refundCaseService.GenerateRefundCaseDtoResponse(refundCase);
         }
 
-        [HttpPost("doc")]
-        public async Task<IActionResult> UploadDocumentation(DocementationDto model)
+        [HttpPost("{id}/doc")]
+        public async Task<IActionResult> UploadDocumentation(long id, [FromBody] DocumentationDto model)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
@@ -96,7 +97,8 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            if (!ModelState.IsValid || model.File == null || model.File.Length == 0)
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image) || string.IsNullOrEmpty(model.ImageName) ||
+                string.IsNullOrEmpty(model.ImageType))
             {
                 return BadRequest();
             }
@@ -105,25 +107,21 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
-                .FirstOrDefaultAsync(r => r.Id == model.RefundCaseId && r.CustomerInformation.Customer == user);
+                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
             {
                 return NotFound();
             }
 
-            var blobName = model.File.FileName;
-            var fileStream = model.File.OpenReadStream();
-
             var containerName = _optionsAccessor.Value.DocumentationContainerNameOption;
 
-            await _blobStorageService.UploadAsync(containerName, blobName, fileStream);
-
-            var blob = await _blobStorageService.GetBlockBlobAsync(containerName, blobName);
+            var path = await _blobStorageService.UploadAsync(containerName, model.ImageName, model.Image,
+                model.ImageType);
 
             var documentation = new Documentation
             {
-                Image = blob.Uri.AbsoluteUri
+                Image = path
             };
 
             await _context.Documentations.AddAsync(documentation);

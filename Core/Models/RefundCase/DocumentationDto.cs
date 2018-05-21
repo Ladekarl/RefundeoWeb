@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace Refundeo.Core.Models.RefundCase
 {
-    public class DocementationDto
+    public class DocumentationDto
     {
-        public long RefundCaseId { get; set; }
-        public IFormFile File { get; set; }
+        public string ImageName { get; set; }
+        public string Image { get; set; }
+        public string ImageType { get; set; }
     }
 }

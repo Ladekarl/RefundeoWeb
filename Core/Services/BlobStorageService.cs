@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Refundeo.Core.Services
             _connectionString = optionsAccessor.Value.StorageAccountConnectionStringOption;
         }
 
-        public async Task UploadAsync(string containerName, string blobName, string filePath)
+        public async Task<string> UploadAsync(string containerName, string blobName, string filePath)
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
 
@@ -30,14 +31,28 @@ namespace Refundeo.Core.Services
                 fileStream.Position = 0;
                 await blockBlob.UploadFromStreamAsync(fileStream);
             }
+
+            return blockBlob.StorageUri.PrimaryUri.AbsoluteUri;
         }
 
-        public async Task UploadAsync(string containerName, string blobName, Stream stream)
+        public async Task<string> UploadAsync(string containerName, string blobName, Stream stream)
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
 
             stream.Position = 0;
             await blockBlob.UploadFromStreamAsync(stream);
+            return blockBlob.StorageUri.PrimaryUri.AbsoluteUri;
+        }
+
+        public async Task<string> UploadAsync(string containerName, string blobName, string base64, string imageType)
+        {
+            var blockBlob = await GetBlockBlobAsync(containerName, blobName);
+
+            var imageBytes = Convert.FromBase64String(base64);
+            blockBlob.Properties.ContentType = imageType;
+
+            await blockBlob.UploadFromByteArrayAsync(imageBytes, 0, imageBytes.Length);
+            return blockBlob.StorageUri.PrimaryUri.AbsoluteUri;
         }
 
         public async Task<MemoryStream> DownloadAsync(string containerName, string blobName)
