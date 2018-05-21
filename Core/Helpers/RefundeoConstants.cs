@@ -14,6 +14,7 @@ namespace Refundeo.Core.Helpers
             "image/ief",
             "image/jp2",
             "image/jpeg",
+            "image/jpg",
             "image/jpm",
             "image/jpx",
             "image/naplps",

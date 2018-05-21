@@ -165,7 +165,7 @@ namespace Refundeo.Controllers.User
             refundCaseToUpdate.DateRequested = DateTime.UtcNow;
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
-            return new NoContentResult();
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
