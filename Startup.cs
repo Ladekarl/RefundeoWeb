@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
+using Refundeo.Core.Helpers;
 using Refundeo.Core.Middleware;
 using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
@@ -59,7 +60,10 @@ namespace Refundeo
             services.AddTransient<IUtilityService, UtilityService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IRefundCaseService, RefundCaseService>();
+            services.AddTransient<IBlobStorageService, BlobStorageServiceService>();
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
+
+            services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));

@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
+using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.User
@@ -19,13 +21,18 @@ namespace Refundeo.Controllers.User
         private readonly RefundeoDbContext _context;
         private readonly IRefundCaseService _refundCaseService;
         private readonly IUtilityService _utilityService;
+        private readonly IOptions<StorageAccountOptions> _optionsAccessor;
+        private readonly IBlobStorageService _blobStorageService;
 
         public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
-            IUtilityService utilityService)
+            IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
+            IBlobStorageService blobStorageService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
+            _optionsAccessor = optionsAccessor;
+            _blobStorageService = blobStorageService;
         }
 
         [HttpGet]
@@ -90,11 +97,10 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image))
+            if (!ModelState.IsValid || model.File == null || model.File.Length == 0)
             {
                 return BadRequest();
             }
-
 
             var refundCaseToUpdate = await _context.RefundCases
                 .Include(r => r.Documentation)
@@ -107,23 +113,26 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            var documentation = new Documentation();
+            var blobName = model.File.FileName;
+            var fileStream = model.File.OpenReadStream();
 
-            try
+            var containerName = _optionsAccessor.Value.DocumentationContainerNameOption;
+
+            await _blobStorageService.UploadAsync(containerName, blobName, fileStream);
+
+            var blob = await _blobStorageService.GetBlockBlobAsync(containerName, blobName);
+
+            var documentation = new Documentation
             {
-                documentation.Image = _refundCaseService.ConvertBase64ToByteArray(model.Image);
-            }
-            catch (System.FormatException)
-            {
-                return BadRequest("Image should be base64 encoded");
-            }
+                Image = blob.Uri.AbsoluteUri
+            };
 
             await _context.Documentations.AddAsync(documentation);
             await _context.SaveChangesAsync();
             refundCaseToUpdate.Documentation = documentation;
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
-            return new NoContentResult();
+            return NoContent();
         }
 
         [HttpPost("{id}/request")]
