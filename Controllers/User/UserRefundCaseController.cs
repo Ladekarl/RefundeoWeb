@@ -183,7 +183,6 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCaseToUpdate = await _context.RefundCases
-                .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .FirstOrDefaultAsync(r => r.Id == id);
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -155,6 +156,7 @@ namespace Refundeo.Controllers.Merchant
             {
                 Amount = model.Amount,
                 RefundAmount = refundAmount,
+                DateCreated = DateTime.UtcNow,
                 MerchantInformation = merchantInformation
             };
 
