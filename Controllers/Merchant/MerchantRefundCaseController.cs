@@ -148,10 +148,13 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
+            var factor = merchantInformation.RefundPercentage / 100.0;
+            var refundAmount = factor * model.Amount;
+
             var refundCase = new RefundCase
             {
                 Amount = model.Amount,
-                RefundAmount = model.Amount,
+                RefundAmount = refundAmount,
                 MerchantInformation = merchantInformation
             };
 
