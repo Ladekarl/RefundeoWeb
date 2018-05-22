@@ -82,7 +82,7 @@ namespace Refundeo.Core.Services
                     Margin = margin
                 }
             };
-            var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(payload));
+            var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(payload.RefundCaseId));
             byte[] image;
             using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height,
                 System.Drawing.Imaging.PixelFormat.Format32bppRgb))
