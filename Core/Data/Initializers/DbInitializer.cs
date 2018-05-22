@@ -123,9 +123,7 @@ namespace Refundeo.Core.Data.Initializers
                 Image = GenerateQrCode(dbInitializeRefundCase.QrCodeHeight, dbInitializeRefundCase.QrCodeWidth,
                     dbInitializeRefundCase.QrCodeMargin, new QRCodePayloadDto
                     {
-                        RefundCaseId = refundCase.Id,
-                        MerchantId = merchant.Id,
-                        RefundAmount = refundCase.Amount
+                        RefundCaseId = refundCase.Id
                     })
             };
             await context.QRCodes.AddAsync(qrCode);

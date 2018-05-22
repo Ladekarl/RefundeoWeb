@@ -95,10 +95,13 @@ namespace Refundeo.Controllers.Admin
                 }
             }
 
+            var factor = merchantInformation.RefundPercentage / 100.0;
+            var refundAmount = factor * model.Amount;
+
             var refundCase = new RefundCase
             {
                 Amount = model.Amount,
-                RefundAmount = model.Amount,
+                RefundAmount = refundAmount,
                 MerchantInformation = merchantInformation,
                 CustomerInformation = customerInformation,
                 DateCreated = DateTime.UtcNow
@@ -113,9 +116,7 @@ namespace Refundeo.Controllers.Admin
                 Image = _refundCaseService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
                     new QRCodePayloadDto
                     {
-                        RefundCaseId = refundCase.Id,
-                        MerchantId = merchantInformation.Merchant.Id,
-                        RefundAmount = model.Amount
+                        RefundCaseId = refundCase.Id
                     })
             };
 
