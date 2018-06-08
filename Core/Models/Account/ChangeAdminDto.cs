@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Refundeo.Core.Models.Account
 {
     public class ChangeAdminDto

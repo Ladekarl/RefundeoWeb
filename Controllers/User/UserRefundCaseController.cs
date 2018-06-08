@@ -50,8 +50,15 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.QRCode)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
                 .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Customer);
+                .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .AsNoTracking();
 
             if (refundCases == null)
             {
@@ -75,8 +82,15 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.Documentation)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCase == null)
@@ -106,6 +120,9 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
@@ -149,6 +166,9 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
@@ -184,6 +204,8 @@ namespace Refundeo.Controllers.User
 
             var refundCaseToUpdate = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
+                .ThenInclude(c => c.Address)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (refundCaseToUpdate == null)

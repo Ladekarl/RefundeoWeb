@@ -45,7 +45,12 @@ namespace Refundeo.Core.Services
 
             return await _context.Users
                 .Include(u => u.MerchantInformation)
+                .ThenInclude(m => m.Address)
+                .Include(u => u.MerchantInformation)
+                .ThenInclude(m => m.Location)
                 .Include(u => u.CustomerInformation)
+                .ThenInclude(c => c.Address)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
@@ -87,7 +92,14 @@ namespace Refundeo.Core.Services
                     AcceptedTermsOfService = info.AcceptedTermsOfService,
                     PrivacyPolicy = info.PrivacyPolicy,
                     TermsOfService = info.TermsOfService,
-                    IsOauth = info.IsOauth
+                    IsOauth = info.IsOauth,
+                    Email = info.Email,
+                    Swift = info.Swift,
+                    AddressCity = info.Address?.City,
+                    AddressCountry = info.Address?.Country,
+                    AddressStreetName = info.Address?.StreetName,
+                    AddressStreetNumber = info.Address?.StreetNumber,
+                    Passport = info.Passport
                 };
             }
 
@@ -104,7 +116,13 @@ namespace Refundeo.Core.Services
                     Id = info.Merchant?.Id,
                     CompanyName = info.CompanyName,
                     CvrNumber = info.CVRNumber,
-                    RefundPercentage = info.RefundPercentage
+                    RefundPercentage = info.RefundPercentage,
+                    AddressCity = info.Address?.City,
+                    AddressCountry = info.Address?.Country,
+                    AddressStreetName = info.Address?.StreetName,
+                    AddressStreetNumber = info.Address?.StreetNumber,
+                    Latitude = info.Location?.Latitude,
+                    Longitude = info.Location?.Longitude
                 };
             }
 

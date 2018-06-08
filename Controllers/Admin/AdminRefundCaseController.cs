@@ -31,8 +31,14 @@ namespace Refundeo.Controllers.Admin
             var refundCases = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
                 .Include(r => r.QRCode)
                 .Include(r => r.Documentation)
                 .ToListAsync();

@@ -63,7 +63,7 @@ namespace Refundeo.Core.Data.Initializers
                 if (!userManager.Users.Any(u => u.UserName == user.Username))
                 {
                     await CreateCustomerAsync(userManager, context, user.Username, user.Password, user.FirstName,
-                        user.LastName, user.Country, "123456781234", "1234");
+                        user.LastName, user.Country, "123456781234");
                 }
             }
 
@@ -92,7 +92,6 @@ namespace Refundeo.Core.Data.Initializers
                 .FirstOrDefaultAsync(i => i.Merchant.UserName == dbInitializeRefundCase.MerchantName);
             var customerInformation = await context.CustomerInformations.Include(m => m.Customer)
                 .FirstOrDefaultAsync(i => i.Customer.UserName == dbInitializeRefundCase.CustomerName);
-            var merchant = merchantInformation?.Merchant;
 
             if (merchantInformation == null)
             {
@@ -140,7 +139,7 @@ namespace Refundeo.Core.Data.Initializers
 
         private static async Task CreateCustomerAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
             string username, string password, string firstName, string lastName, string country,
-            string bankAccountNumber, string bankRegNumber)
+            string swift)
         {
             var user = await CreateAccountAsync(userManager, username, password, RefundeoConstants.RoleUser);
             if (user != null)
@@ -150,8 +149,7 @@ namespace Refundeo.Core.Data.Initializers
                     FirstName = firstName,
                     LastName = lastName,
                     Country = country,
-                    BankAccountNumber = bankAccountNumber,
-                    BankRegNumber = bankRegNumber,
+                    Swift = swift,
                     Customer = user
                 });
                 await context.SaveChangesAsync();

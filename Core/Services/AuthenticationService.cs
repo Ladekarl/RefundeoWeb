@@ -109,7 +109,13 @@ namespace Refundeo.Core.Services
                 CvrNumber = merchantInformation.CVRNumber,
                 RefundPercentage = merchantInformation.RefundPercentage,
                 Roles = await _userManager.GetRolesAsync(user),
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                AddressCity = merchantInformation.Address?.City,
+                AddressCountry = merchantInformation.Address?.Country,
+                AddressStreetName = merchantInformation.Address?.StreetName,
+                AddressStreetNumber = merchantInformation.Address?.StreetNumber,
+                Latitude = merchantInformation.Location?.Latitude,
+                Longitude = merchantInformation.Location?.Longitude
             });
         }
 
@@ -125,15 +131,20 @@ namespace Refundeo.Core.Services
                 FirstName = customerInformation.FirstName,
                 LastName = customerInformation.LastName,
                 Country = customerInformation.Country,
-                BankAccountNumber = customerInformation.BankAccountNumber,
-                BankRegNumber = customerInformation.BankRegNumber,
+                Swift = customerInformation.Swift,
                 IsOauth  = customerInformation.IsOauth,
                 AcceptedTermsOfService = customerInformation.AcceptedTermsOfService,
                 AcceptedPrivacyPolicy = customerInformation.AcceptedPrivacyPolicy,
                 PrivacyPolicy = customerInformation.PrivacyPolicy,
                 TermsOfService = customerInformation.TermsOfService,
                 Roles = await _userManager.GetRolesAsync(user),
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                Email = customerInformation.Email,
+                Passport = customerInformation.Passport,
+                AddressCity = customerInformation.Address.City,
+                AddressCountry = customerInformation.Address.Country,
+                AddressStreetName = customerInformation.Address.StreetName,
+                AddressStreetNumber = customerInformation.Address.StreetNumber
             });
         }
 

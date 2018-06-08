@@ -66,18 +66,39 @@ namespace Refundeo.Controllers.Merchant
                 return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
             }
 
+            var address = new Address
+            {
+                City = model.AddressCity,
+                Country = model.AddressCountry,
+                StreetName = model.AddressStreetName,
+                StreetNumber = model.AddressStreetNumber
+            };
+
+            await _context.Addresses.AddAsync(address);
+
+            var location = new Location
+            {
+                Latitude = model.Latitude,
+                Longitude = model.Longitude
+            };
+
+            await _context.Locations.AddAsync(location);
+
             var merchantInformation = new MerchantInformation
             {
                 CompanyName = model.CompanyName,
                 CVRNumber = model.CvrNumber,
                 RefundPercentage = model.RefundPercentage,
-                Merchant = user
+                Merchant = user,
+                Location = location,
+                Address = address
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
+
             await _context.SaveChangesAsync();
 
-            return await _authenticationService.GenerateTokenResultAsync(user, null);
+            return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [Authorize(Roles = RefundeoConstants.RoleMerchant)]
@@ -97,6 +118,9 @@ namespace Refundeo.Controllers.Merchant
 
             var merchantInformation = await _context.MerchantInformations
                 .Include(i => i.Merchant)
+                .Include(m => m.Address)
+                .Include(m => m.Location)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Merchant == user);
 
             if (merchantInformation == null)
@@ -115,6 +139,12 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CvrNumber;
             merchantInformation.RefundPercentage = model.RefundPercentage;
+            merchantInformation.Address.StreetName = model.AddressStreetName;
+            merchantInformation.Address.Country = model.AddressCountry;
+            merchantInformation.Address.City = model.AddressCity;
+            merchantInformation.Address.StreetNumber = model.AddressStreetNumber;
+            merchantInformation.Location.Latitude = model.Latitude;
+            merchantInformation.Location.Longitude = model.Longitude;
 
             _context.MerchantInformations.Update(merchantInformation);
             await _context.SaveChangesAsync();

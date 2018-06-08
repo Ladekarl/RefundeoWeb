@@ -6,17 +6,19 @@ namespace Refundeo.Core.Data.Models
     public class CustomerInformation
     {
         public long Id { get; set; }
+        public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Country { get; set; }
-        public string BankAccountNumber { get; set; }
-        public string BankRegNumber { get; set; }
+        public string Swift { get; set; }
+        public string Passport { get; set; }
         public bool IsOauth { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
         public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }
         public string TermsOfService { get; set; }
         public virtual RefundeoUser Customer { get; set; }
+        public virtual Address Address { get; set; }
         public ICollection<RefundCase> RefundCases { get; set; }
     }
 }

@@ -35,7 +35,7 @@ namespace Refundeo.Controllers.User
         public async Task<IList<CustomerInformationDto>> GetAllCustomers()
         {
             var userModels = new List<CustomerInformationDto>();
-            foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).ToListAsync())
+            foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).Include(i => i.Address).AsNoTracking().ToListAsync())
             {
                 userModels.Add(_utilityService.ConvertCustomerInformationToDto(u));
             }
@@ -111,30 +111,40 @@ namespace Refundeo.Controllers.User
 
             var customerInformation = await _context.CustomerInformations
                 .Include(i => i.Customer)
+                .Include(i => i.Address)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Customer == user);
 
-            if (customerInformation == null)
+            if (customerInformation?.Address == null)
             {
                 return NotFound();
             }
 
-            user.UserName = model.Username;
-
-            var updateUserResult = await _userManager.UpdateAsync(user);
-            if (!updateUserResult.Succeeded)
+            if (user.UserName != model.Username)
             {
-                return _utilityService.GenerateBadRequestObjectResult(updateUserResult.Errors);
+                user.UserName = model.Username;
+
+                var updateUserResult = await _userManager.UpdateAsync(user);
+                if (!updateUserResult.Succeeded)
+                {
+                    return _utilityService.GenerateBadRequestObjectResult(updateUserResult.Errors);
+                }
             }
 
             customerInformation.FirstName = model.FirstName;
             customerInformation.LastName = model.LastName;
             customerInformation.Country = model.Country;
-            customerInformation.BankAccountNumber = model.BankAccountNumber;
-            customerInformation.BankRegNumber = model.BankRegNumber;
+            customerInformation.Email = model.Email;
             customerInformation.AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy;
             customerInformation.AcceptedTermsOfService = model.AcceptedTermsOfService;
             customerInformation.PrivacyPolicy = model.PrivacyPolicy;
             customerInformation.TermsOfService = model.TermsOfService;
+            customerInformation.Swift = model.Swift;
+            customerInformation.Passport = model.Passport;
+            customerInformation.Address.StreetName = model.AddressStreetName;
+            customerInformation.Address.StreetNumber = model.AddressStreetNumber;
+            customerInformation.Address.Country = model.AddressCountry;
+            customerInformation.Address.City = model.AddressCity;
 
             await _context.SaveChangesAsync();
 

@@ -117,6 +117,7 @@ namespace Refundeo.Controllers.Merchant
             var refundCase = await _context.RefundCases
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation.Customer)
+
                 .Include(r => r.MerchantInformation.Merchant)
                 .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id);
 
