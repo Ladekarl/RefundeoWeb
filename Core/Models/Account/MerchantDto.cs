@@ -20,5 +20,6 @@ namespace Refundeo.Core.Models.Account
         public string AddressCountry { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
+        public string AddressPostalCode { get; set; }
     }
 }

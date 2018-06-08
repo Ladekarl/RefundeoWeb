@@ -11,9 +11,10 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    partial class RefundeoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180608153550_MissingProperties")]
+    partial class MissingProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,8 +137,6 @@ namespace Refundeo.Migrations
                     b.Property<string>("City");
 
                     b.Property<string>("Country");
-
-                    b.Property<string>("PostalCode");
 
                     b.Property<string>("StreetName");
 

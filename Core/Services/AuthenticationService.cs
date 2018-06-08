@@ -114,6 +114,7 @@ namespace Refundeo.Core.Services
                 AddressCountry = merchantInformation.Address?.Country,
                 AddressStreetName = merchantInformation.Address?.StreetName,
                 AddressStreetNumber = merchantInformation.Address?.StreetNumber,
+                AddressPostalCode = merchantInformation.Address?.PostalCode,
                 Latitude = merchantInformation.Location?.Latitude,
                 Longitude = merchantInformation.Location?.Longitude
             });
@@ -144,18 +145,19 @@ namespace Refundeo.Core.Services
                 AddressCity = customerInformation.Address.City,
                 AddressCountry = customerInformation.Address.Country,
                 AddressStreetName = customerInformation.Address.StreetName,
-                AddressStreetNumber = customerInformation.Address.StreetNumber
+                AddressStreetNumber = customerInformation.Address.StreetNumber,
+                AddressPostalCode = customerInformation.Address.PostalCode
             });
         }
 
         public async Task<SignInResult> IsValidUserAndPasswordCombinationAsync(string username, string password)
         {
-            if (String.IsNullOrEmpty(username))
+            if (string.IsNullOrEmpty(username))
             {
                 return new SignInResult.NoUsername();
             }
 
-            if (String.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(password))
             {
                 return new SignInResult.NoPassword();
             }

@@ -71,7 +71,8 @@ namespace Refundeo.Controllers.Merchant
                 City = model.AddressCity,
                 Country = model.AddressCountry,
                 StreetName = model.AddressStreetName,
-                StreetNumber = model.AddressStreetNumber
+                StreetNumber = model.AddressStreetNumber,
+                PostalCode = model.AddressPostalCode
             };
 
             await _context.Addresses.AddAsync(address);
@@ -143,6 +144,7 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Address.Country = model.AddressCountry;
             merchantInformation.Address.City = model.AddressCity;
             merchantInformation.Address.StreetNumber = model.AddressStreetNumber;
+            merchantInformation.Address.PostalCode = model.AddressPostalCode;
             merchantInformation.Location.Latitude = model.Latitude;
             merchantInformation.Location.Longitude = model.Longitude;
 

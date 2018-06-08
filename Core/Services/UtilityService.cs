@@ -98,6 +98,7 @@ namespace Refundeo.Core.Services
                     AddressCity = info.Address?.City,
                     AddressCountry = info.Address?.Country,
                     AddressStreetName = info.Address?.StreetName,
+                    AddressPostalCode = info.Address?.PostalCode,
                     AddressStreetNumber = info.Address?.StreetNumber,
                     Passport = info.Passport
                 };
@@ -121,6 +122,7 @@ namespace Refundeo.Core.Services
                     AddressCountry = info.Address?.Country,
                     AddressStreetName = info.Address?.StreetName,
                     AddressStreetNumber = info.Address?.StreetNumber,
+                    AddressPostalCode = info.Address?.PostalCode,
                     Latitude = info.Location?.Latitude,
                     Longitude = info.Location?.Longitude
                 };

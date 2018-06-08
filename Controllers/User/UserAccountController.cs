@@ -143,6 +143,7 @@ namespace Refundeo.Controllers.User
             customerInformation.Passport = model.Passport;
             customerInformation.Address.StreetName = model.AddressStreetName;
             customerInformation.Address.StreetNumber = model.AddressStreetNumber;
+            customerInformation.Address.PostalCode = model.AddressPostalCode;
             customerInformation.Address.Country = model.AddressCountry;
             customerInformation.Address.City = model.AddressCity;
 
