@@ -82,6 +82,7 @@ namespace Refundeo.Controllers.User
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Country = model.Country,
+                Email = model.Email,
                 AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy,
                 AcceptedTermsOfService = model.AcceptedTermsOfService,
                 PrivacyPolicy = model.PrivacyPolicy,

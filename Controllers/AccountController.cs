@@ -71,6 +71,7 @@ namespace Refundeo.Controllers
             {
                 FirstName = fbUser.FirstName,
                 LastName = fbUser.LastName,
+                Email = fbUser.Email,
                 Country = fbUser.Location.Location.Country,
                 IsOauth = true,
                 Address = new Address()
