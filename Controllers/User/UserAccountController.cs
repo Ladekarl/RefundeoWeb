@@ -125,9 +125,23 @@ namespace Refundeo.Controllers.User
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Customer == user);
 
-            if (customerInformation?.Address == null)
+            if (customerInformation == null)
             {
                 return NotFound();
+            }
+
+            if (customerInformation.Address == null)
+            {
+                customerInformation.Address = new Address
+                {
+                    City = model.AddressCity,
+                    Country = model.AddressCountry,
+                    PostalCode = model.AddressPostalCode,
+                    StreetName = model.AddressStreetName,
+                    StreetNumber = model.AddressStreetNumber
+                };
+
+                await _context.Addresses.AddAsync(customerInformation.Address);
             }
 
             if (user.UserName != model.Username)

@@ -287,6 +287,7 @@ namespace Refundeo.Core.Services
 
             customerInformation.Customer = user;
 
+            await _context.Addresses.AddAsync(customerInformation.Address);
             await _context.CustomerInformations.AddAsync(customerInformation);
             await _context.SaveChangesAsync();
 

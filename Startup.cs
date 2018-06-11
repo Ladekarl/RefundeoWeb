@@ -17,7 +17,6 @@ using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 using Swashbuckle.AspNetCore.Swagger;
 
-
 namespace Refundeo
 {
     public class Startup
