@@ -85,7 +85,17 @@ namespace Refundeo.Controllers.User
                 AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy,
                 AcceptedTermsOfService = model.AcceptedTermsOfService,
                 PrivacyPolicy = model.PrivacyPolicy,
-                TermsOfService = model.TermsOfService
+                TermsOfService = model.TermsOfService,
+                Swift = model.Swift,
+                Passport = model.Passport,
+                Address = new Address
+                {
+                    City = model.AddressCity,
+                    Country = model.AddressCountry,
+                    PostalCode = model.AddressPostalCode,
+                    StreetName = model.AddressStreetName,
+                    StreetNumber = model.AddressStreetNumber
+                }
             };
 
             var shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");

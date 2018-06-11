@@ -120,7 +120,7 @@ namespace Refundeo.Core.Services
             });
         }
 
-        private async Task<ObjectResult> GenerateCustomerObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
+        private async Task<ObjectResult> GenerateCustomerObjectResultAsync(SecurityToken token, RefundeoUser user,
             CustomerInformation customerInformation, string refreshToken)
         {
             return new ObjectResult(new CustomerDto
@@ -142,11 +142,11 @@ namespace Refundeo.Core.Services
                 RefreshToken = refreshToken,
                 Email = customerInformation.Email,
                 Passport = customerInformation.Passport,
-                AddressCity = customerInformation.Address.City,
-                AddressCountry = customerInformation.Address.Country,
-                AddressStreetName = customerInformation.Address.StreetName,
-                AddressStreetNumber = customerInformation.Address.StreetNumber,
-                AddressPostalCode = customerInformation.Address.PostalCode
+                AddressCity = customerInformation.Address?.City,
+                AddressCountry = customerInformation.Address?.Country,
+                AddressStreetName = customerInformation.Address?.StreetName,
+                AddressStreetNumber = customerInformation.Address?.StreetNumber,
+                AddressPostalCode = customerInformation.Address?.PostalCode
             });
         }
 
