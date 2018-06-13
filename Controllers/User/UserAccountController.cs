@@ -56,6 +56,9 @@ namespace Refundeo.Controllers.User
 
             var customer = await _context.CustomerInformations
                 .Where(c => c.Customer.Id == user.Id)
+                .Include(c => c.Address)
+                .Include(c => c.Customer)
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
 
             if (customer == null)
@@ -123,7 +126,6 @@ namespace Refundeo.Controllers.User
             var customerInformation = await _context.CustomerInformations
                 .Include(i => i.Customer)
                 .Include(i => i.Address)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Customer == user);
 
             if (customerInformation == null)

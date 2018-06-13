@@ -122,7 +122,6 @@ namespace Refundeo.Controllers.User
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Address)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
@@ -168,7 +167,6 @@ namespace Refundeo.Controllers.User
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Address)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
@@ -205,7 +203,6 @@ namespace Refundeo.Controllers.User
             var refundCaseToUpdate = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(c => c.Address)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (refundCaseToUpdate == null)
