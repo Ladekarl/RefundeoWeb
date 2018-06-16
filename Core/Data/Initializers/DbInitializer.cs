@@ -79,8 +79,22 @@ namespace Refundeo.Core.Data.Initializers
             {
                 if (!userManager.Users.Any(u => u.UserName == merchant.Username))
                 {
+                    var location = new Location
+                    {
+                        Latitude = merchant.Latitude,
+                        Longitude = merchant.Longitude
+                    };
+                    var address = new Address
+                    {
+                        City = merchant.AddressCity,
+                        Country = merchant.AddressCountry,
+                        PostalCode = merchant.AddressPostalCode,
+                        StreetName = merchant.AddressStreetName,
+                        StreetNumber = merchant.AddressStreetNumber
+                    };
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        "MerchantCompany", "12345678", 25);
+                        merchant.CompanyName, merchant.CvrNumber, merchant.RefundPercentage, merchant.OpeningHours,
+                        merchant.Description, address, location);
                 }
             }
         }
@@ -194,18 +208,30 @@ namespace Refundeo.Core.Data.Initializers
         }
 
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
-            string username, string password, string companyName, string cvrNumber, int refundPercentage)
+            string merchantUsername, string merchantPassword, string merchantCompanyName, string merchantCvrNumber,
+            double merchantRefundPercentage, string merchantOpeningHours, string merchantDescription, Address address,
+            Location location)
         {
-            var user = await CreateAccountAsync(userManager, username, password, RefundeoConstants.RoleMerchant);
+            var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword, RefundeoConstants.RoleMerchant);
             if (user != null)
             {
+                await context.Locations.AddAsync(location);
+                await context.Addresses.AddAsync(address);
+
+                await context.SaveChangesAsync();
+
                 await context.MerchantInformations.AddAsync(new MerchantInformation
                 {
-                    CompanyName = companyName,
-                    CVRNumber = cvrNumber,
-                    RefundPercentage = refundPercentage,
-                    Merchant = user
+                    CompanyName = merchantCompanyName,
+                    CVRNumber = merchantCvrNumber,
+                    RefundPercentage = merchantRefundPercentage,
+                    Description = merchantDescription,
+                    OpeningHours = merchantOpeningHours,
+                    Merchant = user,
+                    Location = location,
+                    Address = address
                 });
+
                 await context.SaveChangesAsync();
             }
         }

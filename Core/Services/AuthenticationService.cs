@@ -116,7 +116,11 @@ namespace Refundeo.Core.Services
                 AddressStreetNumber = merchantInformation.Address?.StreetNumber,
                 AddressPostalCode = merchantInformation.Address?.PostalCode,
                 Latitude = merchantInformation.Location?.Latitude,
-                Longitude = merchantInformation.Location?.Longitude
+                Longitude = merchantInformation.Location?.Longitude,
+                Description = merchantInformation.Description,
+                OpeningHours = merchantInformation.OpeningHours,
+                Banner = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Banner),
+                Logo = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Logo)
             });
         }
 

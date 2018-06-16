@@ -223,11 +223,19 @@ namespace Refundeo.Migrations
 
                     b.Property<long?>("AddressId");
 
+                    b.Property<string>("Banner");
+
                     b.Property<string>("CVRNumber");
 
                     b.Property<string>("CompanyName");
 
+                    b.Property<string>("Description");
+
                     b.Property<long?>("LocationId");
+
+                    b.Property<string>("Logo");
+
+                    b.Property<string>("OpeningHours");
 
                     b.Property<double>("RefundPercentage");
 

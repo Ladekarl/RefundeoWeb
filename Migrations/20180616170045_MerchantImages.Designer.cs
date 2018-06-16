@@ -11,8 +11,8 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    [Migration("20180608161037_PostalCode")]
-    partial class PostalCode
+    [Migration("20180616170045_MerchantImages")]
+    partial class MerchantImages
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -224,11 +224,19 @@ namespace Refundeo.Migrations
 
                     b.Property<long?>("AddressId");
 
+                    b.Property<string>("Banner");
+
                     b.Property<string>("CVRNumber");
 
                     b.Property<string>("CompanyName");
 
+                    b.Property<string>("Description");
+
                     b.Property<long?>("LocationId");
+
+                    b.Property<string>("Logo");
+
+                    b.Property<string>("OpeningHours");
 
                     b.Property<double>("RefundPercentage");
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
@@ -18,15 +19,21 @@ namespace Refundeo.Controllers.Merchant
         private readonly RefundeoDbContext _context;
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly IUtilityService _utilityService;
+        private readonly IOptions<StorageAccountOptions> _optionsAccessor;
+        private readonly IBlobStorageService _blobStorageService;
+
         private readonly IAuthenticationService _authenticationService;
 
         public MerchantAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
-            IUtilityService utilityService, IAuthenticationService authenticationService)
+            IUtilityService utilityService, IAuthenticationService authenticationService,
+            IOptions<StorageAccountOptions> optionsAccessor, IBlobStorageService blobStorageService)
         {
             _context = context;
             _userManager = userManager;
             _utilityService = utilityService;
             _authenticationService = authenticationService;
+            _optionsAccessor = optionsAccessor;
+            _blobStorageService = blobStorageService;
         }
 
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]
@@ -36,7 +43,7 @@ namespace Refundeo.Controllers.Merchant
             var userModels = new List<MerchantInformationDto>();
             foreach (var u in await _context.MerchantInformations.Include(i => i.Merchant).ToListAsync())
             {
-                userModels.Add(_utilityService.ConvertMerchantInformationToDto(u));
+                userModels.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(u));
             }
 
             return userModels;
@@ -92,12 +99,36 @@ namespace Refundeo.Controllers.Merchant
                 RefundPercentage = model.RefundPercentage,
                 Merchant = user,
                 Location = location,
-                Address = address
+                Address = address,
+                Description = model.Description,
+                OpeningHours = model.OpeningHours
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
 
             await _context.SaveChangesAsync();
+
+            if (model.Logo != null || model.Banner != null)
+            {
+                if (model.Logo != null)
+                {
+                    var logoContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
+                    merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
+                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
+                        "image/png");
+                }
+
+                if (model.Banner != null)
+                {
+                    var bannerContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
+                    merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
+                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
+                        "image/png");
+                }
+
+                _context.MerchantInformations.Update(merchantInformation);
+                await _context.SaveChangesAsync();
+            }
 
             return await _authenticationService.GenerateTokenResultAsync(user);
         }
@@ -147,11 +178,37 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Address.PostalCode = model.AddressPostalCode;
             merchantInformation.Location.Latitude = model.Latitude;
             merchantInformation.Location.Longitude = model.Longitude;
+            merchantInformation.Description = model.Description;
+            merchantInformation.OpeningHours = model.OpeningHours;
+            merchantInformation.Banner = model.Banner;
+            merchantInformation.Logo = model.Logo;
 
             _context.MerchantInformations.Update(merchantInformation);
             await _context.SaveChangesAsync();
 
-            return new NoContentResult();
+            if (model.Logo != null || model.Banner != null)
+            {
+                if (model.Logo != null)
+                {
+                    var logoContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
+                    merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
+                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
+                        "image/png");
+                }
+
+                if (model.Banner != null)
+                {
+                    var bannerContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
+                    merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
+                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
+                        "image/png");
+                }
+
+                _context.MerchantInformations.Update(merchantInformation);
+                await _context.SaveChangesAsync();
+            }
+
+            return NoContent();
         }
 
         [Authorize(Roles = RefundeoConstants.RoleMerchant)]

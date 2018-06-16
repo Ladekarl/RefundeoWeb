@@ -16,13 +16,15 @@ namespace Refundeo.Controllers.Admin
     [Route("/api/admin/refundcase")]
     public class AdminRefundCaseController : Controller
     {
-        private RefundeoDbContext _context;
-        private IRefundCaseService _refundCaseService;
+        private readonly RefundeoDbContext _context;
+        private readonly IRefundCaseService _refundCaseService;
+        private readonly IUtilityService _utilityService;
 
-        public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService)
+        public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService, IUtilityService utilityService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
+            _utilityService = utilityService;
         }
 
         [HttpGet]
@@ -173,7 +175,7 @@ namespace Refundeo.Controllers.Admin
             refundCaseToUpdate.IsAccepted = model.IsAccepted;
             refundCaseToUpdate.IsRejected = model.IsRejected;
             refundCaseToUpdate.Documentation.Image = model.Documentation;
-            refundCaseToUpdate.QRCode.Image = _refundCaseService.ConvertBase64ToByteArray(model.QrCode);
+            refundCaseToUpdate.QRCode.Image = _utilityService.ConvertBase64ToByteArray(model.QrCode);
             refundCaseToUpdate.RefundAmount = model.RefundAmount;
 
             _context.RefundCases.Update(refundCaseToUpdate);

@@ -5,10 +5,27 @@ using System.Collections.Generic;
 
 namespace Refundeo.Migrations
 {
-    public partial class Initial : Migration
+    public partial class MerchantImages : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Addresses",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    City = table.Column<string>(nullable: true),
+                    Country = table.Column<string>(nullable: true),
+                    PostalCode = table.Column<string>(nullable: true),
+                    StreetName = table.Column<string>(nullable: true),
+                    StreetNumber = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Addresses", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -29,7 +46,7 @@ namespace Refundeo.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Image = table.Column<byte[]>(nullable: true)
+                    Image = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -37,18 +54,17 @@ namespace Refundeo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MerchantInformations",
+                name: "Locations",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    CVRNumber = table.Column<string>(nullable: true),
-                    CompanyName = table.Column<string>(nullable: true),
-                    RefundPercentage = table.Column<int>(nullable: false)
+                    Latitude = table.Column<double>(nullable: false),
+                    Longitude = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MerchantInformations", x => x.Id);
+                    table.PrimaryKey("PK_Locations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,6 +99,39 @@ namespace Refundeo.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MerchantInformations",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AddressId = table.Column<long>(nullable: true),
+                    Banner = table.Column<string>(nullable: true),
+                    CVRNumber = table.Column<string>(nullable: true),
+                    CompanyName = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    LocationId = table.Column<long>(nullable: true),
+                    Logo = table.Column<string>(nullable: true),
+                    OpeningHours = table.Column<string>(nullable: true),
+                    RefundPercentage = table.Column<double>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MerchantInformations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MerchantInformations_Addresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Addresses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_MerchantInformations_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -211,19 +260,27 @@ namespace Refundeo.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AcceptedPrivacyPolicy = table.Column<bool>(nullable: false),
                     AcceptedTermsOfService = table.Column<bool>(nullable: false),
-                    BankAccountNumber = table.Column<string>(nullable: true),
-                    BankRegNumber = table.Column<string>(nullable: true),
+                    AddressId = table.Column<long>(nullable: true),
                     Country = table.Column<string>(nullable: true),
                     CustomerId = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
                     IsOauth = table.Column<bool>(nullable: false),
                     LastName = table.Column<string>(nullable: true),
+                    Passport = table.Column<string>(nullable: true),
                     PrivacyPolicy = table.Column<string>(nullable: true),
+                    Swift = table.Column<string>(nullable: true),
                     TermsOfService = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CustomerInformations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomerInformations_Addresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Addresses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_CustomerInformations_AspNetUsers_CustomerId",
                         column: x => x.CustomerId,
@@ -326,11 +383,26 @@ namespace Refundeo.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomerInformations_AddressId",
+                table: "CustomerInformations",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerInformations_CustomerId",
                 table: "CustomerInformations",
                 column: "CustomerId",
                 unique: true,
                 filter: "[CustomerId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MerchantInformations_AddressId",
+                table: "MerchantInformations",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MerchantInformations_LocationId",
+                table: "MerchantInformations",
+                column: "LocationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefundCases_CustomerInformationId",
@@ -390,6 +462,12 @@ namespace Refundeo.Migrations
 
             migrationBuilder.DropTable(
                 name: "MerchantInformations");
+
+            migrationBuilder.DropTable(
+                name: "Addresses");
+
+            migrationBuilder.DropTable(
+                name: "Locations");
         }
     }
 }

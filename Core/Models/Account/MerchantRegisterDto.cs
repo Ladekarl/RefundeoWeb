@@ -14,5 +14,9 @@ namespace Refundeo.Core.Models.Account
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public string AddressPostalCode { get; set; }
+        public string Description { get; set; }
+        public string OpeningHours { get; set; }
+        public string Banner { get; set; }
+        public string Logo { get; set; }
     }
 }

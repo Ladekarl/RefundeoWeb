@@ -13,7 +13,5 @@ namespace Refundeo.Core.Services.Interfaces
         Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase);
         Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase);
         byte[] GenerateQrCode(int height, int width, int margin, QRCodePayloadDto payload);
-        string ConvertByteArrayToBase64(byte[] ba);
-        byte[] ConvertBase64ToByteArray(string base64String);
     }
 }

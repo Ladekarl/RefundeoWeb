@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -16,12 +15,10 @@ namespace Refundeo.Core.Services
     public class RefundCaseService : IRefundCaseService
     {
         private readonly IUtilityService _utilityService;
-        private readonly IBlobStorageService _blobStorageService;
 
-        public RefundCaseService(IUtilityService utilityService, IBlobStorageService blobStorageService)
+        public RefundCaseService(IUtilityService utilityService)
         {
             _utilityService = utilityService;
-            _blobStorageService = blobStorageService;
         }
 
         public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases)
@@ -43,16 +40,6 @@ namespace Refundeo.Core.Services
 
         public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase)
         {
-            string documentation = null;
-
-            if (refundCase.Documentation?.Image != null)
-            {
-                var blobUri = new Uri(refundCase.Documentation.Image);
-                var imageStream = await _blobStorageService.DownloadAsync(blobUri);
-                var imageBa = imageStream.ToArray();
-                documentation = ConvertByteArrayToBase64(imageBa);
-            }
-
             return new RefundCaseDto
             {
                 Id = refundCase.Id,
@@ -61,12 +48,12 @@ namespace Refundeo.Core.Services
                 IsRequested = refundCase.IsRequested,
                 IsAccepted = refundCase.IsAccepted,
                 IsRejected = refundCase.IsRejected,
-                QrCode = ConvertByteArrayToBase64(refundCase.QRCode?.Image),
-                Documentation = documentation,
+                QrCode = _utilityService.ConvertByteArrayToBase64(refundCase.QRCode?.Image),
+                Documentation = await _utilityService.ConvertBlobPathToBase64Async(refundCase.Documentation?.Image),
                 DateCreated = refundCase.DateCreated,
                 DateRequested = refundCase.DateRequested,
                 Customer = _utilityService.ConvertCustomerInformationToDto(refundCase.CustomerInformation),
-                Merchant = _utilityService.ConvertMerchantInformationToDto(refundCase.MerchantInformation)
+                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation)
             };
         }
 
@@ -105,22 +92,6 @@ namespace Refundeo.Core.Services
             }
 
             return image;
-        }
-
-        public string ConvertByteArrayToBase64(byte[] ba)
-        {
-            return ba != null ? Convert.ToBase64String(ba) : null;
-        }
-
-        public byte[] ConvertBase64ToByteArray(string base64String)
-        {
-            byte[] ba = null;
-            if (base64String != null)
-            {
-                ba = Convert.FromBase64String(base64String);
-            }
-
-            return ba;
         }
     }
 }

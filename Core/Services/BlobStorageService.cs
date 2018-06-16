@@ -85,6 +85,13 @@ namespace Refundeo.Core.Services
             }
         }
 
+        public async Task<byte[]> DownloadFromPathAsync(string path)
+        {
+            var blobUri = new Uri(path);
+            var imageStream = await DownloadAsync(blobUri);
+            return imageStream.ToArray();
+        }
+
         public async Task DeleteAsync(string containerName, string blobName)
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);

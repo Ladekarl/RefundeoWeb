@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using System.Security.Claims;
@@ -17,11 +18,13 @@ namespace Refundeo.Core.Services
     {
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly RefundeoDbContext _context;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public UtilityService(RefundeoDbContext context, UserManager<RefundeoUser> userManager)
+        public UtilityService(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IBlobStorageService blobStorageService)
         {
             _userManager = userManager;
             _context = context;
+            _blobStorageService = blobStorageService;
         }
 
         public async Task<RefundeoUser> GetCallingUserAsync(HttpRequest request)
@@ -107,7 +110,7 @@ namespace Refundeo.Core.Services
             return dto;
         }
 
-        public MerchantInformationDto ConvertMerchantInformationToDto(MerchantInformation info)
+        public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info)
         {
             MerchantInformationDto dto = null;
             if (info != null)
@@ -124,7 +127,11 @@ namespace Refundeo.Core.Services
                     AddressStreetNumber = info.Address?.StreetNumber,
                     AddressPostalCode = info.Address?.PostalCode,
                     Latitude = info.Location?.Latitude,
-                    Longitude = info.Location?.Longitude
+                    Longitude = info.Location?.Longitude,
+                    Description = info.Description,
+                    OpeningHours = info.OpeningHours,
+                    Banner = await ConvertBlobPathToBase64Async(info.Banner),
+                    Logo = await ConvertBlobPathToBase64Async(info.Logo)
                 };
             }
 
@@ -142,6 +149,33 @@ namespace Refundeo.Core.Services
             {
                 errors
             });
+        }
+
+        public string ConvertByteArrayToBase64(byte[] ba)
+        {
+            return ba != null ? Convert.ToBase64String(ba) : null;
+        }
+
+        public byte[] ConvertBase64ToByteArray(string base64String)
+        {
+            byte[] ba = null;
+            if (base64String != null)
+            {
+                ba = Convert.FromBase64String(base64String);
+            }
+
+            return ba;
+        }
+
+        public async Task<string> ConvertBlobPathToBase64Async(string path)
+        {
+            string image = null;
+            if (path != null)
+            {
+                var imageBa = await _blobStorageService.DownloadFromPathAsync(path);
+                image = ConvertByteArrayToBase64(imageBa);
+            }
+            return image;
         }
     }
 }

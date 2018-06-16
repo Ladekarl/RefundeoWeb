@@ -15,6 +15,7 @@ namespace Refundeo.Core.Services.Interfaces
         Task<MemoryStream> DownloadAsync(string containerName, string blobName);
         Task DownloadAsync(string containerName, string blobName, string path);
         Task<MemoryStream> DownloadAsync(Uri uri);
+        Task<byte[]> DownloadFromPathAsync(string path);
         Task DeleteAsync(string containerName, string blobName);
         Task<bool> ExistsAsync(string containerName, string blobName);
         Task<List<AzureBlobItem>> ListAsync(string containerName);
