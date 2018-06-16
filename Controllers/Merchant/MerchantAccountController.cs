@@ -164,14 +164,6 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
-            user.UserName = model.Username;
-
-            var updateUserResult = await _userManager.UpdateAsync(user);
-            if (!updateUserResult.Succeeded)
-            {
-                return _utilityService.GenerateBadRequestObjectResult(updateUserResult.Errors);
-            }
-
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CvrNumber;
             merchantInformation.RefundPercentage = model.RefundPercentage;
