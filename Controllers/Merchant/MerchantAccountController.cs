@@ -116,7 +116,7 @@ namespace Refundeo.Controllers.Merchant
             {
                 if (model.Logo != null)
                 {
-                    var logoContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
+                    var logoContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
                     merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
                         $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
                         "image/png");
@@ -124,7 +124,7 @@ namespace Refundeo.Controllers.Merchant
 
                 if (model.Banner != null)
                 {
-                    var bannerContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
+                    var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
                     merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
                         $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
                         "image/png");
@@ -184,8 +184,6 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
             merchantInformation.OpeningHours = model.OpeningHours;
-            merchantInformation.Banner = model.Banner;
-            merchantInformation.Logo = model.Logo;
 
             _context.MerchantInformations.Update(merchantInformation);
             await _context.SaveChangesAsync();

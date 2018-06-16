@@ -56,6 +56,8 @@ namespace Refundeo.Core.Data.Initializers
                 AddressCountry = "Danmark",
                 AddressPostalCode = "1160",
                 AddressStreetName = "Amagertorv",
+                Latitude = 55.6785906,
+                Longitude = 12.5776793,
                 AddressStreetNumber = "2",
                 OpeningHours = "10:00 - 18:00",
                 Description = "Louis Vuitton was a French box-maker and packer who founded the luxury brand of the same name over 150 years ago. From humble beginnings in the French countryside, Vuitton's skill, innovation and determination quickly saw his signature trunks coveted by the world's elite. Now, with Marc Jacobs at the helm as creative director since 1997, the house has expanded its offering to include bags, clothing, shoes, accessories and jewellery, making it one of the most valuable luxury brands in the world."
