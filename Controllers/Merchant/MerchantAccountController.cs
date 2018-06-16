@@ -41,7 +41,11 @@ namespace Refundeo.Controllers.Merchant
         public async Task<IList<MerchantInformationDto>> GetAllMerchants()
         {
             var userModels = new List<MerchantInformationDto>();
-            foreach (var u in await _context.MerchantInformations.Include(i => i.Merchant).ToListAsync())
+            foreach (var u in await _context.MerchantInformations
+                .Include(i => i.Merchant)
+                .Include(i => i.Address)
+                .Include(i => i.Location)
+                .ToListAsync())
             {
                 userModels.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(u));
             }
