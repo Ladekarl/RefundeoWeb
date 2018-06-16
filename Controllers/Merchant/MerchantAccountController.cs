@@ -36,7 +36,7 @@ namespace Refundeo.Controllers.Merchant
             _blobStorageService = blobStorageService;
         }
 
-        [Authorize(Roles = RefundeoConstants.RoleAdmin)]
+        [Authorize]
         [HttpGet]
         public async Task<IList<MerchantInformationDto>> GetAllMerchants()
         {

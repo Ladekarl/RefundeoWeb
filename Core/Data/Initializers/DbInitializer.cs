@@ -27,7 +27,7 @@ namespace Refundeo.Core.Data.Initializers
         {
             foreach (var refundCase in DbInitializeData.RefundCasesToCreate)
             {
-                for (int i = 0; i <= 10; i++)
+                for (var i = 0; i <= 10; i++)
                 {
                     var existingCase = await context.RefundCases
                         .Include(r => r.MerchantInformation)
