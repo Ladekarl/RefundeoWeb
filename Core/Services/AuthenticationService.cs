@@ -77,9 +77,15 @@ namespace Refundeo.Core.Services
         {
             var token = await GenerateTokenAsync(user);
 
-            var merchantInformation = await _context.MerchantInformations.Where(m => m.Merchant.Id == user.Id)
+            var merchantInformation = await _context.MerchantInformations
+                .Include(m => m.Address)
+                .Include(m => m.Location)
+                .Where(m => m.Merchant.Id == user.Id)
                 .FirstOrDefaultAsync();
-            var customerInformation = await _context.CustomerInformations.Where(c => c.Customer.Id == user.Id)
+            var customerInformation = await _context.CustomerInformations
+                .Include(c => c.Address)
+                .Include(c => c.Customer)
+                .Where(c => c.Customer.Id == user.Id)
                 .FirstOrDefaultAsync();
 
             if (merchantInformation != null)
