@@ -117,6 +117,24 @@ namespace Refundeo.Core.Services
             return dto;
         }
 
+        public CustomerInformationSimpleDto ConvertCustomerInformationToSimleDto(CustomerInformation info)
+        {
+            CustomerInformationSimpleDto dto = null;
+            if (info != null)
+            {
+                dto = new CustomerInformationSimpleDto
+                {
+                    Id = info.Customer?.Id,
+                    FirstName = info.FirstName,
+                    LastName = info.LastName,
+                    Country = info.Country,
+                    Email = info.Email
+                };
+            }
+
+            return dto;
+        }
+
         public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info)
         {
             MerchantInformationDto dto = null;

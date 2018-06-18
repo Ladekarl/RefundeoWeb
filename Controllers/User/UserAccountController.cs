@@ -43,19 +43,12 @@ namespace Refundeo.Controllers.User
             return userModels;
         }
 
-        [Authorize(Roles = RefundeoConstants.RoleAdmin + "," + RefundeoConstants.RoleUser)]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer(string id)
         {
-            var user = await _utilityService.GetCallingUserAsync(Request);
-            var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
-            if (user.Id != id && !isAdmin)
-            {
-                return Forbid();
-            }
-
             var customer = await _context.CustomerInformations
-                .Where(c => c.Customer.Id == user.Id)
+                .Where(c => c.Customer.Id == id)
                 .Include(c => c.Address)
                 .Include(c => c.Customer)
                 .AsNoTracking()
@@ -66,7 +59,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return Ok(await _utilityService.ConvertCustomerInformationToDtoAsync(customer));
+            return Ok(_utilityService.ConvertCustomerInformationToSimleDto(customer));
         }
 
         [AllowAnonymous]

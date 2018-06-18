@@ -15,6 +15,7 @@ namespace Refundeo.Core.Services.Interfaces
         Task<RefundeoUser> GetCallingUserFullAsync(HttpRequest request);
         Task<UserDto> ConvertRefundeoUserToUserDtoAsync(RefundeoUser refundeoUser);
         Task<CustomerInformationDto> ConvertCustomerInformationToDtoAsync(CustomerInformation info);
+        CustomerInformationSimpleDto ConvertCustomerInformationToSimleDto(CustomerInformation info);
         Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info);
         ObjectResult GenerateBadRequestObjectResult(params string[] errors);
         ObjectResult GenerateBadRequestObjectResult(IEnumerable errors);
