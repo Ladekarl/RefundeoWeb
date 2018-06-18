@@ -35,7 +35,8 @@ namespace Refundeo.Controllers.User
         public async Task<IList<CustomerInformationDto>> GetAllCustomers()
         {
             var userModels = new List<CustomerInformationDto>();
-            foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).Include(i => i.Address).AsNoTracking().ToListAsync())
+            foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).Include(i => i.Address)
+                .AsNoTracking().ToListAsync())
             {
                 userModels.Add(await _utilityService.ConvertCustomerInformationToDtoAsync(u));
             }
@@ -47,6 +48,9 @@ namespace Refundeo.Controllers.User
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer(string id)
         {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+            var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
+
             var customer = await _context.CustomerInformations
                 .Where(c => c.Customer.Id == id)
                 .Include(c => c.Address)
@@ -59,7 +63,13 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return Ok(_utilityService.ConvertCustomerInformationToSimleDto(customer));
+
+            if (user.Id != id && !isAdmin)
+            {
+                return Ok(_utilityService.ConvertCustomerInformationToSimpleDto(customer));
+            }
+
+            return Ok(_utilityService.ConvertCustomerInformationToDtoAsync(customer));
         }
 
         [AllowAnonymous]
