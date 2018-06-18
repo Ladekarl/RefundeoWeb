@@ -8,5 +8,6 @@ namespace Refundeo.Core.Models.RefundCase
         public double Amount { get; set; }
         public string MerchantId { get; set; }
         public string CustomerId { get; set; }
+        public string ReceiptNumber { get; set; }
     }
 }

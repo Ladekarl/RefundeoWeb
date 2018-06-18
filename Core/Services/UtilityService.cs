@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -7,10 +8,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Models.Account;
+using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Services.Interfaces;
+using ZXing;
+using ZXing.QrCode;
 
 namespace Refundeo.Core.Services
 {
@@ -20,7 +25,8 @@ namespace Refundeo.Core.Services
         private readonly RefundeoDbContext _context;
         private readonly IBlobStorageService _blobStorageService;
 
-        public UtilityService(RefundeoDbContext context, UserManager<RefundeoUser> userManager, IBlobStorageService blobStorageService)
+        public UtilityService(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
+            IBlobStorageService blobStorageService)
         {
             _userManager = userManager;
             _context = context;
@@ -79,7 +85,7 @@ namespace Refundeo.Core.Services
             return userDto;
         }
 
-        public CustomerInformationDto ConvertCustomerInformationToDto(CustomerInformation info)
+        public async Task<CustomerInformationDto> ConvertCustomerInformationToDtoAsync(CustomerInformation info)
         {
             CustomerInformationDto dto = null;
             if (info != null)
@@ -103,7 +109,8 @@ namespace Refundeo.Core.Services
                     AddressStreetName = info.Address?.StreetName,
                     AddressPostalCode = info.Address?.PostalCode,
                     AddressStreetNumber = info.Address?.StreetNumber,
-                    Passport = info.Passport
+                    Passport = info.Passport,
+                    QRCode = await ConvertBlobPathToBase64Async(info.QRCode)
                 };
             }
 
@@ -175,6 +182,54 @@ namespace Refundeo.Core.Services
                 var imageBa = await _blobStorageService.DownloadFromPathAsync(path);
                 image = ConvertByteArrayToBase64(imageBa);
             }
+
+            return image;
+        }
+
+        public byte[] GenerateQrCode(int height, int width, int margin, QRCodeUserId payload)
+        {
+            return GenerateQrCode(height, width, margin, JsonConvert.SerializeObject(payload.UserId));
+        }
+
+        public byte[] GenerateQrCode(int height, int width, int margin, QRCodeRefundCaseDto payload)
+        {
+            return GenerateQrCode(height, width, margin, JsonConvert.SerializeObject(payload.RefundCaseId));
+        }
+
+        private byte[] GenerateQrCode(int height, int width, int margin, string payload)
+        {
+            var qrCodeWriter = new BarcodeWriterPixelData
+            {
+                Format = BarcodeFormat.QR_CODE,
+                Options = new QrCodeEncodingOptions
+                {
+                    Height = height,
+                    Width = width,
+                    Margin = margin
+                }
+            };
+            var pixelData = qrCodeWriter.Write(payload);
+            byte[] image;
+            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height,
+                System.Drawing.Imaging.PixelFormat.Format32bppRgb))
+            using (var ms = new MemoryStream())
+            {
+                var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height),
+                    System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                try
+                {
+                    System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0,
+                        pixelData.Pixels.Length);
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                image = ms.ToArray();
+            }
+
             return image;
         }
     }

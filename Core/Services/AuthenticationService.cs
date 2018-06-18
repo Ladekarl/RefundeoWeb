@@ -9,11 +9,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.Account;
+using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Services.Interfaces;
 using SignInResult = Refundeo.Core.Helpers.SignInResult;
 
@@ -26,15 +28,20 @@ namespace Refundeo.Core.Services
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly RefundeoDbContext _context;
         private readonly IUtilityService _utilityService;
+        private readonly IBlobStorageService _blobStorageService;
+        private readonly IOptions<StorageAccountOptions> _optionsAccessor;
 
         public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager,
-            SignInManager<RefundeoUser> signManager, RefundeoDbContext context, IUtilityService utilityService)
+            SignInManager<RefundeoUser> signManager, RefundeoDbContext context, IUtilityService utilityService,
+            IBlobStorageService blobStorageService, IOptions<StorageAccountOptions> optionsAccessor)
         {
             Configuration = configuration;
             _signManager = signManager;
             _userManager = userManager;
             _context = context;
             _utilityService = utilityService;
+            _blobStorageService = blobStorageService;
+            _optionsAccessor = optionsAccessor;
         }
 
         public async Task<IdentityResult> UpdateRolesAsync(RefundeoUser user, ICollection<string> roles)
@@ -137,7 +144,7 @@ namespace Refundeo.Core.Services
                 LastName = customerInformation.LastName,
                 Country = customerInformation.Country,
                 Swift = customerInformation.Swift,
-                IsOauth  = customerInformation.IsOauth,
+                IsOauth = customerInformation.IsOauth,
                 AcceptedTermsOfService = customerInformation.AcceptedTermsOfService,
                 AcceptedPrivacyPolicy = customerInformation.AcceptedPrivacyPolicy,
                 PrivacyPolicy = customerInformation.PrivacyPolicy,
@@ -150,7 +157,8 @@ namespace Refundeo.Core.Services
                 AddressCountry = customerInformation.Address?.Country,
                 AddressStreetName = customerInformation.Address?.StreetName,
                 AddressStreetNumber = customerInformation.Address?.StreetNumber,
-                AddressPostalCode = customerInformation.Address?.PostalCode
+                AddressPostalCode = customerInformation.Address?.PostalCode,
+                QRCode = await _utilityService.ConvertBlobPathToBase64Async(customerInformation.QRCode)
             });
         }
 
@@ -238,8 +246,8 @@ namespace Refundeo.Core.Services
                 "!@$?_-" // non-alphanumeric
             };
 
-            Random rand = new Random(Environment.TickCount);
-            List<char> chars = new List<char>();
+            var rand = new Random(Environment.TickCount);
+            var chars = new List<char>();
 
             if (opts.RequireUppercase)
                 chars.Insert(rand.Next(0, chars.Count),
@@ -257,12 +265,12 @@ namespace Refundeo.Core.Services
                 chars.Insert(rand.Next(0, chars.Count),
                     randomChars[3][rand.Next(0, randomChars[3].Length)]);
 
-            for (int i = chars.Count;
+            for (var i = chars.Count;
                 i < opts.RequiredLength
                 || chars.Distinct().Count() < opts.RequiredUniqueChars;
                 i++)
             {
-                string rcs = randomChars[rand.Next(0, randomChars.Length)];
+                var rcs = randomChars[rand.Next(0, randomChars.Length)];
                 chars.Insert(rand.Next(0, chars.Count),
                     rcs[rand.Next(0, rcs.Length)]);
             }
@@ -290,6 +298,16 @@ namespace Refundeo.Core.Services
             }
 
             customerInformation.Customer = user;
+
+            var qrCode = _utilityService.GenerateQrCode(200, 200, 5, new QRCodeUserId
+            {
+                UserId = user.Id
+            });
+
+            var logoContainerName = _optionsAccessor.Value.QrCodesContainerNameOption;
+            customerInformation.QRCode = await _blobStorageService.UploadAsync(logoContainerName,
+                $"{user.Id}", _utilityService.ConvertByteArrayToBase64(qrCode),
+                "image/png");
 
             await _context.Addresses.AddAsync(customerInformation.Address);
             await _context.CustomerInformations.AddAsync(customerInformation);

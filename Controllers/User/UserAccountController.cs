@@ -37,7 +37,7 @@ namespace Refundeo.Controllers.User
             var userModels = new List<CustomerInformationDto>();
             foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).Include(i => i.Address).AsNoTracking().ToListAsync())
             {
-                userModels.Add(_utilityService.ConvertCustomerInformationToDto(u));
+                userModels.Add(await _utilityService.ConvertCustomerInformationToDtoAsync(u));
             }
 
             return userModels;
@@ -66,7 +66,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return Ok(_utilityService.ConvertCustomerInformationToDto(customer));
+            return Ok(await _utilityService.ConvertCustomerInformationToDtoAsync(customer));
         }
 
         [AllowAnonymous]

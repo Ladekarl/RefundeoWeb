@@ -186,49 +186,6 @@ namespace Refundeo.Controllers.User
             return NoContent();
         }
 
-        [HttpGet("{id}/claim")]
-        public async Task<IActionResult> ClaimRefundCase(long id)
-        {
-            var user = await _utilityService.GetCallingUserAsync(Request);
-            if (user == null)
-            {
-                return Forbid();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var refundCaseToUpdate = await _context.RefundCases
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(c => c.Address)
-                .FirstOrDefaultAsync(r => r.Id == id);
-
-            if (refundCaseToUpdate == null)
-            {
-                return NotFound("Refund case not found");
-            }
-
-            if (refundCaseToUpdate.CustomerInformation != null)
-            {
-                return BadRequest("Refund case already claimed");
-            }
-
-            var customerInformation =
-                await _context.CustomerInformations.FirstOrDefaultAsync(i => i.Customer.Id == user.Id);
-
-            if (customerInformation == null)
-            {
-                return NotFound("Customer not found");
-            }
-
-            refundCaseToUpdate.CustomerInformation = customerInformation;
-            _context.RefundCases.Update(refundCaseToUpdate);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMerchantRefundCase(long id)
         {

@@ -2,7 +2,6 @@ namespace Refundeo.Core.Models.RefundCase
 {
     public class AdminUpdateRefundCaseDto
     {
-        public long Id { get; set; }
         public double Amount { get; set; }
         public double RefundAmount { get; set; }
         public bool IsRequested { get; set; }
@@ -12,5 +11,6 @@ namespace Refundeo.Core.Models.RefundCase
         public string Documentation { get; set; }
         public string MerchantId { get; set; }
         public string CustomerId { get; set; }
+        public string ReceiptNumber { get; set; }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class QRCodeUserId
     {
-        
+        public string UserId { get; set; }
     }
 }

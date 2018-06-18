@@ -52,46 +52,10 @@ namespace Refundeo.Core.Services
                 Documentation = await _utilityService.ConvertBlobPathToBase64Async(refundCase.Documentation?.Image),
                 DateCreated = refundCase.DateCreated,
                 DateRequested = refundCase.DateRequested,
-                Customer = _utilityService.ConvertCustomerInformationToDto(refundCase.CustomerInformation),
+                ReceiptNumber = refundCase.ReceiptNumber,
+                Customer = await _utilityService.ConvertCustomerInformationToDtoAsync(refundCase.CustomerInformation),
                 Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation)
             };
-        }
-
-        public byte[] GenerateQrCode(int height, int width, int margin, QRCodePayloadDto payload)
-        {
-            var qrCodeWriter = new BarcodeWriterPixelData
-            {
-                Format = BarcodeFormat.QR_CODE,
-                Options = new QrCodeEncodingOptions
-                {
-                    Height = height,
-                    Width = width,
-                    Margin = margin
-                }
-            };
-            var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(payload.RefundCaseId));
-            byte[] image;
-            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height,
-                System.Drawing.Imaging.PixelFormat.Format32bppRgb))
-            using (var ms = new MemoryStream())
-            {
-                var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height),
-                    System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                try
-                {
-                    System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0,
-                        pixelData.Pixels.Length);
-                }
-                finally
-                {
-                    bitmap.UnlockBits(bitmapData);
-                }
-
-                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                image = ms.ToArray();
-            }
-
-            return image;
         }
     }
 }

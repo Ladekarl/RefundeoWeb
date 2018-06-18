@@ -16,5 +16,6 @@ namespace Refundeo.Core.Data.Models
         public virtual Documentation Documentation { get; set; }
         public DateTime DateCreated { get; set; }
         public virtual DateTime DateRequested { get; set; }
+        public string ReceiptNumber { get; set; }
     }
 }

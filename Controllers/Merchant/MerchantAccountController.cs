@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -185,17 +186,31 @@ namespace Refundeo.Controllers.Merchant
                 if (model.Logo != null)
                 {
                     var logoContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
-                    merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
-                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
-                        "image/png");
+                    try
+                    {
+                        merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
+                            $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
+                            "image/png");
+                    }
+                    catch (FormatException ex)
+                    {
+                        return BadRequest(ex.Message);
+                    }
                 }
 
                 if (model.Banner != null)
                 {
-                    var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
-                    merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
-                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
-                        "image/png");
+                    try
+                    {
+                        var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
+                        merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
+                            $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
+                            "image/png");
+                    }
+                    catch (FormatException ex)
+                    {
+                        return BadRequest(ex.Message);
+                    }
                 }
 
                 _context.MerchantInformations.Update(merchantInformation);

@@ -134,7 +134,7 @@ namespace Refundeo.Core.Data.Initializers
             var qrCode = new QRCode
             {
                 Image = GenerateQrCode(dbInitializeRefundCase.QrCodeHeight, dbInitializeRefundCase.QrCodeWidth,
-                    dbInitializeRefundCase.QrCodeMargin, new QRCodePayloadDto
+                    dbInitializeRefundCase.QrCodeMargin, new QRCodeRefundCaseDto
                     {
                         RefundCaseId = refundCase.Id
                     })
@@ -170,7 +170,7 @@ namespace Refundeo.Core.Data.Initializers
             }
         }
 
-        private static byte[] GenerateQrCode(int height, int width, int margin, QRCodePayloadDto payload)
+        private static byte[] GenerateQrCode(int height, int width, int margin, QRCodeRefundCaseDto refundCase)
         {
             var qrCodeWriter = new BarcodeWriterPixelData
             {
@@ -182,7 +182,7 @@ namespace Refundeo.Core.Data.Initializers
                     Margin = margin
                 }
             };
-            var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(payload));
+            var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(refundCase));
             byte[] image;
             using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height,
                 System.Drawing.Imaging.PixelFormat.Format32bppRgb))

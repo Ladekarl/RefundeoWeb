@@ -117,9 +117,9 @@ namespace Refundeo.Controllers.Merchant
             var refundCase = await _context.RefundCases
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation.Customer)
-
                 .Include(r => r.MerchantInformation.Merchant)
-                .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id);
+                .Where(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id)
+                .FirstOrDefaultAsync();
 
             if (refundCase == null)
             {
@@ -132,7 +132,7 @@ namespace Refundeo.Controllers.Merchant
         [HttpPost]
         public async Task<IActionResult> CreateMerchantRefundCase([FromBody] CreateRefundCaseDto model)
         {
-            var user = await _utilityService.GetCallingUserAsync(Request);
+            var user = await _utilityService.GetCallingUserFullAsync(Request);
             if (user == null)
             {
                 return Forbid();
@@ -143,14 +143,22 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            var merchantInformation =
-                await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant.Id == user.Id);
-            if (merchantInformation == null)
+            if (user.MerchantInformation == null)
             {
-                return NotFound();
+                return NotFound("Merchant not found");
             }
 
-            var factor = merchantInformation.RefundPercentage / 100.0;
+            var customerInformation =
+                await _context.CustomerInformations
+                    .Where(c => c.Customer.Id == model.CustomerId)
+                    .FirstOrDefaultAsync();
+
+            if (customerInformation == null)
+            {
+                return BadRequest("Customer not found");
+            }
+
+            var factor = user.MerchantInformation.RefundPercentage / 100.0;
             var refundAmount = factor * model.Amount;
 
             var refundCase = new RefundCase
@@ -158,7 +166,9 @@ namespace Refundeo.Controllers.Merchant
                 Amount = model.Amount,
                 RefundAmount = refundAmount,
                 DateCreated = DateTime.UtcNow,
-                MerchantInformation = merchantInformation
+                MerchantInformation = user.MerchantInformation,
+                CustomerInformation = customerInformation,
+                ReceiptNumber = model.ReceiptNumber
             };
 
             var refundCaseResult = await _context.RefundCases.AddAsync(refundCase);
@@ -167,8 +177,8 @@ namespace Refundeo.Controllers.Merchant
 
             var qrCode = new QRCode
             {
-                Image = _refundCaseService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
-                    new QRCodePayloadDto
+                Image = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
+                    new QRCodeRefundCaseDto
                     {
                         RefundCaseId = refundCase.Id
                     })

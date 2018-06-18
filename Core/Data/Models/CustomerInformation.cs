@@ -17,6 +17,7 @@ namespace Refundeo.Core.Data.Models
         public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }
         public string TermsOfService { get; set; }
+        public string QRCode { get; set; }
         public virtual RefundeoUser Customer { get; set; }
         public virtual Address Address { get; set; }
         public ICollection<RefundCase> RefundCases { get; set; }

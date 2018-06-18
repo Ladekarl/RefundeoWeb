@@ -1,7 +1,7 @@
 namespace Refundeo.Core.Models.QRCode
 {
-    public class QRCodePayloadDto
+    public class QRCodeRefundCaseDto
     {
-        public long Id { get; set; }
+        public long RefundCaseId { get; set; }
     }
 }

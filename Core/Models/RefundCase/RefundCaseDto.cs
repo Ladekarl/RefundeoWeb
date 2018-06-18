@@ -17,5 +17,6 @@ namespace Refundeo.Core.Models.RefundCase
         public DateTime DateRequested { get; set; }
         public MerchantInformationDto Merchant { get; set; }
         public CustomerInformationDto Customer { get; set; }
+        public string ReceiptNumber { get; set; }
     }
 }
