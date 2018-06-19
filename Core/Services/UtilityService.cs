@@ -59,8 +59,9 @@ namespace Refundeo.Core.Services
                 .ThenInclude(m => m.Location)
                 .Include(u => u.CustomerInformation)
                 .ThenInclude(c => c.Address)
+                .Where(u => u.Id == userId)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == userId);
+                .FirstOrDefaultAsync();
         }
 
         public string GetCallingUserId(HttpRequest request)

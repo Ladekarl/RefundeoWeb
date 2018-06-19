@@ -35,8 +35,11 @@ namespace Refundeo.Controllers.User
         public async Task<IList<CustomerInformationDto>> GetAllCustomers()
         {
             var userModels = new List<CustomerInformationDto>();
-            foreach (var u in await _context.CustomerInformations.Include(i => i.Customer).Include(i => i.Address)
-                .AsNoTracking().ToListAsync())
+            foreach (var u in await _context.CustomerInformations
+                .Include(i => i.Customer)
+                .Include(i => i.Address)
+                .AsNoTracking()
+                .ToListAsync())
             {
                 userModels.Add(await _utilityService.ConvertCustomerInformationToDtoAsync(u));
             }
@@ -129,7 +132,8 @@ namespace Refundeo.Controllers.User
             var customerInformation = await _context.CustomerInformations
                 .Include(i => i.Customer)
                 .Include(i => i.Address)
-                .FirstOrDefaultAsync(i => i.Customer == user);
+                .Where(i => i.Customer == user)
+                .FirstOrDefaultAsync();
 
             if (customerInformation == null)
             {

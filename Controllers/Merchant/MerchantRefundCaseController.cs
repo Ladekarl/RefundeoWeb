@@ -132,7 +132,7 @@ namespace Refundeo.Controllers.Merchant
         [HttpPost]
         public async Task<IActionResult> CreateMerchantRefundCase([FromBody] CreateRefundCaseDto model)
         {
-            var user = await _utilityService.GetCallingUserFullAsync(Request);
+            var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
                 return Forbid();
@@ -143,7 +143,11 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            if (user.MerchantInformation == null)
+            var merchantInformation = await _context.MerchantInformations
+                .Where(c => c.Merchant.Id == user.Id)
+                .FirstOrDefaultAsync();
+
+            if (merchantInformation == null)
             {
                 return NotFound("Merchant not found");
             }
@@ -158,7 +162,7 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest("Customer not found");
             }
 
-            var factor = user.MerchantInformation.RefundPercentage / 100.0;
+            var factor = merchantInformation.RefundPercentage / 100.0;
             var refundAmount = factor * model.Amount;
 
             var refundCase = new RefundCase
@@ -166,7 +170,7 @@ namespace Refundeo.Controllers.Merchant
                 Amount = model.Amount,
                 RefundAmount = refundAmount,
                 DateCreated = DateTime.UtcNow,
-                MerchantInformation = user.MerchantInformation,
+                MerchantInformation = merchantInformation,
                 CustomerInformation = customerInformation,
                 ReceiptNumber = model.ReceiptNumber
             };
