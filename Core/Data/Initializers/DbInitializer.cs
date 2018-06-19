@@ -149,17 +149,6 @@ namespace Refundeo.Core.Data.Initializers
             await context.RefundCases.AddAsync(refundCase);
 
             await context.SaveChangesAsync();
-
-            var qrCode = new QRCode
-            {
-                Image = GenerateQrCode(dbInitializeRefundCase.QrCodeHeight, dbInitializeRefundCase.QrCodeWidth,
-                    dbInitializeRefundCase.QrCodeMargin, new QRCodeRefundCaseDto
-                    {
-                        RefundCaseId = refundCase.Id
-                    })
-            };
-            await context.QRCodes.AddAsync(qrCode);
-            refundCase.QRCode = qrCode;
             context.RefundCases.Update(refundCase);
             await context.SaveChangesAsync();
         }

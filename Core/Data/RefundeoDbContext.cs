@@ -28,8 +28,6 @@ namespace Refundeo.Core.Data
         public DbSet<CustomerInformation> CustomerInformations { get; set; }
         public DbSet<MerchantInformation> MerchantInformations { get; set; }
         public DbSet<RefundCase> RefundCases { get; set; }
-        public DbSet<Documentation> Documentations { get; set; }
-        public DbSet<QRCode> QRCodes { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Location> Locations { get; set; }
     }

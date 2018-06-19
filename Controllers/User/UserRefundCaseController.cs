@@ -46,8 +46,6 @@ namespace Refundeo.Controllers.User
 
             var refundCases = _context.RefundCases
                 .Where(r => r.CustomerInformation.Customer == user)
-                .Include(r => r.Documentation)
-                .Include(r => r.QRCode)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
                 .Include(r => r.MerchantInformation)
@@ -78,8 +76,6 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCase = await _context.RefundCases
-                .Include(r => r.QRCode)
-                .Include(r => r.Documentation)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
                 .Include(r => r.MerchantInformation)
@@ -110,14 +106,13 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Image) || string.IsNullOrEmpty(model.ImageName) ||
-                string.IsNullOrEmpty(model.ImageType) || !RefundeoConstants.ValidImageTypes.Contains(model.ImageType))
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.ReceiptImage) || string.IsNullOrEmpty(model.ReceiptImageType) || string.IsNullOrEmpty(model.VatFormImageType) ||
+                string.IsNullOrEmpty(model.VatFormImage) || !RefundeoConstants.ValidImageTypes.Contains(model.VatFormImageType) || !RefundeoConstants.ValidImageTypes.Contains(model.ReceiptImageType))
             {
                 return BadRequest();
             }
 
             var refundCaseToUpdate = await _context.RefundCases
-                .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.CustomerInformation)
@@ -131,17 +126,13 @@ namespace Refundeo.Controllers.User
 
             var containerName = _optionsAccessor.Value.DocumentationContainerNameOption;
 
-            var path = await _blobStorageService.UploadAsync(containerName, model.ImageName, model.Image,
-                model.ImageType);
+            refundCaseToUpdate.ReceiptImage = await _blobStorageService.UploadAsync(containerName, $"{refundCaseToUpdate.Id}_{refundCaseToUpdate.ReceiptNumber}_receipt", model.ReceiptImage,
+                model.ReceiptImageType);
 
-            var documentation = new Documentation
-            {
-                Image = path
-            };
+            refundCaseToUpdate.VATFormImage = await _blobStorageService.UploadAsync(containerName, $"{refundCaseToUpdate.Id}_{refundCaseToUpdate.ReceiptNumber}_vatform", model.VatFormImage,
+                model.VatFormImageType);
 
-            await _context.Documentations.AddAsync(documentation);
             await _context.SaveChangesAsync();
-            refundCaseToUpdate.Documentation = documentation;
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
             return NoContent();
@@ -162,7 +153,6 @@ namespace Refundeo.Controllers.User
             }
 
             var refundCaseToUpdate = await _context.RefundCases
-                .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
@@ -172,7 +162,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            if (refundCaseToUpdate.Documentation == null)
+            if (refundCaseToUpdate.ReceiptImage == null || refundCaseToUpdate.VATFormImage == null)
             {
                 return BadRequest("No documentation found");
             }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
@@ -23,16 +24,21 @@ namespace Refundeo.Controllers.Merchant
         private readonly IUtilityService _utilityService;
         private readonly IPaginationService<RefundCase> _paginationService;
         private readonly IEmailService _emailService;
+        private readonly IOptions<StorageAccountOptions> _optionsAccessor;
+        private readonly IBlobStorageService _blobStorageService;
 
         public MerchantRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IPaginationService<RefundCase> paginationService,
-            IEmailService emailService)
+            IEmailService emailService, IOptions<StorageAccountOptions> optionsAccessor,
+            IBlobStorageService blobStorageService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
             _paginationService = paginationService;
             _emailService = emailService;
+            _optionsAccessor = optionsAccessor;
+            _blobStorageService = blobStorageService;
         }
 
         [HttpGet]
@@ -46,7 +52,6 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCases = await _context.RefundCases
-                .Include(r => r.Documentation)
                 .Include(r => r.MerchantInformation.Merchant)
                 .Include(r => r.CustomerInformation.Customer)
                 .Where(r => r.MerchantInformation.Merchant.Id == user.Id)
@@ -81,7 +86,6 @@ namespace Refundeo.Controllers.Merchant
                 .CountAsync();
 
             query = query
-                .Include(r => r.Documentation)
                 .Include(r => r.MerchantInformation.Merchant)
                 .Include(r => r.CustomerInformation.Customer);
 
@@ -118,7 +122,6 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCase = await _context.RefundCases
-                .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation.Customer)
                 .Include(r => r.MerchantInformation.Merchant)
                 .Where(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id)
@@ -181,16 +184,16 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.SaveChangesAsync();
 
-            var qrCode = new QRCode
+            var qrCode = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin, new QRCodeRefundCaseDto
             {
-                Image = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
-                    new QRCodeRefundCaseDto
-                    {
-                        RefundCaseId = refundCase.Id
-                    })
-            };
-            await _context.QRCodes.AddAsync(qrCode);
-            refundCase.QRCode = qrCode;
+                RefundCaseId = refundCase.Id
+            });
+
+            var logoContainerName = _optionsAccessor.Value.QrCodesContainerNameOption;
+            refundCase.QRCode = await _blobStorageService.UploadAsync(logoContainerName,
+                $"{refundCase.Id}", _utilityService.ConvertByteArrayToBase64(qrCode),
+                "image/png");
+
             _context.RefundCases.Update(refundCase);
 
             await _context.SaveChangesAsync();

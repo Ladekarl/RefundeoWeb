@@ -12,7 +12,8 @@ namespace Refundeo.Core.Models.RefundCase
         public bool IsAccepted { get; set; }
         public bool IsRejected { get; set; }
         public string QrCode { get; set; }
-        public string Documentation { get; set; }
+        public string VatFormImage { get; set; }
+        public string ReceiptImage { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateRequested { get; set; }
         public MerchantInformationDto Merchant { get; set; }

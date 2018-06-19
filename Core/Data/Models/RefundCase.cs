@@ -12,8 +12,9 @@ namespace Refundeo.Core.Data.Models
         public bool IsRejected { get; set; }
         public virtual CustomerInformation CustomerInformation { get; set; }
         public MerchantInformation MerchantInformation { get; set; }
-        public virtual QRCode QRCode { get; set; }
-        public virtual Documentation Documentation { get; set; }
+        public virtual string QRCode { get; set; }
+        public virtual string ReceiptImage { get; set; }
+        public string VATFormImage { get; set; }
         public DateTime DateCreated { get; set; }
         public virtual DateTime DateRequested { get; set; }
         public string ReceiptNumber { get; set; }

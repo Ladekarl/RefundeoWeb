@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
@@ -20,13 +21,18 @@ namespace Refundeo.Controllers.Admin
         private readonly RefundeoDbContext _context;
         private readonly IRefundCaseService _refundCaseService;
         private readonly IUtilityService _utilityService;
+        private readonly IOptions<StorageAccountOptions> _optionsAccessor;
+        private readonly IBlobStorageService _blobStorageService;
 
         public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
-            IUtilityService utilityService)
+            IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
+            IBlobStorageService blobStorageService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
+            _optionsAccessor = optionsAccessor;
+            _blobStorageService = blobStorageService;
         }
 
         [HttpGet]
@@ -43,8 +49,6 @@ namespace Refundeo.Controllers.Admin
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.QRCode)
-                .Include(r => r.Documentation)
                 .ToListAsync();
 
             if (refundCases == null)
@@ -59,8 +63,6 @@ namespace Refundeo.Controllers.Admin
         public async Task<IActionResult> GetRefundCaseById(long id)
         {
             var refundCase = await _context.RefundCases
-                .Include(r => r.QRCode)
-                .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.MerchantInformation)
@@ -123,17 +125,16 @@ namespace Refundeo.Controllers.Admin
 
             await _context.SaveChangesAsync();
 
-            var qrCode = new QRCode
+            var qrCode = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin, new QRCodeRefundCaseDto
             {
-                Image = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
-                    new QRCodeRefundCaseDto
-                    {
-                        RefundCaseId = refundCase.Id
-                    })
-            };
+                RefundCaseId = refundCase.Id
+            });
 
-            await _context.QRCodes.AddAsync(qrCode);
-            refundCase.QRCode = qrCode;
+            var logoContainerName = _optionsAccessor.Value.QrCodesContainerNameOption;
+            refundCase.QRCode = await _blobStorageService.UploadAsync(logoContainerName,
+                $"{refundCase.Id}", _utilityService.ConvertByteArrayToBase64(qrCode),
+                "image/png");
+
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
@@ -153,8 +154,6 @@ namespace Refundeo.Controllers.Admin
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
-                .Include(r => r.Documentation)
-                .Include(r => r.QRCode)
                 .Where(r => r.Id == id)
                 .FirstOrDefaultAsync();
 
@@ -179,8 +178,6 @@ namespace Refundeo.Controllers.Admin
             refundCaseToUpdate.IsRequested = model.IsRequested;
             refundCaseToUpdate.IsAccepted = model.IsAccepted;
             refundCaseToUpdate.IsRejected = model.IsRejected;
-            refundCaseToUpdate.Documentation.Image = model.Documentation;
-            refundCaseToUpdate.QRCode.Image = _utilityService.ConvertBase64ToByteArray(model.QrCode);
             refundCaseToUpdate.RefundAmount = model.RefundAmount;
             refundCaseToUpdate.ReceiptNumber = model.ReceiptNumber;
 
