@@ -152,6 +152,7 @@ namespace Refundeo.Core.Services
                 FirstName = customerInformation.FirstName,
                 LastName = customerInformation.LastName,
                 Country = customerInformation.Country,
+                AccountNumber = customerInformation.AccountNumber,
                 Swift = customerInformation.Swift,
                 IsOauth = customerInformation.IsOauth,
                 AcceptedTermsOfService = customerInformation.AcceptedTermsOfService,

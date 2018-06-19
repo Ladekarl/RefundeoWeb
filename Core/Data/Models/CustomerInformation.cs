@@ -11,6 +11,7 @@ namespace Refundeo.Core.Data.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Country { get; set; }
+        public string AccountNumber { get; set; }
         public string Swift { get; set; }
         public string Passport { get; set; }
         public bool IsOauth { get; set; }

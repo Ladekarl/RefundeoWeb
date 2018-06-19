@@ -82,6 +82,7 @@ namespace Refundeo.Core.Services
                     IsOauth = info.IsOauth,
                     Email = info.Email,
                     Phone = info.Phone,
+                    AccountNumber = info.AccountNumber,
                     Swift = info.Swift,
                     AddressCity = info.Address?.City,
                     AddressCountry = info.Address?.Country,

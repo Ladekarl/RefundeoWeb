@@ -72,7 +72,7 @@ namespace Refundeo.Controllers.User
                 return Ok(_utilityService.ConvertCustomerInformationToSimpleDto(customer));
             }
 
-            return Ok(_utilityService.ConvertCustomerInformationToDtoAsync(customer));
+            return Ok(await _utilityService.ConvertCustomerInformationToDtoAsync(customer));
         }
 
         [AllowAnonymous]
@@ -97,6 +97,7 @@ namespace Refundeo.Controllers.User
                 AcceptedTermsOfService = model.AcceptedTermsOfService,
                 PrivacyPolicy = model.PrivacyPolicy,
                 TermsOfService = model.TermsOfService,
+                AccountNumber = model.AccountNumber,
                 Swift = model.Swift,
                 Passport = model.Passport,
                 Address = new Address
