@@ -196,11 +196,11 @@ namespace Refundeo.Controllers.Merchant
             await _context.SaveChangesAsync();
 
             var refundDate =
-                $"{refundCase.DateCreated.Date}/{refundCase.DateCreated.Month}/{refundCase.DateCreated.Year}";
+                $"{refundCase.DateCreated.Day}/{refundCase.DateCreated.Month}/{refundCase.DateCreated.Year}";
 
             await _emailService.SendMailAsync(
                 $"Refundeo - Tax Free Form - {merchantInformation.CompanyName} {refundDate}",
-                $"Dear {customerInformation.FirstName}\n\nPlease find your tax free form for your purchase at ${merchantInformation.CompanyName} on ${refundDate} attached to this email.\nThe VAT form should be filled and stamped at a local customs office.\nUpload the stamped form along with the original receipt in the app to claim your refund.\n\nBest Regards\nRefundeo",
+                $"Dear {customerInformation.FirstName}\n\nPlease find your tax free form for your purchase at {merchantInformation.CompanyName} on {refundDate} attached to this email.\n\nThe VAT form should be filled and stamped at a local customs office.\n\nUpload the stamped form along with the original receipt in the app, to claim your refund.\n\nBest Regards\nRefundeo",
                 customerInformation.Email);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
