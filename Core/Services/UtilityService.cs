@@ -44,26 +44,6 @@ namespace Refundeo.Core.Services
             return await _userManager.FindByIdAsync(userId);
         }
 
-        public async Task<RefundeoUser> GetCallingUserFullAsync(HttpRequest request)
-        {
-            var userId = GetCallingUserId(request);
-            if (userId == null)
-            {
-                return null;
-            }
-
-            return await _context.Users
-                .Include(u => u.MerchantInformation)
-                .ThenInclude(m => m.Address)
-                .Include(u => u.MerchantInformation)
-                .ThenInclude(m => m.Location)
-                .Include(u => u.CustomerInformation)
-                .ThenInclude(c => c.Address)
-                .Where(u => u.Id == userId)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-        }
-
         public string GetCallingUserId(HttpRequest request)
         {
             var userClaim = request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);

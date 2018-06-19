@@ -162,8 +162,7 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest("Customer not found");
             }
 
-            var factor = merchantInformation.RefundPercentage / 100.0;
-            var refundAmount = factor * model.Amount;
+            var refundAmount = 0.20 * model.Amount * ((95 - merchantInformation.RefundPercentage) / 100.0);
 
             var refundCase = new RefundCase
             {
