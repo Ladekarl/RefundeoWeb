@@ -95,7 +95,7 @@ namespace Refundeo.Core.Data.Initializers
                     };
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
                         merchant.CompanyName, merchant.CvrNumber, merchant.RefundPercentage, merchant.OpeningHours,
-                        merchant.Description, address, location, merchant.Logo, merchant.banner);
+                        merchant.Description, address, location, merchant.Logo, merchant.Banner);
                 }
             }
         }
