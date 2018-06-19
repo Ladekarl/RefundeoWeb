@@ -165,8 +165,6 @@ namespace Refundeo.Controllers.User
                 .Include(r => r.Documentation)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Address)
                 .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
 
             if (refundCaseToUpdate == null)
