@@ -10,10 +10,10 @@ namespace Refundeo.Core.Services
 {
     public class PaginationService<T> : IPaginationService<T> where T : class
     {
-        private static readonly string OrderBy = nameof(Queryable.OrderBy);
-        private static readonly string OrderByDescending = nameof(Queryable.OrderByDescending);
-        private static readonly string ThenBy = nameof(Queryable.ThenBy);
-        private static readonly string ThenByDescending = nameof(Queryable.ThenByDescending);
+        private const string OrderBy = nameof(Queryable.OrderBy);
+        private const string OrderByDescending = nameof(Queryable.OrderByDescending);
+        private const string ThenBy = nameof(Queryable.ThenBy);
+        private const string ThenByDescending = nameof(Queryable.ThenByDescending);
 
         public IQueryable<T> PaginateSortAndFilter(IQueryable<T> query, int first, int amount, string sortBy,
             string dir, string filterBy)
@@ -97,8 +97,8 @@ namespace Refundeo.Core.Services
             var orderBy = dir == "asc" ? OrderBy : OrderByDescending;
             var thenBy = dir == "asc" ? ThenBy : ThenByDescending;
 
-            String orderByProp = sortProp.Name;
-            String thenByProp = null;
+            var orderByProp = sortProp.Name;
+            string thenByProp = null;
 
             if (sortProp.PropertyType == typeof(CustomerInformation))
             {
@@ -124,7 +124,7 @@ namespace Refundeo.Core.Services
             Expression expr = arg;
             foreach (var prop in props)
             {
-                PropertyInfo pi = type.GetProperty(prop);
+                var pi = type.GetProperty(prop);
                 expr = Expression.Property(expr, pi);
                 type = pi.PropertyType;
             }

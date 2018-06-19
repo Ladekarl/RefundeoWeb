@@ -22,14 +22,17 @@ namespace Refundeo.Controllers.Merchant
         private readonly IRefundCaseService _refundCaseService;
         private readonly IUtilityService _utilityService;
         private readonly IPaginationService<RefundCase> _paginationService;
+        private readonly IEmailService _emailService;
 
         public MerchantRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
-            IUtilityService utilityService, IPaginationService<RefundCase> paginationService)
+            IUtilityService utilityService, IPaginationService<RefundCase> paginationService,
+            IEmailService emailService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
             _paginationService = paginationService;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -189,7 +192,16 @@ namespace Refundeo.Controllers.Merchant
             await _context.QRCodes.AddAsync(qrCode);
             refundCase.QRCode = qrCode;
             _context.RefundCases.Update(refundCase);
+
             await _context.SaveChangesAsync();
+
+            var refundDate =
+                $"{refundCase.DateCreated.Date}/{refundCase.DateCreated.Month}/{refundCase.DateCreated.Year}";
+
+            await _emailService.SendMailAsync(
+                $"Refundeo - Tax Free Form - {merchantInformation.CompanyName} {refundDate}",
+                $"Dear {customerInformation.FirstName}\n\nPlease find your tax free form for your purchase at ${merchantInformation.CompanyName} on ${refundDate} attached to this email.\nThe VAT form should be filled and stamped at a local customs office.\nUpload the stamped form along with the original receipt in the app to claim your refund.\n\nBest Regards\nRefundeo",
+                customerInformation.Email);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }

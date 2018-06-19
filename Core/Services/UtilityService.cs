@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Models.Account;
 using Refundeo.Core.Models.QRCode;
@@ -22,14 +21,12 @@ namespace Refundeo.Core.Services
     public class UtilityService : IUtilityService
     {
         private readonly UserManager<RefundeoUser> _userManager;
-        private readonly RefundeoDbContext _context;
         private readonly IBlobStorageService _blobStorageService;
 
-        public UtilityService(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
+        public UtilityService(UserManager<RefundeoUser> userManager,
             IBlobStorageService blobStorageService)
         {
             _userManager = userManager;
-            _context = context;
             _blobStorageService = blobStorageService;
         }
 

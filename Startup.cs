@@ -62,8 +62,10 @@ namespace Refundeo
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
 
             services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
+            services.Configure<EmailAccountOptions>(Configuration.GetSection("EmailAccount"));
 
             services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
