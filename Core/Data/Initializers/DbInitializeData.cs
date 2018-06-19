@@ -144,7 +144,7 @@ namespace Refundeo.Core.Data.Initializers
             {
                 Username = "Ganni",
                 Password = "Ganni1234!",
-                CompanyName = "Ganni",
+                CompanyName = "GANNI",
                 CvrNumber = "21664731",
                 RefundPercentage = 27,
                 AddressCity = "København K",
