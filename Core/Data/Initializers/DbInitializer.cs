@@ -102,10 +102,14 @@ namespace Refundeo.Core.Data.Initializers
         private static async Task CreateRefundCaseAsync(RefundeoDbContext context,
             DbInitializeRefundCase dbInitializeRefundCase)
         {
-            var merchantInformation = await context.MerchantInformations.Include(m => m.Merchant)
-                .FirstOrDefaultAsync(i => i.Merchant.UserName == dbInitializeRefundCase.MerchantName);
-            var customerInformation = await context.CustomerInformations.Include(m => m.Customer)
-                .FirstOrDefaultAsync(i => i.Customer.UserName == dbInitializeRefundCase.CustomerName);
+            var merchantInformation = await context.MerchantInformations
+                .Include(m => m.Merchant)
+                .Where(i => i.Merchant.UserName == dbInitializeRefundCase.MerchantName)
+                .FirstOrDefaultAsync();
+            var customerInformation = await context.CustomerInformations
+                .Include(m => m.Customer)
+                .Where(i => i.Customer.UserName == dbInitializeRefundCase.CustomerName)
+                .FirstOrDefaultAsync();
 
             if (merchantInformation == null)
             {
