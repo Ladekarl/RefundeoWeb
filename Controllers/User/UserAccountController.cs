@@ -52,9 +52,9 @@ namespace Refundeo.Controllers.User
             var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
 
             var customer = await _context.CustomerInformations
-                .Where(c => c.Customer.Id == id)
                 .Include(c => c.Address)
                 .Include(c => c.Customer)
+                .Where(c => c.Customer.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
