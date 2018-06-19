@@ -81,6 +81,7 @@ namespace Refundeo.Core.Services
                     TermsOfService = info.TermsOfService,
                     IsOauth = info.IsOauth,
                     Email = info.Email,
+                    Phone = info.Phone,
                     Swift = info.Swift,
                     AddressCity = info.Address?.City,
                     AddressCountry = info.Address?.Country,
@@ -106,7 +107,8 @@ namespace Refundeo.Core.Services
                     FirstName = info.FirstName,
                     LastName = info.LastName,
                     Country = info.Country,
-                    Email = info.Email
+                    Email = info.Email,
+                    Phone = info.Phone
                 };
             }
 
@@ -133,6 +135,9 @@ namespace Refundeo.Core.Services
                     Longitude = info.Location?.Longitude,
                     Description = info.Description,
                     OpeningHours = info.OpeningHours,
+                    VatNumber = info.VATNumber,
+                    ContactEmail = info.ContactEmail,
+                    ContactPhone = info.ContactPhone,
                     Banner = await ConvertBlobPathToBase64Async(info.Banner),
                     Logo = await ConvertBlobPathToBase64Async(info.Logo)
                 };

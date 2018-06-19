@@ -18,5 +18,8 @@ namespace Refundeo.Core.Models.Account
         public string OpeningHours { get; set; }
         public string Banner { get; set; }
         public string Logo { get; set; }
+        public string VatNumber { get; set; }
+        public string ContactEmail { get; set; }
+        public string ContactPhone { get; set; }
     }
 }

@@ -92,6 +92,7 @@ namespace Refundeo.Controllers.User
                 LastName = model.LastName,
                 Country = model.Country,
                 Email = model.Email,
+                Phone = model.Phone,
                 AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy,
                 AcceptedTermsOfService = model.AcceptedTermsOfService,
                 PrivacyPolicy = model.PrivacyPolicy,
@@ -161,6 +162,7 @@ namespace Refundeo.Controllers.User
             customerInformation.LastName = model.LastName;
             customerInformation.Country = model.Country;
             customerInformation.Email = model.Email;
+            customerInformation.Phone = model.Phone;
             customerInformation.AcceptedPrivacyPolicy = model.AcceptedPrivacyPolicy;
             customerInformation.AcceptedTermsOfService = model.AcceptedTermsOfService;
             customerInformation.PrivacyPolicy = model.PrivacyPolicy;

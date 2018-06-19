@@ -7,6 +7,7 @@ namespace Refundeo.Core.Models.Account
         public string LastName { get; set; }
         public string Country { get; set; }
         public string Email { get; set; }
+        public string Phone { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
         public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }

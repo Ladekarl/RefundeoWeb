@@ -93,9 +93,23 @@ namespace Refundeo.Core.Data.Initializers
                         StreetName = merchant.AddressStreetName,
                         StreetNumber = merchant.AddressStreetNumber
                     };
+
+                    var merchantInformation = new MerchantInformation
+                    {
+                        CompanyName = merchant.CompanyName,
+                        CVRNumber = merchant.CvrNumber,
+                        RefundPercentage = merchant.RefundPercentage,
+                        Description = merchant.Description,
+                        OpeningHours = merchant.OpeningHours,
+                        VATNumber = merchant.VatNumber,
+                        ContactEmail = merchant.ContactEmail,
+                        ContactPhone = merchant.ContactPhone,
+                        Logo = merchant.Logo,
+                        Banner = merchant.Banner
+                    };
+
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchant.CompanyName, merchant.CvrNumber, merchant.RefundPercentage, merchant.OpeningHours,
-                        merchant.Description, address, location, merchant.Logo, merchant.Banner);
+                        merchantInformation, address, location);
                 }
             }
         }
@@ -213,11 +227,11 @@ namespace Refundeo.Core.Data.Initializers
         }
 
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
-            string merchantUsername, string merchantPassword, string merchantCompanyName, string merchantCvrNumber,
-            double merchantRefundPercentage, string merchantOpeningHours, string merchantDescription, Address address,
-            Location location, string logo, string banner)
+            string merchantUsername, string merchantPassword, MerchantInformation merchantInformation, Address address,
+            Location location)
         {
-            var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword, RefundeoConstants.RoleMerchant);
+            var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword,
+                RefundeoConstants.RoleMerchant);
             if (user != null)
             {
                 await context.Locations.AddAsync(location);
@@ -225,19 +239,11 @@ namespace Refundeo.Core.Data.Initializers
 
                 await context.SaveChangesAsync();
 
-                await context.MerchantInformations.AddAsync(new MerchantInformation
-                {
-                    CompanyName = merchantCompanyName,
-                    CVRNumber = merchantCvrNumber,
-                    RefundPercentage = merchantRefundPercentage,
-                    Description = merchantDescription,
-                    OpeningHours = merchantOpeningHours,
-                    Merchant = user,
-                    Location = location,
-                    Address = address,
-                    Logo = logo,
-                    Banner = banner
-                });
+                merchantInformation.Merchant = user;
+                merchantInformation.Location = location;
+                merchantInformation.Address = address;
+
+                await context.MerchantInformations.AddAsync(merchantInformation);
 
                 await context.SaveChangesAsync();
             }

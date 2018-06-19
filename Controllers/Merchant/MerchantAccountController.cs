@@ -106,7 +106,10 @@ namespace Refundeo.Controllers.Merchant
                 Location = location,
                 Address = address,
                 Description = model.Description,
-                OpeningHours = model.OpeningHours
+                OpeningHours = model.OpeningHours,
+                ContactEmail = model.ContactEmail,
+                ContactPhone = model.ContactPhone,
+                VATNumber = model.VatNumber
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
@@ -177,6 +180,9 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
             merchantInformation.OpeningHours = model.OpeningHours;
+            merchantInformation.VATNumber = model.VatNumber;
+            merchantInformation.ContactEmail = model.ContactEmail;
+            merchantInformation.ContactPhone = model.ContactPhone;
 
             _context.MerchantInformations.Update(merchantInformation);
             await _context.SaveChangesAsync();

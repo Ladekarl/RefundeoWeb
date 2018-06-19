@@ -13,6 +13,9 @@ namespace Refundeo.Core.Data.Models
         public string OpeningHours { get; set; }
         public string Banner { get; set; }
         public string Logo { get; set; }
+        public string VATNumber { get; set; }
+        public string ContactEmail { get; set; }
+        public string ContactPhone { get; set; }
         public virtual RefundeoUser Merchant { get; set; }
         public virtual Location Location { get; set; }
         public virtual Address Address { get; set; }

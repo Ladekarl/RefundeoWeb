@@ -132,6 +132,9 @@ namespace Refundeo.Core.Services
                 Longitude = merchantInformation.Location?.Longitude,
                 Description = merchantInformation.Description,
                 OpeningHours = merchantInformation.OpeningHours,
+                VatNumber = merchantInformation.VATNumber,
+                ContactEmail = merchantInformation.ContactEmail,
+                ContactPhone = merchantInformation.ContactPhone,
                 Banner = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Banner),
                 Logo = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Logo)
             });
@@ -158,6 +161,7 @@ namespace Refundeo.Core.Services
                 Roles = await _userManager.GetRolesAsync(user),
                 RefreshToken = refreshToken,
                 Email = customerInformation.Email,
+                Phone = customerInformation.Phone,
                 Passport = customerInformation.Passport,
                 AddressCity = customerInformation.Address?.City,
                 AddressCountry = customerInformation.Address?.Country,
