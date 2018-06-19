@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
@@ -94,7 +95,7 @@ namespace Refundeo.Core.Data.Initializers
                     };
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
                         merchant.CompanyName, merchant.CvrNumber, merchant.RefundPercentage, merchant.OpeningHours,
-                        merchant.Description, address, location);
+                        merchant.Description, address, location, merchant.Logo, merchant.banner);
                 }
             }
         }
@@ -214,7 +215,7 @@ namespace Refundeo.Core.Data.Initializers
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
             string merchantUsername, string merchantPassword, string merchantCompanyName, string merchantCvrNumber,
             double merchantRefundPercentage, string merchantOpeningHours, string merchantDescription, Address address,
-            Location location)
+            Location location, string logo, string banner)
         {
             var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword, RefundeoConstants.RoleMerchant);
             if (user != null)
@@ -233,7 +234,9 @@ namespace Refundeo.Core.Data.Initializers
                     OpeningHours = merchantOpeningHours,
                     Merchant = user,
                     Location = location,
-                    Address = address
+                    Address = address,
+                    Logo = logo,
+                    Banner = banner
                 });
 
                 await context.SaveChangesAsync();
