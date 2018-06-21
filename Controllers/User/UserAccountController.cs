@@ -178,7 +178,7 @@ namespace Refundeo.Controllers.User
 
             await _context.SaveChangesAsync();
 
-            return new NoContentResult();
+            return NoContent();
         }
 
         [Authorize(Roles = RefundeoConstants.RoleUser)]

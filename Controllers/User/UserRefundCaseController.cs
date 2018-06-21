@@ -86,8 +86,9 @@ namespace Refundeo.Controllers.User
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Address)
+                .Where(r => r.Id == id && r.CustomerInformation.Customer == user)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .FirstOrDefaultAsync();
 
             if (refundCase == null)
             {
@@ -106,8 +107,11 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            if (!ModelState.IsValid || string.IsNullOrEmpty(model.ReceiptImage) || string.IsNullOrEmpty(model.ReceiptImageType) || string.IsNullOrEmpty(model.VatFormImageType) ||
-                string.IsNullOrEmpty(model.VatFormImage) || !RefundeoConstants.ValidImageTypes.Contains(model.VatFormImageType) || !RefundeoConstants.ValidImageTypes.Contains(model.ReceiptImageType))
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.ReceiptImage) ||
+                string.IsNullOrEmpty(model.ReceiptImageType) || string.IsNullOrEmpty(model.VatFormImageType) ||
+                string.IsNullOrEmpty(model.VatFormImage) ||
+                !RefundeoConstants.ValidImageTypes.Contains(model.VatFormImageType) ||
+                !RefundeoConstants.ValidImageTypes.Contains(model.ReceiptImageType))
             {
                 return BadRequest();
             }
@@ -126,10 +130,12 @@ namespace Refundeo.Controllers.User
 
             var containerName = _optionsAccessor.Value.DocumentationContainerNameOption;
 
-            refundCaseToUpdate.ReceiptImage = await _blobStorageService.UploadAsync(containerName, $"{refundCaseToUpdate.Id}_{refundCaseToUpdate.ReceiptNumber}_receipt", model.ReceiptImage,
+            refundCaseToUpdate.ReceiptImage = await _blobStorageService.UploadAsync(containerName,
+                $"{refundCaseToUpdate.Id}_{refundCaseToUpdate.ReceiptNumber}_receipt", model.ReceiptImage,
                 model.ReceiptImageType);
 
-            refundCaseToUpdate.VATFormImage = await _blobStorageService.UploadAsync(containerName, $"{refundCaseToUpdate.Id}_{refundCaseToUpdate.ReceiptNumber}_vatform", model.VatFormImage,
+            refundCaseToUpdate.VATFormImage = await _blobStorageService.UploadAsync(containerName,
+                $"{refundCaseToUpdate.Id}_{refundCaseToUpdate.ReceiptNumber}_vatform", model.VatFormImage,
                 model.VatFormImageType);
 
             await _context.SaveChangesAsync();

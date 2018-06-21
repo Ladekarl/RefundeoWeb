@@ -184,14 +184,15 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.SaveChangesAsync();
 
-            var qrCode = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin, new QRCodeRefundCaseDto
-            {
-                RefundCaseId = refundCase.Id
-            });
+            var qrCode = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
+                new QRCodeRefundCaseDto
+                {
+                    RefundCaseId = refundCase.Id
+                });
 
             var logoContainerName = _optionsAccessor.Value.QrCodesContainerNameOption;
             refundCase.QRCode = await _blobStorageService.UploadAsync(logoContainerName,
-                $"{refundCase.Id}", _utilityService.ConvertByteArrayToBase64(qrCode),
+                $"{refundCase.Id}-{refundCase.ReceiptNumber}", _utilityService.ConvertByteArrayToBase64(qrCode),
                 "image/png");
 
             _context.RefundCases.Update(refundCase);
