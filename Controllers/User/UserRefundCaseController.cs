@@ -213,7 +213,7 @@ namespace Refundeo.Controllers.User
             }
 
             await _emailService.SendVATMailAsync(refundCase, model.Email);
-            
+
             return NoContent();
         }
 

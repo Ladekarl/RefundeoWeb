@@ -198,6 +198,15 @@ namespace Refundeo.Controllers.Merchant
                 $"{refundCase.Id}-{refundCase.ReceiptNumber}", _utilityService.ConvertByteArrayToBase64(qrCode),
                 "image/png");
 
+            var signaturesContainerName = _optionsAccessor.Value.SignaturesContainerNameOption;
+            refundCase.MerchantSignature = await _blobStorageService.UploadAsync(signaturesContainerName,
+                $"{refundCase.Id}-merchantsignature", model.MerchantSignature,
+                "image/png");
+            refundCase.CustomerSignature = await _blobStorageService.UploadAsync(signaturesContainerName,
+                $"{refundCase.Id}-customersignature", model.CustomerSignature,
+                "image/png");
+
+
             _context.RefundCases.Update(refundCase);
 
             await _context.SaveChangesAsync();

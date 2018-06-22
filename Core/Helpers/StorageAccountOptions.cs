@@ -9,5 +9,6 @@
         public string MerchantLogosContainerNameOption { get; set; }
         public string QrCodesContainerNameOption { get; set; }
         public string DocumentationContainerNameOption { get; set; }
+        public string SignaturesContainerNameOption { get; set; }
     }
 }

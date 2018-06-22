@@ -8,5 +8,7 @@ namespace Refundeo.Core.Models.RefundCase
         public int QrCodeMargin { get; set; }
         public string ReceiptNumber { get; set; }
         public string CustomerId { get; set; }
+        public string MerchantSignature { get; set; }
+        public string CustomerSignature { get; set; }
     }
 }

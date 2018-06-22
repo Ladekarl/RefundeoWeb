@@ -48,14 +48,16 @@ namespace Refundeo.Core.Services
                 IsRequested = refundCase.IsRequested,
                 IsAccepted = refundCase.IsAccepted,
                 IsRejected = refundCase.IsRejected,
-                QrCode =  await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode),
+                QrCode = await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode),
                 VatFormImage = await _utilityService.ConvertBlobPathToBase64Async(refundCase.VATFormImage),
                 ReceiptImage = await _utilityService.ConvertBlobPathToBase64Async(refundCase.ReceiptImage),
                 DateCreated = refundCase.DateCreated,
                 DateRequested = refundCase.DateRequested,
                 ReceiptNumber = refundCase.ReceiptNumber,
                 Customer = await _utilityService.ConvertCustomerInformationToDtoAsync(refundCase.CustomerInformation),
-                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation)
+                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation),
+                CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
+                MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature)
             };
         }
     }

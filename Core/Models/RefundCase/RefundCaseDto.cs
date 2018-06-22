@@ -19,5 +19,7 @@ namespace Refundeo.Core.Models.RefundCase
         public MerchantInformationDto Merchant { get; set; }
         public CustomerInformationDto Customer { get; set; }
         public string ReceiptNumber { get; set; }
+        public string MerchantSignature { get; set; }
+        public string CustomerSignature { get; set; }
     }
 }

@@ -18,5 +18,7 @@ namespace Refundeo.Core.Data.Models
         public DateTime DateCreated { get; set; }
         public virtual DateTime DateRequested { get; set; }
         public string ReceiptNumber { get; set; }
+        public string MerchantSignature { get; set; }
+        public string CustomerSignature { get; set; }
     }
 }
