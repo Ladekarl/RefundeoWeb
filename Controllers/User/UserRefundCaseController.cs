@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
@@ -22,16 +23,18 @@ namespace Refundeo.Controllers.User
         private readonly IUtilityService _utilityService;
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
+        private readonly IEmailService _emailService;
 
         public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService)
+            IBlobStorageService blobStorageService, IEmailService emailService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -161,7 +164,8 @@ namespace Refundeo.Controllers.User
             var refundCaseToUpdate = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
-                .FirstOrDefaultAsync(r => r.Id == id && r.CustomerInformation.Customer == user);
+                .Where(r => r.Id == id && r.CustomerInformation.Customer == user)
+                .FirstOrDefaultAsync();
 
             if (refundCaseToUpdate == null)
             {
@@ -177,6 +181,39 @@ namespace Refundeo.Controllers.User
             refundCaseToUpdate.DateRequested = DateTime.UtcNow;
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPost("{id}/email")]
+        public async Task<IActionResult> SendRefundCaseEmail(long id, [FromBody] EmailDto model)
+        {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+            if (user == null)
+            {
+                return Forbid();
+            }
+
+            if (model.Email == null)
+            {
+                return BadRequest();
+            }
+
+            var refundCase = await _context.RefundCases
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .Include(i => i.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Where(r => r.Id == id && r.CustomerInformation.Customer == user)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (refundCase == null)
+            {
+                return NotFound();
+            }
+
+            await _emailService.SendVATMailAsync(refundCase, model.Email);
+            
             return NoContent();
         }
 
