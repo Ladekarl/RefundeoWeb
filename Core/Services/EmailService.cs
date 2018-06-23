@@ -1,13 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.Drawing.Imaging;
+using System.Drawing.Printing;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
-using DinkToPdf;
-using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Services.Interfaces;
+using WkWrap;
 
 namespace Refundeo.Core.Services
 {
@@ -16,17 +19,17 @@ namespace Refundeo.Core.Services
         private readonly SmtpClient _smtpClient;
         private readonly IOptions<EmailAccountOptions> _emailAccountOptionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
+        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
-        private readonly IConverter _converter;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService, IConverter converter)
+            IBlobStorageService blobStorageService, IHostingEnvironment hostingEnvironment)
         {
-            _converter = converter;
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
             _blobStorageService = blobStorageService;
+            _hostingEnvironment = hostingEnvironment;
             _smtpClient = new SmtpClient
             {
                 Host = _emailAccountOptionsAccessor.Value.Host,
@@ -91,37 +94,25 @@ namespace Refundeo.Core.Services
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
 
-            var doc = new HtmlToPdfDocument
+            var converter =
+                new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
+                    "libwkhtmltox.dll")));
+
+            var doc = new ConversionSettings
             {
-                GlobalSettings =
-                {
-                    ColorMode = ColorMode.Grayscale,
-                    Orientation = Orientation.Portrait,
-                    PaperSize = PaperKind.A4,
-                    DocumentTitle = GetVatFormName(refundCase)
-                },
-                Objects =
-                {
-                    new ObjectSettings
-                    {
-                        PagesCount = false,
-                        HtmlContent = @"<html>
+                PageSize = PageSize.A4,
+                Orientation = PageOrientation.Portrait
+            };
+
+            const string html = @"<html>
                                         <head>
                                             <meta charset='UTF-8' \>
                                         </head>
                                         <body>
                                             <h2>Imagem</h2>
                                         </body>
-                                        </html>",
-                        WebSettings =
-                        {
-                            DefaultEncoding = "utf-8"
-                        }
-                    }
-                }
-            };
-
-            var pdf = _converter.Convert(doc);
+                                        </html>";
+            var pdf = await converter.ConvertToPdfAsync(html, doc);
             return new MemoryStream(pdf);
         }
     }
