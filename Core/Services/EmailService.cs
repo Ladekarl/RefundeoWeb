@@ -21,9 +21,9 @@ namespace Refundeo.Core.Services
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService)
+            IBlobStorageService blobStorageService, IConverter converter)
         {
-            _converter = new SynchronizedConverter(new PdfTools());
+            _converter = converter;
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
             _blobStorageService = blobStorageService;

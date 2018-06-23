@@ -1,4 +1,7 @@
+using System;
 using System.IO;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -66,6 +69,15 @@ namespace Refundeo
 
             services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
             services.AddSingleton<IEmailService, EmailService>();
+
+            var architectureFolder = IntPtr.Size == 8 ? "64 bit" : "32 bit";
+            var wkHtmlToPdfPath = Path.Combine(HostingEnvironment.ContentRootPath, "wkhtmltox", "v0.12.4",
+                architectureFolder, "libwkhtmltox");
+
+            var context = new CustomAssemblyLoadContext();
+            context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
+
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
