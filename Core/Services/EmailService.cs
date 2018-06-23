@@ -58,13 +58,9 @@ namespace Refundeo.Core.Services
 
             var template = await GetVatFormMailTemplateAsync();
 
-            var templateFormatted = string.Format(template,
-                merchantInformation.CompanyName + " - " + merchantInformation.Address.City,
-                refundDate);
-
             await SendMailAsync(
                 $"Refundeo - Tax Free Form - {merchantInformation.CompanyName} {refundDate}",
-                templateFormatted,
+                template,
                 receiverEmail);
         }
 
