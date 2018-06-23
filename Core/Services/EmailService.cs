@@ -4,6 +4,7 @@ using System.Drawing.Printing;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,7 @@ namespace Refundeo.Core.Services
         private readonly IBlobStorageService _blobStorageService;
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
+        private readonly HtmlToPdfConverter _converter;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
@@ -38,6 +40,9 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
+            _converter =
+                new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
+                    "wkhtmltopdf.exe")));
         }
 
         public async Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
@@ -64,7 +69,7 @@ namespace Refundeo.Core.Services
 
             var template = await GetVatFormMailTemplateAsync();
             var vatForm = await GetVatFormAsync(refundCase);
-            var attachment = new Attachment(vatForm, GetVatFormName(refundCase));
+            var attachment = new Attachment(vatForm, GetVatFormName(refundCase), MediaTypeNames.Application.Pdf);
 
             await SendMailAsync(
                 $"Refundeo - Tax Free Form - {merchantInformation.CompanyName} {refundDate}",
@@ -84,7 +89,7 @@ namespace Refundeo.Core.Services
         {
             var refundDate =
                 $"{refundCase.DateCreated.Day}-{refundCase.DateCreated.Month}-{refundCase.DateCreated.Year}";
-            return $"{refundCase.MerchantInformation.CompanyName}_{refundDate}_{refundCase.Id}";
+            return $"{refundCase.MerchantInformation.CompanyName} {refundDate} {refundCase.Id}";
         }
 
         private async Task<Stream> GetVatFormAsync(RefundCase refundCase)
@@ -93,10 +98,6 @@ namespace Refundeo.Core.Services
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
-
-            var converter =
-                new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
-                    "wkhtmltopdf.exe")));
 
             var doc = new ConversionSettings
             {
@@ -112,7 +113,7 @@ namespace Refundeo.Core.Services
                                             <h2>Imagem</h2>
                                         </body>
                                         </html>";
-            var pdf = await converter.ConvertToPdfAsync(html, doc);
+            var pdf = await _converter.ConvertToPdfAsync(html, doc);
             return new MemoryStream(pdf);
         }
     }
