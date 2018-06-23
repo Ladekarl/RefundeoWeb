@@ -52,4 +52,7 @@
     <Content Remove="webapp\node_modules\**" />
     <Content Remove="Migrations\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="wkhtmltox\**\*" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
