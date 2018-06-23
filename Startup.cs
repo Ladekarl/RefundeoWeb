@@ -16,7 +16,6 @@ using Refundeo.Core.Middleware;
 using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
 using Swashbuckle.AspNetCore.Swagger;
-using WkWrap;
 
 namespace Refundeo
 {
