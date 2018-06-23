@@ -105,15 +105,7 @@ namespace Refundeo.Core.Services
                 Orientation = PageOrientation.Portrait
             };
 
-            const string html = @"<html>
-                                        <head>
-                                            <meta charset='UTF-8' \>
-                                        </head>
-                                        <body>
-                                            <h2>Imagem</h2>
-                                        </body>
-                                        </html>";
-            var pdf = await _converter.ConvertToPdfAsync(html, doc);
+            var pdf = await _converter.ConvertToPdfAsync(htmlContent, doc);
             return new MemoryStream(pdf);
         }
     }
