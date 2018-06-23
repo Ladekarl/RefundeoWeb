@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
@@ -15,25 +13,32 @@ namespace Refundeo.Core.Services
     public class EmailService : IEmailService
     {
         private readonly SmtpClient _smtpClient;
-        private readonly IOptions<EmailAccountOptions> _optionsAccessor;
+        private readonly IOptions<EmailAccountOptions> _emailAccountOptionsAccessor;
         private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IBlobStorageService _blobStorageService;
+        private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
 
-        public EmailService(IOptions<EmailAccountOptions> optionsAccessor, IHostingEnvironment hostingEnvironment)
+        public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
+            IOptions<StorageAccountOptions> storageAccountOptionsAccessor, IHostingEnvironment hostingEnvironment,
+            IBlobStorageService blobStorageService)
         {
-            _optionsAccessor = optionsAccessor;
+            _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
+            _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
+            _blobStorageService = blobStorageService;
             _smtpClient = new SmtpClient
             {
-                Host = _optionsAccessor.Value.Host,
-                Port = _optionsAccessor.Value.Port,
-                EnableSsl = _optionsAccessor.Value.EnableSsl,
-                Credentials = new NetworkCredential(_optionsAccessor.Value.Email, _optionsAccessor.Value.Password)
+                Host = _emailAccountOptionsAccessor.Value.Host,
+                Port = _emailAccountOptionsAccessor.Value.Port,
+                EnableSsl = _emailAccountOptionsAccessor.Value.EnableSsl,
+                Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
+                    _emailAccountOptionsAccessor.Value.Password)
             };
             _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task SendMailAsync(string subject, string body, string receiverEmail)
         {
-            using (var message = new MailMessage(_optionsAccessor.Value.Email, receiverEmail)
+            using (var message = new MailMessage(_emailAccountOptionsAccessor.Value.Email, receiverEmail)
             {
                 Subject = subject,
                 Body = body,
@@ -51,7 +56,7 @@ namespace Refundeo.Core.Services
 
             var merchantInformation = refundCase.MerchantInformation;
 
-            var template = GetTemplate(Path.Combine(_hostingEnvironment.ContentRootPath, "VATFormMailTemplate.html"));
+            var template = await GetVatFormMailTemplateAsync();
 
             var templateFormatted = string.Format(template,
                 merchantInformation.CompanyName + " - " + merchantInformation.Address.City,
@@ -63,16 +68,12 @@ namespace Refundeo.Core.Services
                 receiverEmail);
         }
 
-        private static string GetTemplate(string strFile)
+        private async Task<string> GetVatFormMailTemplateAsync()
         {
-            string content;
+            var blob = await _blobStorageService.DownloadAsync(
+                _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormMailTemplate.html");
 
-            using (var sr = new StreamReader(strFile))
-            {
-                content = sr.ReadToEnd();
-            }
-
-            return content;
+            return System.Text.Encoding.UTF8.GetString(blob.ToArray());
         }
     }
 }
