@@ -26,7 +26,7 @@ namespace Refundeo.Core.Services
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService, IHostingEnvironment hostingEnvironment)
+            IBlobStorageService blobStorageService, IHostingEnvironment hostingEnvironment, IConverter converter)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
@@ -40,8 +40,7 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
-
-            _converter = new SynchronizedConverter(new PdfTools());
+            _converter = converter;
         }
 
         public async Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
