@@ -105,8 +105,19 @@ namespace Refundeo.Core.Services
                     new ObjectSettings
                     {
                         PagesCount = false,
-                        HtmlContent = htmlContent,
-                        WebSettings = {DefaultEncoding = "utf-8"}
+                        HtmlContent = @"<html>
+                                        <head>
+                                            <meta charset='UTF-8' \>
+                                        </head>
+                                        <body>
+                                            <img class='qrcode img-fluid pb-2' src='https://chart.googleapis.com/chart?chs=500x500&cht=qr&&chld=L|0&chl=12345678'>
+                                            <h2>Imagem</h2>
+                                        </body>
+                                        </html>",
+                        WebSettings =
+                        {
+                            DefaultEncoding = "utf-8"
+                        }
                     }
                 }
             };
