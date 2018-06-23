@@ -1,17 +1,15 @@
-﻿using System;
-using System.Drawing.Imaging;
-using System.Drawing.Printing;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Services.Interfaces;
-using WkWrap;
 
 namespace Refundeo.Core.Services
 {
@@ -21,8 +19,11 @@ namespace Refundeo.Core.Services
         private readonly IOptions<EmailAccountOptions> _emailAccountOptionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly IHostingEnvironment _hostingEnvironment;
+
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
-        private readonly HtmlToPdfConverter _converter;
+
+        //private readonly HtmlToPdfConverter _converter;
+        private readonly IConverter _converter;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
@@ -40,9 +41,11 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
-            _converter =
-                new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
-                    "wkhtmltopdf.exe")));
+//            _converter =
+//                new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
+//                    "wkhtmltopdf.exe")));
+
+            _converter = new SynchronizedConverter(new PdfTools());
         }
 
         public async Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
@@ -99,13 +102,36 @@ namespace Refundeo.Core.Services
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
 
-            var doc = new ConversionSettings
+//            var doc = new ConversionSettings
+//            {
+//                PageSize = PageSize.A4,
+//                Orientation = PageOrientation.Portrait,
+//                Grayscale =  true
+//            };
+//
+//            var pdf = await _converter.ConvertToPdfAsync(htmlContent, doc);
+
+            var doc = new HtmlToPdfDocument
             {
-                PageSize = PageSize.A4,
-                Orientation = PageOrientation.Portrait
+                GlobalSettings =
+                {
+                    ColorMode = ColorMode.Grayscale,
+                    Orientation = Orientation.Portrait,
+                    PaperSize = PaperKind.A4
+                },
+                Objects =
+                {
+                    new ObjectSettings
+                    {
+                        PagesCount = true,
+                        HtmlContent = htmlContent,
+                        WebSettings = {DefaultEncoding = "utf-8"}
+                    }
+                }
             };
 
-            var pdf = await _converter.ConvertToPdfAsync(htmlContent, doc);
+            var pdf = _converter.Convert(doc);
+
             return new MemoryStream(pdf);
         }
     }
