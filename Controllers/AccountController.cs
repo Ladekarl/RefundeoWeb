@@ -224,7 +224,7 @@ namespace Refundeo.Controllers
         private static async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)
         {
             var path =
-                "https://graph.facebook.com/me?fields=id,first_name,last_name,email,gender,birthday,location{location}&access_token=" +
+                "https://graph.facebook.com/me?fields=id,first_name,last_name,email,location{location}&access_token=" +
                 accessToken;
             var client = new HttpClient();
             var uri = new Uri(path);
