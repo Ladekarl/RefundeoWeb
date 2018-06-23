@@ -7,7 +7,6 @@
     <RetryAttemptsForDeployment>30</RetryAttemptsForDeployment>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="wkhtmltox" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +52,6 @@
     <Content Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wkhtmltox\**\*" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="libwkhtmltox.dll" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
