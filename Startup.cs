@@ -70,9 +70,8 @@ namespace Refundeo
             services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
             services.AddSingleton<IEmailService, EmailService>();
 
-            var architectureFolder = IntPtr.Size == 8 ? "64 bit" : "32 bit";
             var wkHtmlToPdfPath = Path.Combine(HostingEnvironment.ContentRootPath, "wkhtmltox", "v0.12.4",
-                architectureFolder, "libwkhtmltox");
+                "32 bit", "libwkhtmltox");
 
             var context = new CustomAssemblyLoadContext();
             context.LoadUnmanagedLibrary(wkHtmlToPdfPath);
