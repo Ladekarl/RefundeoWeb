@@ -28,7 +28,6 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.1.1" />
-    <PackageReference Include="WkWrap" Version="2.1.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.2" />
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +52,6 @@
     <Content Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wkhtmltopdf.exe" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="libwkhtmltox.dll" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

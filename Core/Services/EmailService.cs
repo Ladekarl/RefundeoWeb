@@ -22,7 +22,6 @@ namespace Refundeo.Core.Services
 
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
 
-        //private readonly HtmlToPdfConverter _converter;
         private readonly IConverter _converter;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
@@ -41,9 +40,6 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
-//            _converter =
-//                new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
-//                    "wkhtmltopdf.exe")));
 
             _converter = new SynchronizedConverter(new PdfTools());
         }
@@ -101,15 +97,6 @@ namespace Refundeo.Core.Services
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
-
-//            var doc = new ConversionSettings
-//            {
-//                PageSize = PageSize.A4,
-//                Orientation = PageOrientation.Portrait,
-//                Grayscale =  true
-//            };
-//
-//            var pdf = await _converter.ConvertToPdfAsync(htmlContent, doc);
 
             var doc = new HtmlToPdfDocument
             {
