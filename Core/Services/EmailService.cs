@@ -96,7 +96,7 @@ namespace Refundeo.Core.Services
 
             var converter =
                 new HtmlToPdfConverter(new FileInfo(Path.Combine(_hostingEnvironment.ContentRootPath,
-                    "libwkhtmltox.dll")));
+                    "libwkhtmltox.so")));
 
             var doc = new ConversionSettings
             {

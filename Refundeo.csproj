@@ -52,6 +52,6 @@
     <Content Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="libwkhtmltox.dll" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="libwkhtmltox.so" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
