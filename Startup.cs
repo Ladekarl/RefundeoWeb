@@ -15,6 +15,7 @@ using Refundeo.Core.Helpers;
 using Refundeo.Core.Middleware;
 using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
+using Rotativa.AspNetCore;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Refundeo
@@ -45,6 +46,8 @@ namespace Refundeo
                     config["ClientId"],
                     config["ClientSecret"]);
             }
+
+            RotativaConfiguration.Setup(env, "");
 
             Configuration = builder.Build();
             HostingEnvironment = env;

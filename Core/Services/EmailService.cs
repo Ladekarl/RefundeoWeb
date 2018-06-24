@@ -4,11 +4,15 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.NodeServices;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Services.Interfaces;
+using Rotativa.AspNetCore;
 
 namespace Refundeo.Core.Services
 {
@@ -83,24 +87,29 @@ namespace Refundeo.Core.Services
             return System.Text.Encoding.UTF8.GetString(blob.ToArray());
         }
 
-        private static string GetVatFormName(RefundCase refundCase)
+        private static string GetVatFormName(HttpContext context, RefundCase refundCase)
         {
             var refundDate =
                 $"{refundCase.DateCreated.Day}-{refundCase.DateCreated.Month}-{refundCase.DateCreated.Year}";
             return $"{refundCase.MerchantInformation.CompanyName} {refundDate} {refundCase.Id}";
         }
 
-        private async Task<Stream> GetVatFormAsync(RefundCase refundCase)
+        private async Task<Stream> GetVatFormAsync(ActionContext context, RefundCase refundCase)
         {
             var blob = await _blobStorageService.DownloadAsync(
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
 
-            var pdf = await _nodeServices.InvokeAsync<byte[]>(Path.Combine(_hostingEnvironment.ContentRootPath, "pdf"),
-                htmlContent);
+            var pdf = new ViewAsPdf
+            {
+                FileName = "example.pdf",
+                Model = htmlContent,
+            };
 
-            return new MemoryStream(pdf);
+            var pdfData = await pdf.BuildFile(new ActionContext());
+
+            return new MemoryStream(pdfData);
         }
     }
 }
