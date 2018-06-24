@@ -201,6 +201,8 @@ namespace Refundeo.Controllers.User
             var refundCase = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
                 .Include(i => i.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Where(r => r.Id == id && r.CustomerInformation.Customer == user)

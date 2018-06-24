@@ -9,17 +9,14 @@ using DinkToPdf;
 using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
-using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
-using ZXing;
 
 namespace Refundeo.Core.Services
 {
@@ -29,23 +26,27 @@ namespace Refundeo.Core.Services
         private readonly IOptions<EmailAccountOptions> _emailAccountOptionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly IConverter _converter;
+        private readonly IUtilityService _utilityService;
 
 
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService, IConverter converter)
+            IBlobStorageService blobStorageService, IConverter converter, IUtilityService utilityService)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
             _blobStorageService = blobStorageService;
             _converter = converter;
+            _utilityService = utilityService;
             _smtpClient = new SmtpClient
             {
                 Host = _emailAccountOptionsAccessor.Value.Host,
                 Port = _emailAccountOptionsAccessor.Value.Port,
                 EnableSsl = _emailAccountOptionsAccessor.Value.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
@@ -89,7 +90,7 @@ namespace Refundeo.Core.Services
             var blob = await _blobStorageService.DownloadAsync(
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormMailTemplate.html");
 
-            return System.Text.Encoding.UTF8.GetString(blob.ToArray());
+            return Encoding.UTF8.GetString(blob.ToArray());
         }
 
         private static string GetVatFormName(RefundCase refundCase)
@@ -101,15 +102,34 @@ namespace Refundeo.Core.Services
 
         private async Task<Stream> GetVatFormAsync(ActionContext controllerContext, RefundCase refundCase)
         {
-            var blob = await _blobStorageService.DownloadAsync(
-                _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
-
-            var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
-
             var model = new VatFormModel
             {
-                Email = "tst",
-                Name = "test"
+                Amount = refundCase.Amount,
+                CustomerAddres = refundCase.CustomerInformation.Address.StreetName + " " +
+                                 refundCase.CustomerInformation.Address.StreetNumber,
+                CustomerCity = refundCase.CustomerInformation.Address.City,
+                CustomerCountry = refundCase.CustomerInformation.Country,
+                CustomerEmail = refundCase.CustomerInformation.Email,
+                CustomerName = refundCase.CustomerInformation.FirstName + " " + refundCase.CustomerInformation.LastName,
+                CustomerPassport = refundCase.CustomerInformation.Passport,
+                CustomerPhone = refundCase.CustomerInformation.Phone,
+                CustomerPostalCode = refundCase.CustomerInformation.Address.PostalCode,
+                Date = $"{refundCase.DateCreated.Day}/{refundCase.DateCreated.Month}/{refundCase.DateCreated.Year}",
+                MerchantAddres = refundCase.MerchantInformation.Address.StreetName + " " +
+                                 refundCase.MerchantInformation.Address.StreetNumber,
+                MerchantCity = refundCase.MerchantInformation.Address.City,
+                MerchantCountry = refundCase.MerchantInformation.Address.Country,
+                MerchantEmail = refundCase.MerchantInformation.ContactEmail,
+                MerchantName = refundCase.MerchantInformation.CompanyName,
+                MerchantPhone = refundCase.MerchantInformation.ContactPhone,
+                MerchantPostalCode = refundCase.MerchantInformation.Address.PostalCode,
+                MerchantVatNo = refundCase.MerchantInformation.VATNumber,
+                ReceiptNumber = refundCase.ReceiptNumber,
+                RefundAmount = refundCase.RefundAmount,
+                VatAmount = refundCase.Amount * 0.20,
+                CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
+                MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature),
+                QrCode = await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode)
             };
 
             var html = await GetVatFormHtmlAsync(controllerContext, model);
@@ -120,13 +140,22 @@ namespace Refundeo.Core.Services
                 {
                     ColorMode = ColorMode.Grayscale,
                     Orientation = Orientation.Portrait,
-                    PaperSize = PaperKind.A4
+                    PaperSize = PaperKind.A4,
                 },
                 Objects =
                 {
                     new ObjectSettings
                     {
-                        HtmlContent = html
+                        HtmlContent = html,
+                        WebSettings =
+                        {
+                            DefaultEncoding = "utf-8",
+                            MinimumFontSize = 12
+                        },
+                        LoadSettings =
+                        {
+                            ZoomFactor = 3
+                        }
                     }
                 }
             };
@@ -138,10 +167,8 @@ namespace Refundeo.Core.Services
         {
             const string viewName = "VATForm";
 
-            var engine =
-                context.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) as ICompositeViewEngine;
-
-            if (engine == null)
+            if (!(context.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) is ICompositeViewEngine
+                engine))
             {
                 return null;
             }
