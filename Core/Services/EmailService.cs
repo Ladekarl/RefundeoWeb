@@ -203,10 +203,6 @@ namespace Refundeo.Core.Services
                 html = output.GetStringBuilder();
             }
 
-//            var baseUrl = string.Format("{0}://{1}", context.HttpContext.Request.Scheme,
-//                context.HttpContext.Request.Host);
-//            var htmlForWkhtml = Regex.Replace(html.ToString(), "<head>",
-//                string.Format("<head><base href=\"{0}\" />", baseUrl), RegexOptions.IgnoreCase);
             return html.ToString();
         }
     }
