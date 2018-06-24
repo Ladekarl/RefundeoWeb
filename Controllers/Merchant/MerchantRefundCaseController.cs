@@ -211,7 +211,7 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.SaveChangesAsync();
 
-            await _emailService.SendVATMailAsync(refundCase, customerInformation.Email);
+            await _emailService.SendVATMailAsync(ControllerContext, refundCase, customerInformation.Email);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }

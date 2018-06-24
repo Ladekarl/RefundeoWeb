@@ -62,7 +62,8 @@ namespace Refundeo.Core.Services
             }
         }
 
-        public async Task SendVATMailAsync(RefundCase refundCase, string receiverEmail)
+        public async Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase,
+            string receiverEmail)
         {
             var refundDate =
                 $"{refundCase.DateCreated.Day}/{refundCase.DateCreated.Month}/{refundCase.DateCreated.Year}";
@@ -70,7 +71,7 @@ namespace Refundeo.Core.Services
             var merchantInformation = refundCase.MerchantInformation;
 
             var template = await GetVatFormMailTemplateAsync();
-            var vatForm = await GetVatFormAsync(refundCase);
+            var vatForm = await GetVatFormAsync(controllerContext, refundCase);
             var attachment = new Attachment(vatForm, GetVatFormName(refundCase), MediaTypeNames.Application.Pdf);
 
             await SendMailAsync(
@@ -94,7 +95,7 @@ namespace Refundeo.Core.Services
             return $"{refundCase.MerchantInformation.CompanyName} {refundDate} {refundCase.Id}";
         }
 
-        private async Task<Stream> GetVatFormAsync(RefundCase refundCase)
+        private async Task<Stream> GetVatFormAsync(ControllerContext controllerContext, RefundCase refundCase)
         {
             var blob = await _blobStorageService.DownloadAsync(
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
@@ -107,7 +108,7 @@ namespace Refundeo.Core.Services
                 Model = htmlContent
             };
 
-            var pdfData = await pdf.BuildFile(new ActionContext());
+            var pdfData = await pdf.BuildFile(controllerContext);
 
             return new MemoryStream(pdfData);
         }
