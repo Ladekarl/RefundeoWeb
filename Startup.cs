@@ -48,7 +48,6 @@ namespace Refundeo
             }
 
             RotativaConfiguration.Setup(env, "");
-
             Configuration = builder.Build();
             HostingEnvironment = env;
         }
