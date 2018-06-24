@@ -48,9 +48,4 @@
     <None Remove="webapp\node_modules\**" />
     <None Remove="Migrations\**" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="wwwroot\Rotativa\wkhtmltopdf.exe">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
 </Project>
