@@ -57,6 +57,7 @@ namespace Refundeo
             services.AddAuthorization();
             services.AddMvc();
             services.AddCors();
+            services.AddNodeServices();
 
             services.AddTransient<IUtilityService, UtilityService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
