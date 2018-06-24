@@ -95,7 +95,7 @@ namespace Refundeo.Core.Services
             return $"{refundCase.MerchantInformation.CompanyName} {refundDate} {refundCase.Id}";
         }
 
-        private async Task<Stream> GetVatFormAsync(ControllerContext controllerContext, RefundCase refundCase)
+        private async Task<Stream> GetVatFormAsync(ActionContext controllerContext, RefundCase refundCase)
         {
             var blob = await _blobStorageService.DownloadAsync(
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
