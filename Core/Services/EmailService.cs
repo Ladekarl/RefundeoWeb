@@ -102,10 +102,9 @@ namespace Refundeo.Core.Services
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
 
-            var pdf = new ViewAsPdf
+            var pdf = new ViewAsPdf("VATForm")
             {
-                FileName = "example.pdf",
-                Model = htmlContent
+                FileName = "test"
             };
 
             var pdfData = await pdf.BuildFile(controllerContext);
