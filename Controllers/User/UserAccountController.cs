@@ -169,7 +169,7 @@ namespace Refundeo.Controllers.User
             customerInformation.PrivacyPolicy = model.PrivacyPolicy;
             customerInformation.TermsOfService = model.TermsOfService;
             customerInformation.Swift = model.Swift;
-            customerInformation.AccountNumber = model.AccountNumber,
+            customerInformation.AccountNumber = model.AccountNumber;
             customerInformation.Passport = model.Passport;
             customerInformation.Address.StreetName = model.AddressStreetName;
             customerInformation.Address.StreetNumber = model.AddressStreetNumber;
