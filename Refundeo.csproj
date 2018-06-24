@@ -49,6 +49,6 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="wwwroot\Rotativa\wkhtmltopdf.exe" Link="wwwroot\Rotativa\wkhtmltopdf.exe" CopyToOutputDirectory="always"/>
+    <None Include="wkhtmltopdf.exe" Link="wwwroot\Rotativa\wkhtmltopdf.exe" CopyToOutputDirectory="always"/>
   </ItemGroup>
 </Project>
