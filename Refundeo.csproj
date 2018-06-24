@@ -49,7 +49,7 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Rotativa\wkhtmltopdf.exe">
+    <Content Include="wwwroot\Rotativa\wkhtmltopdf.exe">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
