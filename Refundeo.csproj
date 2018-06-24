@@ -50,6 +50,8 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Rotativa\wkhtmltopdf.exe" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="wkhtmltopdf.exe">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 </Project>

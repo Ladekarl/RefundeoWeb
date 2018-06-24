@@ -47,7 +47,7 @@ namespace Refundeo
                     config["ClientSecret"]);
             }
 
-            RotativaConfiguration.Setup(env, Path.Combine(env.ContentRootPath, "Rotativa"));
+            RotativaConfiguration.Setup(env, "");
 
             Configuration = builder.Build();
             HostingEnvironment = env;
