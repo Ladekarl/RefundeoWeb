@@ -47,6 +47,8 @@
   <ItemGroup>
     <None Remove="webapp\node_modules\**" />
     <None Remove="Migrations\**" />
-    <None Include="wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\Rotativa\wkhtmltopdf.exe" Link="wwwroot\Rotativa\wkhtmltopdf.exe" CopyToOutputDirectory="always"/>
   </ItemGroup>
 </Project>
