@@ -87,14 +87,14 @@ namespace Refundeo.Core.Services
             return System.Text.Encoding.UTF8.GetString(blob.ToArray());
         }
 
-        private static string GetVatFormName(HttpContext context, RefundCase refundCase)
+        private static string GetVatFormName(RefundCase refundCase)
         {
             var refundDate =
                 $"{refundCase.DateCreated.Day}-{refundCase.DateCreated.Month}-{refundCase.DateCreated.Year}";
             return $"{refundCase.MerchantInformation.CompanyName} {refundDate} {refundCase.Id}";
         }
 
-        private async Task<Stream> GetVatFormAsync(ActionContext context, RefundCase refundCase)
+        private async Task<Stream> GetVatFormAsync(RefundCase refundCase)
         {
             var blob = await _blobStorageService.DownloadAsync(
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
@@ -104,7 +104,7 @@ namespace Refundeo.Core.Services
             var pdf = new ViewAsPdf
             {
                 FileName = "example.pdf",
-                Model = htmlContent,
+                Model = htmlContent
             };
 
             var pdfData = await pdf.BuildFile(new ActionContext());
