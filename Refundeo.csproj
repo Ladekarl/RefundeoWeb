@@ -47,5 +47,6 @@
   <ItemGroup>
     <None Remove="webapp\node_modules\**" />
     <None Remove="Migrations\**" />
+    <None Include="wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
