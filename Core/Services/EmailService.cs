@@ -2,18 +2,24 @@
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.AspNetCore.Http;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.NodeServices;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
+using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
-using Rotativa.AspNetCore;
+using ZXing;
 
 namespace Refundeo.Core.Services
 {
@@ -22,21 +28,19 @@ namespace Refundeo.Core.Services
         private readonly SmtpClient _smtpClient;
         private readonly IOptions<EmailAccountOptions> _emailAccountOptionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IConverter _converter;
+
 
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
 
-        private readonly INodeServices _nodeServices;
-
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService, IHostingEnvironment hostingEnvironment,
-            INodeServices nodeServices)
+            IBlobStorageService blobStorageService, IConverter converter)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
             _blobStorageService = blobStorageService;
-            _hostingEnvironment = hostingEnvironment;
+            _converter = converter;
             _smtpClient = new SmtpClient
             {
                 Host = _emailAccountOptionsAccessor.Value.Host,
@@ -45,7 +49,6 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
-            _nodeServices = nodeServices;
         }
 
         public async Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
@@ -103,19 +106,81 @@ namespace Refundeo.Core.Services
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
 
-            var pdf = new ViewAsPdf("VATForm")
+            var model = new VatFormModel
             {
-                FileName = "test",
-                Model = new VatFormModel
+                Email = "tst",
+                Name = "test"
+            };
+
+            var html = await GetVatFormHtmlAsync(controllerContext, model);
+
+            var doc = new HtmlToPdfDocument
+            {
+                GlobalSettings =
                 {
-                    Email = "test@test.dk",
-                    Name = "test"
+                    ColorMode = ColorMode.Grayscale,
+                    Orientation = Orientation.Portrait,
+                    PaperSize = PaperKind.A4
+                },
+                Objects =
+                {
+                    new ObjectSettings
+                    {
+                        HtmlContent = html
+                    }
                 }
             };
 
-            var pdfData = await pdf.BuildFile(controllerContext);
+            return new MemoryStream(_converter.Convert(doc));
+        }
 
-            return new MemoryStream(pdfData);
+        private async Task<string> GetVatFormHtmlAsync(ActionContext context, VatFormModel model)
+        {
+            const string viewName = "VATForm";
+
+            var engine =
+                context.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) as ICompositeViewEngine;
+
+            if (engine == null)
+            {
+                return null;
+            }
+
+            var viewResult = engine.FindView(context, viewName, true);
+            StringBuilder html;
+
+            var tempDataProvider =
+                context.HttpContext.RequestServices.GetService(typeof(ITempDataProvider)) as ITempDataProvider;
+
+            var viewDataDictionary = new ViewDataDictionary(
+                new EmptyModelMetadataProvider(),
+                new ModelStateDictionary())
+            {
+                Model = model
+            };
+
+            using (var output = new StringWriter())
+            {
+                var view = viewResult.View;
+                var tempDataDictionary = new TempDataDictionary(context.HttpContext, tempDataProvider);
+                var viewContext = new ViewContext(
+                    context,
+                    viewResult.View,
+                    viewDataDictionary,
+                    tempDataDictionary,
+                    output,
+                    new HtmlHelperOptions());
+
+                await view.RenderAsync(viewContext);
+
+                html = output.GetStringBuilder();
+            }
+
+            var baseUrl = string.Format("{0}://{1}", context.HttpContext.Request.Scheme,
+                context.HttpContext.Request.Host);
+            var htmlForWkhtml = Regex.Replace(html.ToString(), "<head>",
+                string.Format("<head><base href=\"{0}\" />", baseUrl), RegexOptions.IgnoreCase);
+            return htmlForWkhtml;
         }
     }
 }

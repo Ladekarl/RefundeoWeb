@@ -1,4 +1,6 @@
 using System.IO;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +17,6 @@ using Refundeo.Core.Helpers;
 using Refundeo.Core.Middleware;
 using Refundeo.Core.Services;
 using Refundeo.Core.Services.Interfaces;
-using Rotativa.AspNetCore;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Refundeo
@@ -45,9 +46,7 @@ namespace Refundeo
                     $"https://{config["Vault"]}.vault.azure.net/",
                     config["ClientId"],
                     config["ClientSecret"]);
-            }
-
-            RotativaConfiguration.Setup(env);
+            };
 
             Configuration = builder.Build();
             HostingEnvironment = env;
@@ -70,6 +69,7 @@ namespace Refundeo
 
             services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
             services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
             services.AddDbContext<RefundeoDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("RefundeoConnection")));
@@ -105,8 +105,7 @@ namespace Refundeo
             }
         }
 
-        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory,
-            UserManager<RefundeoUser> userManager, RoleManager<IdentityRole> roleManager, RefundeoDbContext dbContext)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
