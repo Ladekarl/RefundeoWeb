@@ -163,6 +163,7 @@ namespace Refundeo.Controllers.Merchant
             var customerInformation =
                 await _context.CustomerInformations
                     .Include(c => c.Customer)
+                    .Include(c => c.Address)
                     .Where(c => c.Customer.Id == model.CustomerId)
                     .FirstOrDefaultAsync();
 
