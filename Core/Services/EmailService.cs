@@ -121,7 +121,7 @@ namespace Refundeo.Core.Services
 //
 //            var pdf = _converter.Convert(doc);
 
-            var pdf = await _nodeServices.InvokeAsync<byte[]>("./pdf", htmlContent);
+            var pdf = await _nodeServices.InvokeAsync<byte[]>(Path.Combine(_hostingEnvironment.ContentRootPath, "pdf"), htmlContent);
 
             return new MemoryStream(pdf);
         }

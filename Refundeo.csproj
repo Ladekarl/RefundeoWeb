@@ -53,6 +53,6 @@
     <Content Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="libwkhtmltox.dll" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="pdf.js" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
