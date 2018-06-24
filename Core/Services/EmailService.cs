@@ -151,10 +151,6 @@ namespace Refundeo.Core.Services
                         {
                             DefaultEncoding = "utf-8",
                             MinimumFontSize = 12
-                        },
-                        LoadSettings =
-                        {
-                            ZoomFactor = 3
                         }
                     }
                 }
