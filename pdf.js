@@ -13,6 +13,8 @@ module.exports = function (callback, data) {
             }
         }).then(function (resp) {
             callback(/* error */ null, resp.content.toJSON().data);
+        }).catch(function (e) {
+            callback(/* error */ e, null);
         });
     }).catch(function (e) {
         callback(/* error */ e, null);

@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using DinkToPdf;
-using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.NodeServices;
 using Microsoft.Extensions.Options;
@@ -23,12 +21,12 @@ namespace Refundeo.Core.Services
 
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
 
-        private readonly IConverter _converter;
         private readonly INodeServices _nodeServices;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService, IHostingEnvironment hostingEnvironment, IConverter converter, INodeServices nodeServices)
+            IBlobStorageService blobStorageService, IHostingEnvironment hostingEnvironment,
+            INodeServices nodeServices)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
@@ -42,7 +40,6 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
-            _converter = converter;
             _nodeServices = nodeServices;
         }
 
@@ -99,29 +96,9 @@ namespace Refundeo.Core.Services
                 _storageAccountOptionsAccessor.Value.EmailTemplatesContainerNameOption, "VATFormTemplate.html");
 
             var htmlContent = System.Text.Encoding.UTF8.GetString(blob.ToArray());
-//
-//            var doc = new HtmlToPdfDocument
-//            {
-//                GlobalSettings =
-//                {
-//                    ColorMode = ColorMode.Grayscale,
-//                    Orientation = Orientation.Portrait,
-//                    PaperSize = PaperKind.A4
-//                },
-//                Objects =
-//                {
-//                    new ObjectSettings
-//                    {
-//                        PagesCount = true,
-//                        HtmlContent = htmlContent,
-//                        WebSettings = {DefaultEncoding = "utf-8"}
-//                    }
-//                }
-//            };
-//
-//            var pdf = _converter.Convert(doc);
 
-            var pdf = await _nodeServices.InvokeAsync<byte[]>(Path.Combine(_hostingEnvironment.ContentRootPath, "pdf"), htmlContent);
+            var pdf = await _nodeServices.InvokeAsync<byte[]>(Path.Combine(_hostingEnvironment.ContentRootPath, "pdf"),
+                htmlContent);
 
             return new MemoryStream(pdf);
         }

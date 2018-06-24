@@ -1,6 +1,4 @@
 using System.IO;
-using DinkToPdf;
-using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -67,7 +65,6 @@ namespace Refundeo
             services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
             services.Configure<EmailAccountOptions>(Configuration.GetSection("EmailAccount"));
 
-            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
             services.AddSingleton<IEmailService, EmailService>();
 
