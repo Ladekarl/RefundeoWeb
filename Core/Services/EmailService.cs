@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.NodeServices;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
+using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
 using Rotativa.AspNetCore;
 
@@ -104,7 +105,12 @@ namespace Refundeo.Core.Services
 
             var pdf = new ViewAsPdf("VATForm")
             {
-                FileName = "test"
+                FileName = "test",
+                Model = new VatFormModel
+                {
+                    Email = "test@test.dk",
+                    Name = "test"
+                }
             };
 
             var pdfData = await pdf.BuildFile(controllerContext);
