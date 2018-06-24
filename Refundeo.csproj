@@ -7,7 +7,6 @@
     <RetryAttemptsForDeployment>30</RetryAttemptsForDeployment>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Rotativa" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
@@ -50,7 +49,7 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wkhtmltopdf.exe">
+    <Content Include="Rotativa\wkhtmltopdf.exe">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
