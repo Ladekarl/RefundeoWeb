@@ -139,6 +139,7 @@ namespace Refundeo.Core.Services
                     VatNumber = info.VATNumber,
                     ContactEmail = info.ContactEmail,
                     ContactPhone = info.ContactPhone,
+                    Currency = info.Currency,
                     Banner = await ConvertBlobPathToBase64Async(info.Banner),
                     Logo = await ConvertBlobPathToBase64Async(info.Logo)
                 };

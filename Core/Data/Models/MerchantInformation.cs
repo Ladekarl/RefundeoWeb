@@ -16,6 +16,7 @@ namespace Refundeo.Core.Data.Models
         public string VATNumber { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
+        public string Currency { get; set; }
         public virtual RefundeoUser Merchant { get; set; }
         public virtual Location Location { get; set; }
         public virtual Address Address { get; set; }

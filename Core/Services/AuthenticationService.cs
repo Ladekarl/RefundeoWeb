@@ -136,7 +136,8 @@ namespace Refundeo.Core.Services
                 ContactEmail = merchantInformation.ContactEmail,
                 ContactPhone = merchantInformation.ContactPhone,
                 Banner = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Banner),
-                Logo = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Logo)
+                Logo = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Logo),
+                Currency = merchantInformation.Currency
             });
         }
 

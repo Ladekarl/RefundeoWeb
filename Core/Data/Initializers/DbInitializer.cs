@@ -105,7 +105,8 @@ namespace Refundeo.Core.Data.Initializers
                         ContactEmail = merchant.ContactEmail,
                         ContactPhone = merchant.ContactPhone,
                         Logo = merchant.Logo,
-                        Banner = merchant.Banner
+                        Banner = merchant.Banner,
+                        Currency = merchant.Currency
                     };
 
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,

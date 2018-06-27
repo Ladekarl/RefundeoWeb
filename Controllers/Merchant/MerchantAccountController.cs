@@ -109,7 +109,8 @@ namespace Refundeo.Controllers.Merchant
                 OpeningHours = model.OpeningHours,
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
-                VATNumber = model.VatNumber
+                VATNumber = model.VatNumber,
+                Currency = model.Currency
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
@@ -183,6 +184,7 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;
+            merchantInformation.Currency = model.Currency;
 
             _context.MerchantInformations.Update(merchantInformation);
             await _context.SaveChangesAsync();
