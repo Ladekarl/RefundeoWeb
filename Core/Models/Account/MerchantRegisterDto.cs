@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Refundeo.Core.Models.Account
 {
     public class MerchantRegisterDto
@@ -15,12 +17,13 @@ namespace Refundeo.Core.Models.Account
         public double Longitude { get; set; }
         public string AddressPostalCode { get; set; }
         public string Description { get; set; }
-        public string OpeningHours { get; set; }
         public string Banner { get; set; }
         public string Logo { get; set; }
         public string VatNumber { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
+        public IList<OpeningHoursDto> OpeningHours { get; set; }
+        public IList<string> Tags { get; set; }
     }
 }

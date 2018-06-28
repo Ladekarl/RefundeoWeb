@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Refundeo.Migrations
 {
-    public partial class MerchantImages : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -41,19 +41,6 @@ namespace Refundeo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Documentations",
-                columns: table => new
-                {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Image = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Documentations", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -68,16 +55,16 @@ namespace Refundeo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QRCodes",
+                name: "Tags",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Image = table.Column<byte[]>(nullable: true)
+                    Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QRCodes", x => x.Id);
+                    table.PrimaryKey("PK_Tags", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -111,11 +98,14 @@ namespace Refundeo.Migrations
                     Banner = table.Column<string>(nullable: true),
                     CVRNumber = table.Column<string>(nullable: true),
                     CompanyName = table.Column<string>(nullable: true),
+                    ContactEmail = table.Column<string>(nullable: true),
+                    ContactPhone = table.Column<string>(nullable: true),
+                    Currency = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     LocationId = table.Column<long>(nullable: true),
                     Logo = table.Column<string>(nullable: true),
-                    OpeningHours = table.Column<string>(nullable: true),
-                    RefundPercentage = table.Column<double>(nullable: false)
+                    RefundPercentage = table.Column<double>(nullable: false),
+                    VATNumber = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -161,6 +151,52 @@ namespace Refundeo.Migrations
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_AspNetUsers_MerchantInformations_MerchantInformationId",
+                        column: x => x.MerchantInformationId,
+                        principalTable: "MerchantInformations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MerchantInformationTags",
+                columns: table => new
+                {
+                    MerhantInformationId = table.Column<long>(nullable: false),
+                    TagId = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MerchantInformationTags", x => new { x.MerhantInformationId, x.TagId });
+                    table.ForeignKey(
+                        name: "FK_MerchantInformationTags_MerchantInformations_MerhantInformationId",
+                        column: x => x.MerhantInformationId,
+                        principalTable: "MerchantInformations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MerchantInformationTags_Tags_TagId",
+                        column: x => x.TagId,
+                        principalTable: "Tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OpeningHours",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Close = table.Column<string>(nullable: true),
+                    Day = table.Column<int>(nullable: false),
+                    MerchantInformationId = table.Column<long>(nullable: true),
+                    Open = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpeningHours", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OpeningHours_MerchantInformations_MerchantInformationId",
                         column: x => x.MerchantInformationId,
                         principalTable: "MerchantInformations",
                         principalColumn: "Id",
@@ -260,6 +296,7 @@ namespace Refundeo.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AcceptedPrivacyPolicy = table.Column<bool>(nullable: false),
                     AcceptedTermsOfService = table.Column<bool>(nullable: false),
+                    AccountNumber = table.Column<string>(nullable: true),
                     AddressId = table.Column<long>(nullable: true),
                     Country = table.Column<string>(nullable: true),
                     CustomerId = table.Column<string>(nullable: true),
@@ -268,7 +305,9 @@ namespace Refundeo.Migrations
                     IsOauth = table.Column<bool>(nullable: false),
                     LastName = table.Column<string>(nullable: true),
                     Passport = table.Column<string>(nullable: true),
+                    Phone = table.Column<string>(nullable: true),
                     PrivacyPolicy = table.Column<string>(nullable: true),
+                    QRCode = table.Column<string>(nullable: true),
                     Swift = table.Column<string>(nullable: true),
                     TermsOfService = table.Column<string>(nullable: true)
                 },
@@ -297,15 +336,19 @@ namespace Refundeo.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Amount = table.Column<double>(nullable: false),
                     CustomerInformationId = table.Column<long>(nullable: true),
+                    CustomerSignature = table.Column<string>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     DateRequested = table.Column<DateTime>(nullable: false),
-                    DocumentationId = table.Column<long>(nullable: true),
                     IsAccepted = table.Column<bool>(nullable: false),
                     IsRejected = table.Column<bool>(nullable: false),
                     IsRequested = table.Column<bool>(nullable: false),
                     MerchantInformationId = table.Column<long>(nullable: true),
-                    QRCodeId = table.Column<long>(nullable: true),
-                    RefundAmount = table.Column<double>(nullable: false)
+                    MerchantSignature = table.Column<string>(nullable: true),
+                    QRCode = table.Column<string>(nullable: true),
+                    ReceiptImage = table.Column<string>(nullable: true),
+                    ReceiptNumber = table.Column<string>(nullable: true),
+                    RefundAmount = table.Column<double>(nullable: false),
+                    VATFormImage = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -317,21 +360,9 @@ namespace Refundeo.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_RefundCases_Documentations_DocumentationId",
-                        column: x => x.DocumentationId,
-                        principalTable: "Documentations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_RefundCases_MerchantInformations_MerchantInformationId",
                         column: x => x.MerchantInformationId,
                         principalTable: "MerchantInformations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RefundCases_QRCodes_QRCodeId",
-                        column: x => x.QRCodeId,
-                        principalTable: "QRCodes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -405,24 +436,24 @@ namespace Refundeo.Migrations
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MerchantInformationTags_TagId",
+                table: "MerchantInformationTags",
+                column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OpeningHours_MerchantInformationId",
+                table: "OpeningHours",
+                column: "MerchantInformationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RefundCases_CustomerInformationId",
                 table: "RefundCases",
                 column: "CustomerInformationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefundCases_DocumentationId",
-                table: "RefundCases",
-                column: "DocumentationId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RefundCases_MerchantInformationId",
                 table: "RefundCases",
                 column: "MerchantInformationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RefundCases_QRCodeId",
-                table: "RefundCases",
-                column: "QRCodeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -443,19 +474,22 @@ namespace Refundeo.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "MerchantInformationTags");
+
+            migrationBuilder.DropTable(
+                name: "OpeningHours");
+
+            migrationBuilder.DropTable(
                 name: "RefundCases");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Tags");
+
+            migrationBuilder.DropTable(
                 name: "CustomerInformations");
-
-            migrationBuilder.DropTable(
-                name: "Documentations");
-
-            migrationBuilder.DropTable(
-                name: "QRCodes");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

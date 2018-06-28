@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -46,6 +47,9 @@ namespace Refundeo.Controllers.Merchant
                 .Include(i => i.Merchant)
                 .Include(i => i.Address)
                 .Include(i => i.Location)
+                .Include(i => i.OpeningHours)
+                .Include(i => i.MerchantInformationTags)
+                .ThenInclude(i => i.Tag)
                 .ToListAsync())
             {
                 userModels.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(u));
@@ -84,7 +88,7 @@ namespace Refundeo.Controllers.Merchant
                 Country = model.AddressCountry,
                 StreetName = model.AddressStreetName,
                 StreetNumber = model.AddressStreetNumber,
-                PostalCode = model.AddressPostalCode
+                PostalCode = model.AddressPostalCode,
             };
 
             await _context.Addresses.AddAsync(address);
@@ -97,6 +101,17 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.Locations.AddAsync(location);
 
+            foreach (var openingHoursModel in model.OpeningHours)
+            {
+                var openingHours = new OpeningHours
+                {
+                    Close = openingHoursModel.Close,
+                    Day = openingHoursModel.Day,
+                    Open = openingHoursModel.Open
+                };
+                await _context.OpeningHours.AddAsync(openingHours);
+            }
+
             var merchantInformation = new MerchantInformation
             {
                 CompanyName = model.CompanyName,
@@ -106,7 +121,6 @@ namespace Refundeo.Controllers.Merchant
                 Location = location,
                 Address = address,
                 Description = model.Description,
-                OpeningHours = model.OpeningHours,
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
                 VATNumber = model.VatNumber,
@@ -114,6 +128,23 @@ namespace Refundeo.Controllers.Merchant
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
+
+            foreach (var tagModel in model.Tags)
+            {
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Value == tagModel);
+                if (tag != null)
+                {
+                    var merchantInformationTag = new MerchantInformationTag
+                    {
+                        MerchantInformation = merchantInformation,
+                        Tag = tag
+                    };
+                    _context.MerchantInformationTags.Add(merchantInformationTag);
+
+                    merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
+                    tag.MerchantInformationTags.Add(merchantInformationTag);
+                }
+            }
 
             await _context.SaveChangesAsync();
 
@@ -161,12 +192,38 @@ namespace Refundeo.Controllers.Merchant
                 .Include(i => i.Merchant)
                 .Include(m => m.Address)
                 .Include(m => m.Location)
-                .AsNoTracking()
+                .Include(m => m.OpeningHours)
+                .Include(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchant == user);
 
             if (merchantInformation == null)
             {
                 return NotFound();
+            }
+
+            foreach (var openingHoursModel in model.OpeningHours)
+            {
+                var existingOpeningHours =
+                    merchantInformation
+                        .OpeningHours
+                        .FirstOrDefault(o => o.Day == openingHoursModel.Day);
+                if (existingOpeningHours == null)
+                {
+                    var openingHours = new OpeningHours
+                    {
+                        Close = openingHoursModel.Close,
+                        Day = openingHoursModel.Day,
+                        Open = openingHoursModel.Open
+                    };
+                    _context.OpeningHours.Add(openingHours);
+                }
+                else
+                {
+                    existingOpeningHours.Close = openingHoursModel.Close;
+                    existingOpeningHours.Open = openingHoursModel.Open;
+                    _context.OpeningHours.Update(existingOpeningHours);
+                }
             }
 
             merchantInformation.CompanyName = model.CompanyName;
@@ -180,7 +237,6 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Latitude = model.Latitude;
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
-            merchantInformation.OpeningHours = model.OpeningHours;
             merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;
@@ -188,6 +244,23 @@ namespace Refundeo.Controllers.Merchant
 
             _context.MerchantInformations.Update(merchantInformation);
             await _context.SaveChangesAsync();
+
+            foreach (var tagModel in model.Tags)
+            {
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Value == tagModel);
+                if (tag != null && merchantInformation.MerchantInformationTags.Any(m => m.Tag == tag))
+                {
+                    var merchantInformationTag = new MerchantInformationTag
+                    {
+                        MerchantInformation = merchantInformation,
+                        Tag = tag
+                    };
+                    _context.MerchantInformationTags.Add(merchantInformationTag);
+
+                    merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
+                    tag.MerchantInformationTags.Add(merchantInformationTag);
+                }
+            }
 
             if (model.Logo != null || model.Banner != null)
             {

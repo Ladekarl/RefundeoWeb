@@ -10,7 +10,6 @@ namespace Refundeo.Core.Data.Models
         public string CVRNumber { get; set; }
         public double RefundPercentage { get; set; }
         public string Description { get; set; }
-        public string OpeningHours { get; set; }
         public string Banner { get; set; }
         public string Logo { get; set; }
         public string VATNumber { get; set; }
@@ -21,5 +20,7 @@ namespace Refundeo.Core.Data.Models
         public virtual Location Location { get; set; }
         public virtual Address Address { get; set; }
         public ICollection<RefundCase> RefundCases { get; set; }
+        public ICollection<OpeningHours> OpeningHours { get; set; }
+        public virtual ICollection<MerchantInformationTag> MerchantInformationTags { get; set; }
     }
 }

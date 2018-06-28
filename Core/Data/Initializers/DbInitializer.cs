@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -100,7 +102,6 @@ namespace Refundeo.Core.Data.Initializers
                         CVRNumber = merchant.CvrNumber,
                         RefundPercentage = merchant.RefundPercentage,
                         Description = merchant.Description,
-                        OpeningHours = merchant.OpeningHours,
                         VATNumber = merchant.VatNumber,
                         ContactEmail = merchant.ContactEmail,
                         ContactPhone = merchant.ContactPhone,
@@ -110,7 +111,9 @@ namespace Refundeo.Core.Data.Initializers
                     };
 
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchantInformation, address, location);
+                        merchantInformation, address, location, merchant.OpeningHours
+                            .Select(o => new OpeningHours {Day = o.Day, Close = o.Close, Open = o.Open}).ToList(),
+                        merchant.Tags.Select(t => new Tag {Value = t}).ToList());
                 }
             }
         }
@@ -218,7 +221,7 @@ namespace Refundeo.Core.Data.Initializers
 
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
             string merchantUsername, string merchantPassword, MerchantInformation merchantInformation, Address address,
-            Location location)
+            Location location, IEnumerable<OpeningHours> openingHours, IList<Tag> tags)
         {
             var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword,
                 RefundeoConstants.RoleMerchant);
@@ -226,6 +229,7 @@ namespace Refundeo.Core.Data.Initializers
             {
                 await context.Locations.AddAsync(location);
                 await context.Addresses.AddAsync(address);
+                await context.OpeningHours.AddRangeAsync(openingHours);
 
                 await context.SaveChangesAsync();
 
@@ -234,6 +238,19 @@ namespace Refundeo.Core.Data.Initializers
                 merchantInformation.Address = address;
 
                 await context.MerchantInformations.AddAsync(merchantInformation);
+
+                foreach (var tag in tags)
+                {
+                    var merchantInformationTag = new MerchantInformationTag
+                    {
+                        MerchantInformation = merchantInformation,
+                        Tag = tag
+                    };
+                    context.MerchantInformationTags.Add(merchantInformationTag);
+
+                    merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
+                    tag.MerchantInformationTags.Add(merchantInformationTag);
+                }
 
                 await context.SaveChangesAsync();
             }

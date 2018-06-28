@@ -235,8 +235,6 @@ namespace Refundeo.Migrations
 
                     b.Property<string>("Logo");
 
-                    b.Property<string>("OpeningHours");
-
                     b.Property<double>("RefundPercentage");
 
                     b.Property<string>("VATNumber");
@@ -248,6 +246,39 @@ namespace Refundeo.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("MerchantInformations");
+                });
+
+            modelBuilder.Entity("Refundeo.Core.Data.Models.MerchantInformationTag", b =>
+                {
+                    b.Property<long>("MerhantInformationId");
+
+                    b.Property<long>("TagId");
+
+                    b.HasKey("MerhantInformationId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("MerchantInformationTags");
+                });
+
+            modelBuilder.Entity("Refundeo.Core.Data.Models.OpeningHours", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Close");
+
+                    b.Property<int>("Day");
+
+                    b.Property<long?>("MerchantInformationId");
+
+                    b.Property<string>("Open");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MerchantInformationId");
+
+                    b.ToTable("OpeningHours");
                 });
 
             modelBuilder.Entity("Refundeo.Core.Data.Models.RefundCase", b =>
@@ -353,6 +384,18 @@ namespace Refundeo.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("Refundeo.Core.Data.Models.Tag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
@@ -419,6 +462,26 @@ namespace Refundeo.Migrations
                     b.HasOne("Refundeo.Core.Data.Models.Location", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId");
+                });
+
+            modelBuilder.Entity("Refundeo.Core.Data.Models.MerchantInformationTag", b =>
+                {
+                    b.HasOne("Refundeo.Core.Data.Models.MerchantInformation", "MerchantInformation")
+                        .WithMany("MerchantInformationTags")
+                        .HasForeignKey("MerhantInformationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Refundeo.Core.Data.Models.Tag", "Tag")
+                        .WithMany("MerchantInformationTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Refundeo.Core.Data.Models.OpeningHours", b =>
+                {
+                    b.HasOne("Refundeo.Core.Data.Models.MerchantInformation")
+                        .WithMany("OpeningHours")
+                        .HasForeignKey("MerchantInformationId");
                 });
 
             modelBuilder.Entity("Refundeo.Core.Data.Models.RefundCase", b =>

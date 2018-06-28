@@ -135,7 +135,10 @@ namespace Refundeo.Core.Services
                     Latitude = info.Location?.Latitude,
                     Longitude = info.Location?.Longitude,
                     Description = info.Description,
-                    OpeningHours = info.OpeningHours,
+                    OpeningHours =
+                        info.OpeningHours.Select(o =>
+                            new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
+                    Tags = info.MerchantInformationTags.Select(m => m.Tag.Value).ToList(),
                     VatNumber = info.VATNumber,
                     ContactEmail = info.ContactEmail,
                     ContactPhone = info.ContactPhone,

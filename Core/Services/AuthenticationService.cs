@@ -80,6 +80,9 @@ namespace Refundeo.Core.Services
             var merchantInformation = await _context.MerchantInformations
                 .Include(m => m.Address)
                 .Include(m => m.Location)
+                .Include(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
+                .Include(m => m.OpeningHours)
                 .Where(m => m.Merchant.Id == user.Id)
                 .FirstOrDefaultAsync();
             var customerInformation = await _context.CustomerInformations
@@ -109,7 +112,7 @@ namespace Refundeo.Core.Services
             });
         }
 
-        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(JwtSecurityToken token, RefundeoUser user,
+        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(SecurityToken token, RefundeoUser user,
             MerchantInformation merchantInformation, string refreshToken)
         {
             return new ObjectResult(new MerchantDto
@@ -131,7 +134,9 @@ namespace Refundeo.Core.Services
                 Latitude = merchantInformation.Location?.Latitude,
                 Longitude = merchantInformation.Location?.Longitude,
                 Description = merchantInformation.Description,
-                OpeningHours = merchantInformation.OpeningHours,
+                OpeningHours = merchantInformation.OpeningHours
+                    .Select(o => new OpeningHoursDto {Close = o.Close, Day = o.Day, Open = o.Open}).ToList(),
+                Tags = merchantInformation.MerchantInformationTags.Select(m => m.Tag.Value).ToList(),
                 VatNumber = merchantInformation.VATNumber,
                 ContactEmail = merchantInformation.ContactEmail,
                 ContactPhone = merchantInformation.ContactPhone,
