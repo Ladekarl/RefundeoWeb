@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -136,9 +137,9 @@ namespace Refundeo.Core.Services
                     Longitude = info.Location?.Longitude,
                     Description = info.Description,
                     OpeningHours =
-                        info.OpeningHours.Select(o =>
+                        info.OpeningHours?.Select(o =>
                             new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
-                    Tags = info.MerchantInformationTags.Where(m => m.Tag != null).Select(m => m.Tag.Value).ToList(),
+                    Tags = info.MerchantInformationTags?.Where(m => m.Tag != null).Select(m => m.Tag.Value).ToList(),
                     VatNumber = info.VATNumber,
                     ContactEmail = info.ContactEmail,
                     ContactPhone = info.ContactPhone,

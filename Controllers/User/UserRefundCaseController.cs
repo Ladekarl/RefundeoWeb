@@ -47,7 +47,7 @@ namespace Refundeo.Controllers.User
                 return Forbid();
             }
 
-            var refundCases = _context.RefundCases
+            var refundCases = await _context.RefundCases
                 .Where(r => r.CustomerInformation.Customer == user)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
@@ -55,14 +55,12 @@ namespace Refundeo.Controllers.User
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.MerchantInformationTags)
-                .ThenInclude(m => m.Tag)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
-                .AsNoTracking();
+                .AsNoTracking()
+                .ToListAsync();
 
             if (refundCases == null)
             {
@@ -88,9 +86,6 @@ namespace Refundeo.Controllers.User
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.MerchantInformationTags)
-                .ThenInclude(m => m.Tag)
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.CustomerInformation)

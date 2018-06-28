@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Refundeo.Core.Data.Models;
-using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Models.RefundCase;
 
 namespace Refundeo.Core.Services.Interfaces

@@ -62,9 +62,6 @@ namespace Refundeo.Controllers.Merchant
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.MerchantInformationTags)
-                .ThenInclude(m => m.Tag)
                 .Where(r => r.MerchantInformation.Merchant.Id == user.Id)
                 .AsNoTracking()
                 .ToListAsync();
@@ -155,9 +152,6 @@ namespace Refundeo.Controllers.Merchant
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.MerchantInformationTags)
-                .ThenInclude(m => m.Tag)
                 .Where(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();

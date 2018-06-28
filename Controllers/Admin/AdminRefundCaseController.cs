@@ -49,8 +49,6 @@ namespace Refundeo.Controllers.Admin
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
                 .ToListAsync();
 
@@ -76,9 +74,6 @@ namespace Refundeo.Controllers.Admin
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(m => m.MerchantInformationTags)
-                .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (refundCase == null)
