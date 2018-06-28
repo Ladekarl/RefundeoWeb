@@ -52,9 +52,21 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCases = await _context.RefundCases
-                .Include(r => r.MerchantInformation.Merchant)
-                .Include(r => r.CustomerInformation.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
                 .Where(r => r.MerchantInformation.Merchant.Id == user.Id)
+                .AsNoTracking()
                 .ToListAsync();
 
             if (refundCases == null)
@@ -86,8 +98,19 @@ namespace Refundeo.Controllers.Merchant
                 .CountAsync();
 
             query = query
-                .Include(r => r.MerchantInformation.Merchant)
-                .Include(r => r.CustomerInformation.Customer);
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag);
 
             var refundCases = await _paginationService
                 .Paginate(query, first, amount)
@@ -122,9 +145,21 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCase = await _context.RefundCases
-                .Include(r => r.CustomerInformation.Customer)
-                .Include(r => r.MerchantInformation.Merchant)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
                 .Where(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id)
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
 
             if (refundCase == null)

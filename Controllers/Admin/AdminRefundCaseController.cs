@@ -49,6 +49,9 @@ namespace Refundeo.Controllers.Admin
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
                 .ToListAsync();
 
             if (refundCases == null)
@@ -65,8 +68,17 @@ namespace Refundeo.Controllers.Admin
             var refundCase = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (refundCase == null)
@@ -152,8 +164,17 @@ namespace Refundeo.Controllers.Admin
             var refundCaseToUpdate = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Address)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(i => i.Location)
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
                 .Where(r => r.Id == id)
                 .FirstOrDefaultAsync();
 
