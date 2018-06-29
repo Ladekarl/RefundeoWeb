@@ -49,7 +49,7 @@ namespace Refundeo.Core.Services
                 Message = new Message
                 {
                     Topic = topic.Replace("-", string.Empty),
-                    Notification =
+                    Notification = new Notification
                     {
                         Title = title,
                         Body = message
