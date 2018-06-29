@@ -243,9 +243,9 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendNotificationAsync("refund", "refund_created");
+            _notificationService.SendNotificationAsync("refund", "refund_created");
 
-            await _emailService.SendVATMailAsync(ControllerContext, refundCase, customerInformation.Email);
+           _emailService.SendVATMailAsync(ControllerContext, refundCase, customerInformation.Email);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
