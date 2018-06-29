@@ -147,7 +147,7 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotificationAsync(model.CustomerId, "refund_created");
+            _notificationService.SendNotification(model.CustomerId, "refund_created");
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
@@ -204,7 +204,7 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+            _notificationService.SendNotification(refundCaseToUpdate.CustomerInformation.Customer.Id,
                 "refund_updated");
 
             return new NoContentResult();
@@ -234,7 +234,7 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+            _notificationService.SendNotification(refundCaseToUpdate.CustomerInformation.Customer.Id,
                 "refund_updated");
 
             return NoContent();

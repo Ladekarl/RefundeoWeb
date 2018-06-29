@@ -24,10 +24,11 @@ namespace Refundeo.Controllers.User
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
         public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService, IEmailService emailService)
+            IBlobStorageService blobStorageService, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -35,6 +36,7 @@ namespace Refundeo.Controllers.User
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -66,7 +68,7 @@ namespace Refundeo.Controllers.User
             {
                 return NotFound();
             }
-
+            _notificationService.SendNotification(user.Id, "refund_get");
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 

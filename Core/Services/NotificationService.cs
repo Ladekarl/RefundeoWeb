@@ -20,28 +20,42 @@ namespace Refundeo.Core.Services
             _settings = new FcmClientSettings(projectId, fcmKey);
         }
 
+        public void SendNotification(string topic, string message)
+        {
+            using (var client = new FcmClient(_settings))
+            {
+                var fcmMessage = BuildMessage(topic, message);
+                var cts = new CancellationTokenSource();
+                client.SendAsync(fcmMessage, cts.Token).Start();
+            }
+        }
+
         public async Task SendNotificationAsync(string topic, string message)
         {
             using (var client = new FcmClient(_settings))
             {
-                var data = new Dictionary<string, string>
-                {
-                    {"message", message}
-                };
-
-                var fcmMessage = new FcmMessage
-                {
-                    ValidateOnly = false,
-                    Message = new Message
-                    {
-                        Topic = topic.Replace("-", string.Empty),
-                        Data = data
-                    }
-                };
-
+                var fcmMessage = BuildMessage(topic, message);
                 var cts = new CancellationTokenSource();
                 await client.SendAsync(fcmMessage, cts.Token);
             }
+        }
+
+        private FcmMessage BuildMessage(string topic, string message)
+        {
+            var data = new Dictionary<string, string>
+            {
+                {"message", message}
+            };
+
+            return new FcmMessage
+            {
+                ValidateOnly = false,
+                Message = new Message
+                {
+                    Topic = topic.Replace("-", string.Empty),
+                    Data = data
+                }
+            };
         }
     }
 }
