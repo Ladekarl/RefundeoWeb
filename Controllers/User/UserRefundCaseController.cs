@@ -68,7 +68,7 @@ namespace Refundeo.Controllers.User
             {
                 return NotFound();
             }
-            _notificationService.SendNotification(user.Id, "refund_get");
+            _notificationService.SendNotification(user.Id, "refund_get_title", "refund_get");
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 
