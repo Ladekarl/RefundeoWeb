@@ -11,9 +11,10 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    partial class RefundeoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180629140457_Language")]
+    partial class Language
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,8 +171,6 @@ namespace Refundeo.Migrations
                     b.Property<string>("FirstName");
 
                     b.Property<bool>("IsOauth");
-
-                    b.Property<string>("Language");
 
                     b.Property<string>("LastName");
 

@@ -20,6 +20,7 @@ namespace Refundeo.Core.Models.Account
         public string AddressStreetNumber { get; set; }
         public string AddressCity { get; set; }
         public string AddressCountry { get; set; }
+        public string Language { get; set; }
         public string AddressPostalCode { get; set; }
         public string[] Scopes { get; set; }
     }

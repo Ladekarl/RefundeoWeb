@@ -243,7 +243,10 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotification(customerInformation.Customer.Id, "refund_created_title", "refund_created");
+            var text = await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
+                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+
+            _notificationService.SendNotificationAsync(customerInformation.Customer.Id, refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);
 
             _emailService.SendVATMail(ControllerContext, refundCase, customerInformation.Email);
 

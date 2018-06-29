@@ -100,6 +100,7 @@ namespace Refundeo.Controllers.User
                 AccountNumber = model.AccountNumber,
                 Swift = model.Swift,
                 Passport = model.Passport,
+                Language = model.Language,
                 Address = new Address
                 {
                     City = model.AddressCity,
@@ -176,6 +177,7 @@ namespace Refundeo.Controllers.User
             customerInformation.Address.PostalCode = model.AddressPostalCode;
             customerInformation.Address.Country = model.AddressCountry;
             customerInformation.Address.City = model.AddressCity;
+            customerInformation.Language = model.Language;
 
             await _context.SaveChangesAsync();
 

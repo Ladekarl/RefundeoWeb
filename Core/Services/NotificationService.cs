@@ -21,16 +21,6 @@ namespace Refundeo.Core.Services
             _settings = new FcmClientSettings(projectId, fcmKey);
         }
 
-        public void SendNotification(string topic, string title, string message)
-        {
-            using (var client = new FcmClient(_settings))
-            {
-                var fcmMessage = BuildMessage(topic, title, message);
-                var cts = new CancellationTokenSource();
-                client.SendAsync(fcmMessage, cts.Token).Start();
-            }
-        }
-
         public async Task<FcmMessageResponse> SendNotificationAsync(string topic, string title, string message)
         {
             using (var client = new FcmClient(_settings))

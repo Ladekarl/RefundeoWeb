@@ -72,7 +72,7 @@ namespace Refundeo.Core.Data.Initializers
                 Password = "User1234!",
                 FirstName = "Bob",
                 LastName = "Dylan",
-                Country = "DK"
+                Country = "Denmark"
             },
             new UserRegisterDto
             {
@@ -80,7 +80,7 @@ namespace Refundeo.Core.Data.Initializers
                 Password = "User1234!",
                 FirstName = "Mike",
                 LastName = "Tyson",
-                Country = "UK"
+                Country = "England"
             }
         };
 

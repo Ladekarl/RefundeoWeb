@@ -23,5 +23,6 @@ namespace Refundeo.Core.Data.Models
         public virtual RefundeoUser Customer { get; set; }
         public virtual Address Address { get; set; }
         public ICollection<RefundCase> RefundCases { get; set; }
+        public string Language { get; set; }
     }
 }

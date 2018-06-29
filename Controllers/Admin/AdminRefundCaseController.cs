@@ -147,7 +147,10 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotification(model.CustomerId, "refund_created_title", "refund_created");
+            var text = await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
+                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+
+            _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName, text.RefundCreatedText);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
@@ -204,9 +207,12 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotification(refundCaseToUpdate.CustomerInformation.Customer.Id,
-                "refund_updated_title",
-                "refund_updated");
+            var text = await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
+                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+
+            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                refundCaseToUpdate.MerchantInformation.CompanyName,
+                text.RefundUpdateText);
 
             return new NoContentResult();
         }
@@ -235,9 +241,12 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            _notificationService.SendNotification(refundCaseToUpdate.CustomerInformation.Customer.Id,
-                "refund_updated_title",
-                "refund_updated");
+            var text = await _context.Languages.Where(t => t.Key == refundCaseToUpdate.CustomerInformation.Language).FirstOrDefaultAsync() ??
+                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+
+            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                refundCaseToUpdate.MerchantInformation.CompanyName,
+                text.RefundUpdateText);
 
             return NoContent();
         }
