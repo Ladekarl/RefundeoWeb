@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
+using Refundeo.Core.Models;
 
 namespace Refundeo.Controllers
 {
@@ -20,9 +22,13 @@ namespace Refundeo.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IList<Tag>> GetAllTags()
+        public async Task<IList<TagDto>> GetAllTags()
         {
-            return await _context.Tags.ToListAsync();
+            return await _context.Tags.Select(t => new TagDto
+            {
+                Key = t.Key,
+                Value = t.Value
+            }).ToListAsync();
         }
     }
 }
