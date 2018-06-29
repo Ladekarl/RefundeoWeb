@@ -24,7 +24,7 @@ namespace Refundeo.Core.Services
         {
             using (var client = new FcmClient(_settings))
             {
-                var data = new Dictionary<string, string>()
+                var data = new Dictionary<string, string>
                 {
                     {"message", message}
                 };
@@ -34,7 +34,7 @@ namespace Refundeo.Core.Services
                     ValidateOnly = false,
                     Message = new Message
                     {
-                        Topic = topic,
+                        Topic = topic.Replace("-", string.Empty),
                         Data = data
                     }
                 };
