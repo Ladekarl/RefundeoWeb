@@ -70,9 +70,6 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            var text = await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
-
-            _notificationService.SendNotificationAsync(user.Id, "Magasin", text.RefundCreatedText);
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 
