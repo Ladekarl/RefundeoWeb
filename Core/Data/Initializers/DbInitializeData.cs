@@ -38,7 +38,7 @@ namespace Refundeo.Core.Data.Initializers
             new Tag
             {
                 Key = 5,
-                Value = "Technology"
+                Value = "Electronics"
             },
             new Tag
             {
@@ -49,11 +49,6 @@ namespace Refundeo.Core.Data.Initializers
             {
                 Key = 7,
                 Value = "Books and stationary"
-            },
-            new Tag
-            {
-                Key = 8,
-                Value = "Department Store"
             }
         };
 
