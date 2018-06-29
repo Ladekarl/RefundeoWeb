@@ -139,7 +139,7 @@ namespace Refundeo.Core.Services
                     OpeningHours =
                         info.OpeningHours?.Select(o =>
                             new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
-                    Tags = info.MerchantInformationTags?.Where(m => m.Tag != null).Select(m => m.Tag.Value).ToList(),
+                    Tags = info.MerchantInformationTags?.Select(m => m.Tag.Id).ToList(),
                     VatNumber = info.VATNumber,
                     ContactEmail = info.ContactEmail,
                     ContactPhone = info.ContactPhone,

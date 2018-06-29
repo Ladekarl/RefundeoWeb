@@ -24,13 +24,24 @@ namespace Refundeo.Core.Data.Initializers
             await InitializeRolesAsync(roleManager);
             await InitializeUsersAsync(userManager, context);
             await InitializeRefundCasesAsync(context);
+            await InitializeTags(context);
+        }
+
+        private static async Task InitializeTags(RefundeoDbContext context)
+        {
+            foreach (var tag in DbInitializeData.TagsToCreate)
+            {
+                if (await context.Tags.Where(t => t.Value == tag.Value).AnyAsync()) continue;
+                context.Tags.Add(tag);
+                await context.SaveChangesAsync();
+            }
         }
 
         private static async Task InitializeRefundCasesAsync(RefundeoDbContext context)
         {
             foreach (var refundCase in DbInitializeData.RefundCasesToCreate)
             {
-                for (var i = 0; i <= 10; i++)
+                for (var i = 0; i <= 2; i++)
                 {
                     var existingCase = await context.RefundCases
                         .Include(r => r.MerchantInformation)
@@ -110,10 +121,12 @@ namespace Refundeo.Core.Data.Initializers
                         Currency = merchant.Currency
                     };
 
+                    var tags = merchant.Tags.SelectMany(t => context.Tags.Where(tag => tag.Id == t)).ToList();
+                    var openingHorus = merchant.OpeningHours
+                        .Select(o => new OpeningHours {Day = o.Day, Close = o.Close, Open = o.Open}).ToList();
+
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchantInformation, address, location, merchant.OpeningHours
-                            .Select(o => new OpeningHours {Day = o.Day, Close = o.Close, Open = o.Open}).ToList(),
-                        merchant.Tags.Select(t => new Tag {Value = t}).ToList());
+                        merchantInformation, address, location, openingHorus, tags);
                 }
             }
         }
@@ -153,7 +166,7 @@ namespace Refundeo.Core.Data.Initializers
             await context.RefundCases.AddAsync(refundCase);
 
             await context.SaveChangesAsync();
-            context.RefundCases.Update(refundCase);
+            context.RefundCases.Attach(refundCase);
             await context.SaveChangesAsync();
         }
 

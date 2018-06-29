@@ -131,7 +131,7 @@ namespace Refundeo.Controllers.Merchant
 
             foreach (var tagModel in model.Tags)
             {
-                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Value == tagModel);
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == tagModel);
                 if (tag != null)
                 {
                     var merchantInformationTag = new MerchantInformationTag
@@ -247,7 +247,7 @@ namespace Refundeo.Controllers.Merchant
 
             foreach (var tagModel in model.Tags)
             {
-                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Value == tagModel);
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == tagModel);
                 if (tag != null && merchantInformation.MerchantInformationTags.Any(m => m.Tag == tag))
                 {
                     var merchantInformationTag = new MerchantInformationTag
