@@ -286,60 +286,63 @@ namespace Refundeo.Controllers.Merchant
         //     await context.SaveChangesAsync();
         //     return NoContent();
         // }
+//
+        // We aggreed that merchants should not be able to accept / reject refund cases. Only admins should do this.
 
-        [HttpPost("{id}/accept")]
-        public async Task<IActionResult> AcceptRefund(long id, [FromBody] AcceptRefundCaseDto model)
-        {
-            var user = await _utilityService.GetCallingUserAsync(Request);
-            if (user == null)
-            {
-                return Forbid();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var refundCaseToUpdate = await _context.RefundCases
-                .Include(r => r.MerchantInformation.Merchant)
-                .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id);
-
-            if (refundCaseToUpdate == null)
-            {
-                return NotFound();
-            }
-
-            refundCaseToUpdate.IsAccepted = model.IsAccepted;
-            refundCaseToUpdate.IsRejected = !model.IsAccepted;
-
-            _context.RefundCases.Update(refundCaseToUpdate);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // TODO: Shouldn't this only be an option if the refund case has been processed?
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMerchantRefundCase(long id)
-        {
-            var user = await _utilityService.GetCallingUserAsync(Request);
-            if (user == null)
-            {
-                return Forbid();
-            }
-
-            var refundCase = await _context.RefundCases
-                .Include(r => r.MerchantInformation.Merchant)
-                .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id);
-            if (refundCase == null)
-            {
-                return NotFound();
-            }
-
-            _context.RefundCases.Remove(refundCase);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+//        [HttpPost("{id}/accept")]
+//        public async Task<IActionResult> AcceptRefund(long id, [FromBody] AcceptRefundCaseDto model)
+//        {
+//            var user = await _utilityService.GetCallingUserAsync(Request);
+//            if (user == null)
+//            {
+//                return Forbid();
+//            }
+//
+//            if (!ModelState.IsValid)
+//            {
+//                return BadRequest();
+//            }
+//
+//            var refundCaseToUpdate = await _context.RefundCases
+//                .Include(r => r.MerchantInformation.Merchant)
+//                .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id);
+//
+//            if (refundCaseToUpdate == null)
+//            {
+//                return NotFound();
+//            }
+//
+//            refundCaseToUpdate.IsAccepted = model.IsAccepted;
+//            refundCaseToUpdate.IsRejected = !model.IsAccepted;
+//
+//            _context.RefundCases.Update(refundCaseToUpdate);
+//            await _context.SaveChangesAsync();
+//            return NoContent();
+//        }
+//
+//        // TODO: Shouldn't this only be an option if the refund case has been processed?
+        // MErchant should probably not be able to do this.
+//
+//        [HttpDelete("{id}")]
+//        public async Task<IActionResult> DeleteMerchantRefundCase(long id)
+//        {
+//            var user = await _utilityService.GetCallingUserAsync(Request);
+//            if (user == null)
+//            {
+//                return Forbid();
+//            }
+//
+//            var refundCase = await _context.RefundCases
+//                .Include(r => r.MerchantInformation.Merchant)
+//                .FirstOrDefaultAsync(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id);
+//            if (refundCase == null)
+//            {
+//                return NotFound();
+//            }
+//
+//            _context.RefundCases.Remove(refundCase);
+//            await _context.SaveChangesAsync();
+//            return NoContent();
+//        }
     }
 }

@@ -131,10 +131,11 @@ namespace Refundeo.Controllers.Admin
 
             await _context.SaveChangesAsync();
 
-            var qrCode = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin, new QRCodeRefundCaseDto
-            {
-                RefundCaseId = refundCase.Id
-            });
+            var qrCode = _utilityService.GenerateQrCode(model.QrCodeHeight, model.QrCodeWidth, model.QrCodeMargin,
+                new QRCodeRefundCaseDto
+                {
+                    RefundCaseId = refundCase.Id
+                });
 
             var logoContainerName = _optionsAccessor.Value.QrCodesContainerNameOption;
             refundCase.QRCode = await _blobStorageService.UploadAsync(logoContainerName,
@@ -199,6 +200,36 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
             return new NoContentResult();
+        }
+
+        [HttpPost("{id}/accept")]
+        public async Task<IActionResult> AcceptRefund(long id, [FromBody] AcceptRefundCaseDto model)
+        {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+            if (user == null)
+            {
+                return Forbid();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var refundCaseToUpdate = await _context.RefundCases
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (refundCaseToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            refundCaseToUpdate.IsAccepted = model.IsAccepted;
+            refundCaseToUpdate.IsRejected = !model.IsAccepted;
+
+            _context.RefundCases.Update(refundCaseToUpdate);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
