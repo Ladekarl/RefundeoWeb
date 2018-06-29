@@ -26,11 +26,12 @@ namespace Refundeo.Controllers.Merchant
         private readonly IEmailService _emailService;
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
+        private readonly INotificationService _notificationService;
 
         public MerchantRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IPaginationService<RefundCase> paginationService,
             IEmailService emailService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService)
+            IBlobStorageService blobStorageService, INotificationService notificationService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -39,6 +40,7 @@ namespace Refundeo.Controllers.Merchant
             _emailService = emailService;
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -240,6 +242,8 @@ namespace Refundeo.Controllers.Merchant
             _context.RefundCases.Update(refundCase);
 
             await _context.SaveChangesAsync();
+
+            await _notificationService.SendNotificationAsync("refund", "refund_created");
 
             await _emailService.SendVATMailAsync(ControllerContext, refundCase, customerInformation.Email);
 

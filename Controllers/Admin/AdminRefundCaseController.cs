@@ -23,16 +23,18 @@ namespace Refundeo.Controllers.Admin
         private readonly IUtilityService _utilityService;
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
+        private readonly INotificationService _notificationService;
 
         public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService)
+            IBlobStorageService blobStorageService, INotificationService notificationService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
             _utilityService = utilityService;
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -145,6 +147,8 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
+            await _notificationService.SendNotificationAsync("refund", "refund_created");
+
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
 
@@ -199,6 +203,9 @@ namespace Refundeo.Controllers.Admin
 
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
+
+            await _notificationService.SendNotificationAsync("refund", "refund_updated");
+
             return new NoContentResult();
         }
 
@@ -229,6 +236,9 @@ namespace Refundeo.Controllers.Admin
 
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
+
+            await _notificationService.SendNotificationAsync("refund", "refund_updated");
+
             return NoContent();
         }
 

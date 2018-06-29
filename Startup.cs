@@ -46,7 +46,9 @@ namespace Refundeo
                     $"https://{config["Vault"]}.vault.azure.net/",
                     config["ClientId"],
                     config["ClientSecret"]);
-            };
+            }
+
+            ;
 
             Configuration = builder.Build();
             HostingEnvironment = env;
@@ -89,6 +91,8 @@ namespace Refundeo
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "Refundeo", Version = "v1"}); });
 
             services.AddSingleton(Configuration);
+
+            services.AddSingleton<INotificationService, NotificationService>();
 
             services.AddAuthentication(options =>
                 {
