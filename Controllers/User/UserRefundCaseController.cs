@@ -28,7 +28,8 @@ namespace Refundeo.Controllers.User
 
         public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService, IEmailService emailService, INotificationService notificationService)
+            IBlobStorageService blobStorageService, IEmailService emailService,
+            INotificationService notificationService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -68,7 +69,9 @@ namespace Refundeo.Controllers.User
             {
                 return NotFound();
             }
-            _notificationService.SendNotification(user.Id, "refund_get_title", "refund_get");
+
+            var result = await _notificationService.SendNotificationAsync(user.Id, "refund_get_title", "refund_get");
+            Console.WriteLine("Message ID = {0}", result.Name);
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
         }
 

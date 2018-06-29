@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FcmSharp;
 using FcmSharp.Requests;
+using FcmSharp.Responses;
 using FcmSharp.Settings;
 using Microsoft.Extensions.Configuration;
 using Refundeo.Core.Services.Interfaces;
@@ -30,13 +31,13 @@ namespace Refundeo.Core.Services
             }
         }
 
-        public async Task SendNotificationAsync(string topic, string title, string message)
+        public async Task<FcmMessageResponse> SendNotificationAsync(string topic, string title, string message)
         {
             using (var client = new FcmClient(_settings))
             {
                 var fcmMessage = BuildMessage(topic, title, message);
                 var cts = new CancellationTokenSource();
-                await client.SendAsync(fcmMessage, cts.Token);
+                return await client.SendAsync(fcmMessage, cts.Token);
             }
         }
 
@@ -50,6 +51,7 @@ namespace Refundeo.Core.Services
                     Topic = topic.Replace("-", string.Empty),
                     Notification =
                     {
+                        Title = title,
                         Body = message
                     }
                 }
