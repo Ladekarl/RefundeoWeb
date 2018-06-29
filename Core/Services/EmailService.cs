@@ -67,6 +67,12 @@ namespace Refundeo.Core.Services
             }
         }
 
+        public void SendVATMail(ControllerContext controllerContext, RefundCase refundCase,
+            string receiverEmail)
+        {
+            SendVATMailAsync(controllerContext, refundCase, receiverEmail).Start();
+        }
+
         public async Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase,
             string receiverEmail)
         {

@@ -9,6 +9,7 @@ namespace Refundeo.Core.Services.Interfaces
     {
         Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
             Attachment attachment);
+        void SendVATMail(ControllerContext controllerContext, RefundCase refundCase, string receiverEmail);
         Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase, string receiverEmail);
     }
 }
