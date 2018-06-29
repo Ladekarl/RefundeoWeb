@@ -21,10 +21,10 @@ namespace Refundeo.Core.Data.Initializers
         public static async Task InitializeAsync(UserManager<RefundeoUser> userManager,
             RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
+            await InitializeTags(context);
             await InitializeRolesAsync(roleManager);
             await InitializeUsersAsync(userManager, context);
             await InitializeRefundCasesAsync(context);
-            await InitializeTags(context);
         }
 
         private static async Task InitializeTags(RefundeoDbContext context)
@@ -33,8 +33,8 @@ namespace Refundeo.Core.Data.Initializers
             {
                 if (await context.Tags.Where(t => t.Value == tag.Value).AnyAsync()) continue;
                 context.Tags.Add(tag);
-                await context.SaveChangesAsync();
             }
+            await context.SaveChangesAsync();
         }
 
         private static async Task InitializeRefundCasesAsync(RefundeoDbContext context)
@@ -121,12 +121,12 @@ namespace Refundeo.Core.Data.Initializers
                         Currency = merchant.Currency
                     };
 
-                    var tags = merchant.Tags.SelectMany(t => context.Tags.Where(tag => tag.Id == t)).ToList();
-                    var openingHorus = merchant.OpeningHours
+                    var tags = merchant.Tags.SelectMany(t => context.Tags.Where(tag => tag.Key == t)).ToList();
+                    var openingHours = merchant.OpeningHours
                         .Select(o => new OpeningHours {Day = o.Day, Close = o.Close, Open = o.Open}).ToList();
 
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchantInformation, address, location, openingHorus, tags);
+                        merchantInformation, address, location, openingHours, tags);
                 }
             }
         }
@@ -253,6 +253,11 @@ namespace Refundeo.Core.Data.Initializers
                 await context.MerchantInformations.AddAsync(merchantInformation);
 
                 await context.SaveChangesAsync();
+
+                if (context.Entry(merchantInformation).Collection(x => x.OpeningHours).IsLoaded == false)
+                {
+                    await context.Entry(merchantInformation).Collection(x => x.OpeningHours).LoadAsync();
+                }
 
                 foreach (var oHours in openingHours)
                 {

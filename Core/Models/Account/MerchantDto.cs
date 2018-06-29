@@ -29,6 +29,6 @@ namespace Refundeo.Core.Models.Account
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
         public IList<OpeningHoursDto> OpeningHours { get; set; }
-        public IList<long> Tags { get; set; }
+        public IList<int> Tags { get; set; }
     }
 }

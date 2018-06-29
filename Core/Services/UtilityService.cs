@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -8,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Models.Account;
@@ -139,7 +137,7 @@ namespace Refundeo.Core.Services
                     OpeningHours =
                         info.OpeningHours?.Select(o =>
                             new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
-                    Tags = info.MerchantInformationTags?.Select(m => m.Tag.Id).ToList(),
+                    Tags = info.MerchantInformationTags?.Select(m => m.Tag.Key).ToList(),
                     VatNumber = info.VATNumber,
                     ContactEmail = info.ContactEmail,
                     ContactPhone = info.ContactPhone,

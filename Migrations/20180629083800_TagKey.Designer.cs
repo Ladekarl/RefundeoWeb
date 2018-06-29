@@ -11,9 +11,10 @@ using System;
 namespace Refundeo.Migrations
 {
     [DbContext(typeof(RefundeoDbContext))]
-    partial class RefundeoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180629083800_TagKey")]
+    partial class TagKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

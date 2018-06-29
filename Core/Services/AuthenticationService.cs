@@ -136,7 +136,7 @@ namespace Refundeo.Core.Services
                 Description = merchantInformation.Description,
                 OpeningHours = merchantInformation.OpeningHours
                     .Select(o => new OpeningHoursDto {Close = o.Close, Day = o.Day, Open = o.Open}).ToList(),
-                Tags = merchantInformation.MerchantInformationTags.Select(m => m.Tag.Id).ToList(),
+                Tags = merchantInformation.MerchantInformationTags.Select(m => m.Tag.Key).ToList(),
                 VatNumber = merchantInformation.VATNumber,
                 ContactEmail = merchantInformation.ContactEmail,
                 ContactPhone = merchantInformation.ContactPhone,

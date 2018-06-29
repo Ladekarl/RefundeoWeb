@@ -23,6 +23,6 @@ namespace Refundeo.Core.Models.Account
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
         public ICollection<OpeningHoursDto> OpeningHours { get; set; }
-        public ICollection<long> Tags { get; set; }
+        public ICollection<int> Tags { get; set; }
     }
 }

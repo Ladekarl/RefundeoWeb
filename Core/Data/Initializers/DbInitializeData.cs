@@ -12,47 +12,47 @@ namespace Refundeo.Core.Data.Initializers
         {
             new Tag
             {
-                // ID = 0
+                Key = 0,
                 Value = "Jewelry and Watches"
             },
             new Tag
             {
-                // ID = 1
+                Key = 1,
                 Value = "Clothes"
             },
             new Tag
             {
-                // ID = 2
+                Key = 2,
                 Value = "Footwear"
             },
             new Tag
             {
-                // ID = 3
+                Key = 3,
                 Value = "Accessories"
             },
             new Tag
             {
-                // ID = 4
+                Key = 4,
                 Value = "Sportswear"
             },
             new Tag
             {
-                // ID = 5
+                Key = 5,
                 Value = "Technology"
             },
             new Tag
             {
-                // ID = 6
+                Key = 6,
                 Value = "Children"
             },
             new Tag
             {
-                // ID = 7
+                Key = 7,
                 Value = "Books and stationary"
             },
             new Tag
             {
-                // ID = 8
+                Key = 8,
                 Value = "Department Store"
             }
         };
@@ -154,7 +154,7 @@ namespace Refundeo.Core.Data.Initializers
                 AddressStreetName = "Amagertorv",
                 Latitude = 55.6785906,
                 Longitude = 12.5776793,
-                Tags = new List<long> {3},
+                Tags = new List<int> {3},
                 AddressStreetNumber = "2",
                 OpeningHours = OpeningHoursDtos,
                 ContactEmail = "lv@lv.dk",
@@ -181,7 +181,7 @@ namespace Refundeo.Core.Data.Initializers
                 AddressStreetNumber = "2 X",
                 OpeningHours = OpeningHoursDtos,
                 Latitude = 55.674976,
-                Tags = new List<long> {0},
+                Tags = new List<int> {0},
                 Longitude = 12.564854,
                 ContactEmail = "kl@kl.dk",
                 ContactPhone = "+4522222222",
@@ -200,7 +200,7 @@ namespace Refundeo.Core.Data.Initializers
                 RefundPercentage = 29,
                 AddressCity = "København K",
                 AddressCountry = "Danmark",
-                Tags = new List<long> {3},
+                Tags = new List<int> {3},
                 Currency = "DKK",
                 AddressPostalCode = "1157",
                 AddressStreetName = "Klosterstræde",
@@ -225,7 +225,7 @@ namespace Refundeo.Core.Data.Initializers
                 CvrNumber = "58191213",
                 RefundPercentage = 25,
                 AddressCity = "København K",
-                Tags = new List<long> {8},
+                Tags = new List<int> {8},
                 AddressCountry = "Danmark",
                 AddressPostalCode = "1050",
                 AddressStreetName = "Kongens Nytorv",
@@ -249,7 +249,7 @@ namespace Refundeo.Core.Data.Initializers
                 CvrNumber = "17490486",
                 Currency = "DKK",
                 RefundPercentage = 25,
-                Tags = new List<long> {0, 1, 2},
+                Tags = new List<int> {0, 1, 2},
                 AddressCity = "København",
                 AddressCountry = "Danmark",
                 AddressPostalCode = "1110",
@@ -279,7 +279,7 @@ namespace Refundeo.Core.Data.Initializers
                 AddressPostalCode = "1220",
                 AddressStreetName = "Frederiksholms Kanal",
                 AddressStreetNumber = "4",
-                Tags = new List<long> {1, 2, 3},
+                Tags = new List<int> {1, 2, 3},
                 OpeningHours = OpeningHoursDtos,
                 Latitude = 55.675898,
                 Longitude = 12.574912,
