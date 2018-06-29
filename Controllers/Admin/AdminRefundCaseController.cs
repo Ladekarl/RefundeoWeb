@@ -147,7 +147,7 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendNotificationAsync("refund", "refund_created");
+            _notificationService.SendNotificationAsync(model.CustomerId, "refund_created");
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
@@ -204,7 +204,8 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendNotificationAsync("refund", "refund_updated");
+            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                "refund_updated");
 
             return new NoContentResult();
         }
@@ -212,18 +213,14 @@ namespace Refundeo.Controllers.Admin
         [HttpPost("{id}/accept")]
         public async Task<IActionResult> AcceptRefund(long id, [FromBody] AcceptRefundCaseDto model)
         {
-            var user = await _utilityService.GetCallingUserAsync(Request);
-            if (user == null)
-            {
-                return Forbid();
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
             var refundCaseToUpdate = await _context.RefundCases
+                .Include(r => r.CustomerInformation)
+                .ThenInclude(r => r.Customer)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (refundCaseToUpdate == null)
@@ -237,7 +234,8 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendNotificationAsync("refund", "refund_updated");
+            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                "refund_updated");
 
             return NoContent();
         }
