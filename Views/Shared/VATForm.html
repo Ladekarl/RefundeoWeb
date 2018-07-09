@@ -2,7 +2,11 @@
 
 <style xmlns="http://www.w3.org/1999/html">
     body {
-        font-size: 15pt
+        font-size: 14pt
+    }
+
+    .vat-table td {
+        border: 1px solid black;
     }
 
     .table-left-cell {
@@ -18,15 +22,20 @@
     .table-row {
         height: 15px;
         width: 100%;
+        border: 1px solid black;
     }
 
     .table-header {
+        border: 1px solid black;
+        padding: 2px;
         background-color: #d3d3d3;
     }
 
     .table-full-header {
         background-color: #d3d3d3;
         height: 15px;
+        border: 1px solid black;
+        padding: 2px;
     }
 
     .table-large-cell {
@@ -44,11 +53,8 @@
     }
 
     .table-signature-row {
-    }
-
-    .vat-table th, .vat-table td {
         border: 1px solid black;
-        padding: 4px;
+        padding: 2px;
     }
 
     .vat-table {
@@ -65,6 +71,8 @@
     .table-tight-header {
         background-color: #d3d3d3;
         height: 15px;
+        border: 1px solid black;
+        padding: 2px;
     }
 
     .table-tight-left-cell {
@@ -94,6 +102,7 @@
     .title-border {
         border: 0 solid;
         width: 25%;
+        padding-bottom: 1px;
         border-bottom-width: 1px;
         display: block;
         margin-left: auto;
@@ -104,6 +113,7 @@
         text-align: center;
         width: 100%;
         font-size: 15px;
+        margin: 4px;
     }
 
     .table-signature-text {
@@ -228,8 +238,6 @@
             <td width="15%" class="table-left-cell">E-mail</td>
             <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
         </tr>
-    </table>
-    <table class="vat-table">
         <tr class="table-row">
             <th class="table-full-header" colspan="4">PURCHASE ACCORDING TO ORIGINAL RECEIPT</th>
         </tr>
