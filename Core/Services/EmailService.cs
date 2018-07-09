@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
