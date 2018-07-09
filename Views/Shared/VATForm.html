@@ -85,7 +85,7 @@
     }
 
     .table-left-small-image {
-        height: 100px;
+        height: 150px;
     }
 
     .title-image {
@@ -100,10 +100,9 @@
     }
 
     .title-border {
-        border: 0 solid;
+        border-bottom: 1px solid;
         width: 25%;
         padding-bottom: 1px;
-        border-bottom-width: 1px;
         display: block;
         margin-left: auto;
         margin-right: auto;
@@ -165,9 +164,21 @@
     }
 
     .container {
-        margin: 0;
+        margin: 0 0 5px 0;
         padding: 0;
         height: 100%;
+    }
+
+    .table-container {
+        padding: 15px;
+        margin-bottom: 5px;
+        margin-top: 10px;
+        border: 2px dashed;
+        border-radius: 10px;
+    }
+
+    .optional-container {
+        padding: 5px;
     }
 </style>
 
@@ -181,139 +192,143 @@
             <strong>YOUR TAX REFUND - TAX FREE FORM #@Html.DisplayFor(model => model.ReceiptNumber)</strong>
         </p>
     </div>
-    <table class="vat-table">
-        <tr class="table-row">
-            <th class="table-header" colspan="2">
-                <strong>RETAILER</strong>
-            </th>
-            <th class="table-header" colspan="2">
-                <strong>CUSTOMER</strong>
-            </th>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">Name</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantName)</td>
-            <td width="15%" class="table-left-cell">Name</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerName)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">Address</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantAddres)</td>
-            <td width="15%" class="table-left-cell">Address</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerAddres)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">Postal code</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantPostalCode)</td>
-            <td width="15%" class="table-left-cell">Postal code</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPostalCode)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">City</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantCity)</td>
-            <td width="15%" class="table-left-cell">City</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerCity)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">Country</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantCountry)</td>
-            <td width="15%" class="table-left-cell">Country</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerCountry)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">VAT no.</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantVatNo)</td>
-            <td width="15%" class="table-left-cell">Passport no.</td>
-            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPassport)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">Phone no.</td>
-            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantPhone)</td>
-            <td width="15%" class="table-left-cell">Phone no.</td>
-            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPhone)</td>
-        </tr>
-        <tr class="table-row">
-            <td width="15%" class="table-left-cell">E-mail</td>
-            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantEmail)</td>
-            <td width="15%" class="table-left-cell">E-mail</td>
-            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
-        </tr>
-        <tr class="table-row">
-            <th class="table-full-header" colspan="4">PURCHASE ACCORDING TO ORIGINAL RECEIPT</th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">Receipt no.</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.ReceiptNumber)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">Purchase date</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Date)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">Total price of goods (Incl. VAT)</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Amount)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">VAT amount</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.VatAmount)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" style="font-weight: bold;" colspan="2">Refunded</td>
-            <td class="table-large-cell" style="font-weight: bold;" colspan="2">@Html.DisplayFor(model =>
-                model.RefundAmount)
-            </td>
-        </tr>
-        <tr class="table-row">
-            <th class="table-full-header" colspan="4">SOLEMN DECLARATION</th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-full-cell" style="font-style: italic; text-align: center; font-size: 15px;" colspan="4">
-                The customer has provided a passport copy, documenting outside-EU residence, for which reason the
-                customer
-                is eligible for a VAT refund. This form is generated automatically based on entries made by both
-                retailer
-                and customer. Both parties thus agree that the entered information is correct and in accordance to the
-                original purchase and receipt.
-            </td>
-        </tr>
-        <tr class="table-signature-row">
-            <td class="table-top-cell table-signature-text" colspan="2">Reatailer signature
-                <div>
-                    <img class="table-signature"
-                         src="data:image/png;base64,@Html.DisplayFor(model => model.MerchantSignature)"/>
-                </div>
-                <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
-            </td>
-            <td class="table-top-cell table-signature-text" colspan="2">Customer signature
-                <div>
-                    <img class="table-signature"
-                         src="data:image/png;base64,@Html.DisplayFor(model => model.CustomerSignature)"/>
-                </div>
-                <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
-            </td>
-        </tr>
-    </table>
-    <table class="vat-table">
-        <tr class="table-row">
-            <th class="table-tight-header" colspan="3">EXPORT VALIDATION - ONLY FOR OFFICIAL USE</th>
-            <th class="table-tight-header" colspan="1">YOUR QR CODE</th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-tight-left-cell">STAMP HERE
-            </td>
-            <td class="table-tight-large-cell" colspan="2">
-                <div>
-                    <p style="text-align: center; font-style: italic;">Optional</p>
-                    <p style="border-bottom: 1px dashed; padding-top: 10px">Date and place of export</p>
-                    <p style="border-bottom: 1px dashed; padding-top: 10px">Customs officer signature</p>
-                </div>
-            </td>
-            <td class="table-tight-cell">
-                <img class="table-left-small-image"
-                     src="data:image/png;base64,@Html.DisplayFor(model => model.QrCode)"/>
-            </td>
-        </tr>
-    </table>
+    <div class="table-container">
+        <table class="vat-table">
+            <tr class="table-row">
+                <th class="table-header" colspan="2">
+                    <strong>RETAILER</strong>
+                </th>
+                <th class="table-header" colspan="2">
+                    <strong>CUSTOMER</strong>
+                </th>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">Name</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantName)</td>
+                <td width="15%" class="table-left-cell">Name</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerName)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">Address</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantAddres)</td>
+                <td width="15%" class="table-left-cell">Address</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerAddres)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">Postal code</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantPostalCode)</td>
+                <td width="15%" class="table-left-cell">Postal code</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPostalCode)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">City</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantCity)</td>
+                <td width="15%" class="table-left-cell">City</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerCity)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">Country</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantCountry)</td>
+                <td width="15%" class="table-left-cell">Country</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerCountry)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">VAT no.</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantVatNo)</td>
+                <td width="15%" class="table-left-cell">Passport no.</td>
+                <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPassport)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">Phone no.</td>
+                <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantPhone)</td>
+                <td width="15%" class="table-left-cell">Phone no.</td>
+                <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPhone)</td>
+            </tr>
+            <tr class="table-row">
+                <td width="15%" class="table-left-cell">E-mail</td>
+                <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantEmail)</td>
+                <td width="15%" class="table-left-cell">E-mail</td>
+                <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
+            </tr>
+            <tr class="table-row">
+                <th class="table-full-header" colspan="4">PURCHASE ACCORDING TO ORIGINAL RECEIPT</th>
+            </tr>
+            <tr class="table-row">
+                <td class="table-large-cell" colspan="2">Receipt no.</td>
+                <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.ReceiptNumber)</td>
+            </tr>
+            <tr class="table-row">
+                <td class="table-large-cell" colspan="2">Purchase date</td>
+                <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Date)</td>
+            </tr>
+            <tr class="table-row">
+                <td class="table-large-cell" colspan="2">Total price of goods (Incl. VAT)</td>
+                <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Amount)</td>
+            </tr>
+            <tr class="table-row">
+                <td class="table-large-cell" colspan="2">VAT amount</td>
+                <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.VatAmount)</td>
+            </tr>
+            <tr class="table-row">
+                <td class="table-large-cell" style="font-weight: bold;" colspan="2">Refunded</td>
+                <td class="table-large-cell" style="font-weight: bold;" colspan="2">@Html.DisplayFor(model =>
+                    model.RefundAmount)
+                </td>
+            </tr>
+            <tr class="table-row">
+                <th class="table-full-header" colspan="4">SOLEMN DECLARATION</th>
+            </tr>
+            <tr class="table-row">
+                <td class="table-full-cell" style="font-style: italic; text-align: center; font-size: 15px;"
+                    colspan="4">
+                    The customer has provided a passport copy, documenting outside-EU residence, for which reason the
+                    customer
+                    is eligible for a VAT refund. This form is generated automatically based on entries made by both
+                    retailer
+                    and customer. Both parties thus agree that the entered information is correct and in accordance to
+                    the
+                    original purchase and receipt.
+                </td>
+            </tr>
+            <tr class="table-signature-row">
+                <td class="table-top-cell table-signature-text" colspan="2">Reatailer signature
+                    <div>
+                        <img class="table-signature"
+                             src="data:image/png;base64,@Html.DisplayFor(model => model.MerchantSignature)"/>
+                    </div>
+                    <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
+                </td>
+                <td class="table-top-cell table-signature-text" colspan="2">Customer signature
+                    <div>
+                        <img class="table-signature"
+                             src="data:image/png;base64,@Html.DisplayFor(model => model.CustomerSignature)"/>
+                    </div>
+                    <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
+                </td>
+            </tr>
+        </table>
+        <table class="vat-table">
+            <tr class="table-row">
+                <th class="table-tight-header" colspan="3">EXPORT VALIDATION - ONLY FOR OFFICIAL USE</th>
+                <th class="table-tight-header" colspan="1">YOUR QR CODE</th>
+            </tr>
+            <tr class="table-row">
+                <td class="table-tight-left-cell">STAMP HERE
+                </td>
+                <td class="table-tight-large-cell" colspan="2">
+                    <div class="optional-container">
+                        <p style="text-align: center; font-style: italic;">Optional</p>
+                        <p style="border-bottom: 1px dashed; padding-top: 10px">Date and place of export</p>
+                        <p style="border-bottom: 1px dashed; padding-top: 10px;">Customs officer signature</p>
+                    </div>
+                </td>
+                <td class="table-tight-cell">
+                    <img class="table-left-small-image"
+                         src="data:image/png;base64,@Html.DisplayFor(model => model.QrCode)"/>
+                </td>
+            </tr>
+        </table>
+    </div>
     <div class="left-container">
         <div class="inner-container">
     <span class="text-headline">
