@@ -70,7 +70,7 @@ namespace Refundeo.Core.Services
         public void SendVATMail(ControllerContext controllerContext, RefundCase refundCase,
             string receiverEmail)
         {
-            SendVATMailAsync(controllerContext, refundCase, receiverEmail).RunSynchronously();
+            SendVATMailAsync(controllerContext, refundCase, receiverEmail);
         }
 
         public async Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase,
