@@ -109,7 +109,7 @@ namespace Refundeo.Core.Services
         {
             var model = new VatFormModel
             {
-                Amount = refundCase.Amount,
+                Amount = $"{refundCase.Amount} {refundCase.MerchantInformation.Currency}",
                 CustomerAddres = refundCase.CustomerInformation.Address.StreetName + " " +
                                  refundCase.CustomerInformation.Address.StreetNumber,
                 CustomerCity = refundCase.CustomerInformation.Address.City,
@@ -130,8 +130,8 @@ namespace Refundeo.Core.Services
                 MerchantPostalCode = refundCase.MerchantInformation.Address.PostalCode,
                 MerchantVatNo = refundCase.MerchantInformation.VATNumber,
                 ReceiptNumber = refundCase.ReceiptNumber,
-                RefundAmount = refundCase.RefundAmount,
-                VatAmount = refundCase.Amount * 0.20,
+                RefundAmount = $"{refundCase.RefundAmount} {refundCase.MerchantInformation.Currency}",
+                VatAmount =  $"{refundCase.Amount * 0.20} {refundCase.MerchantInformation.Currency}",
                 CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
                 MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature),
                 QrCode = await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode)

@@ -20,9 +20,9 @@
         public string CustomerPassport { get; set; }
         public string ReceiptNumber { get; set; }
         public string Date { get; set; }
-        public double Amount { get; set; }
-        public double RefundAmount { get; set; }
-        public double VatAmount { get; set; }
+        public string Amount { get; set; }
+        public string RefundAmount { get; set; }
+        public string VatAmount { get; set; }
         public string MerchantSignature { get; set; }
         public string CustomerSignature { get; set; }
         public string QrCode { get; set; }
