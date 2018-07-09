@@ -145,7 +145,7 @@ namespace Refundeo.Core.Services
                 {
                     ColorMode = ColorMode.Grayscale,
                     Orientation = Orientation.Portrait,
-                    Margins = new MarginSettings {Top = 5},
+                    Margins = new MarginSettings {Top = 5, Bottom = 5},
                     PaperSize = PaperKind.A4
                 },
                 Objects =
