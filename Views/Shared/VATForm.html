@@ -7,14 +7,17 @@
 
     .table-left-cell {
         height: 15px;
+        width: 15%;
     }
 
     .table-right-cell {
         height: 15px;
+        width: 35%;
     }
 
     .table-row {
         height: 15px;
+        width: 100%;
     }
 
     .table-header {
@@ -28,6 +31,7 @@
 
     .table-large-cell {
         height: 15px;
+        width: 50%;
     }
 
     .table-top-cell {
@@ -49,8 +53,6 @@
 
     .vat-table {
         border-collapse: collapse;
-        table-layout: fixed;
-        display: block;
         width: 100%
     }
 
@@ -179,53 +181,55 @@
             </th>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">Name</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantName)</td>
-            <td class="table-left-cell">Name</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerName)</td>
+            <td width="15%" class="table-left-cell">Name</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantName)</td>
+            <td width="15%" class="table-left-cell">Name</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerName)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">Address</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantAddres)</td>
-            <td class="table-left-cell">Address</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerAddres)</td>
+            <td width="15%" class="table-left-cell">Address</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantAddres)</td>
+            <td width="15%" class="table-left-cell">Address</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerAddres)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">Postal code</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantPostalCode)</td>
-            <td class="table-left-cell">Postal code</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPostalCode)</td>
+            <td width="15%" class="table-left-cell">Postal code</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantPostalCode)</td>
+            <td width="15%" class="table-left-cell">Postal code</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPostalCode)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">City</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantCity)</td>
-            <td class="table-left-cell">City</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerCity)</td>
+            <td width="15%" class="table-left-cell">City</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantCity)</td>
+            <td width="15%" class="table-left-cell">City</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerCity)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">Country</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantCountry)</td>
-            <td class="table-left-cell">Country</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerCountry)</td>
+            <td width="15%" class="table-left-cell">Country</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantCountry)</td>
+            <td width="15%" class="table-left-cell">Country</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerCountry)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">VAT no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantVatNo)</td>
-            <td class="table-left-cell">Passport no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPassport)</td>
+            <td width="15%" class="table-left-cell">VAT no.</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantVatNo)</td>
+            <td width="15%" class="table-left-cell">Passport no.</td>
+            <td width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPassport)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">Phone no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantPhone)</td>
-            <td class="table-left-cell">Phone no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPhone)</td>
+            <td width="15%" class="table-left-cell">Phone no.</td>
+            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantPhone)</td>
+            <td width="15%" class="table-left-cell">Phone no.</td>
+            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerPhone)</td>
         </tr>
         <tr class="table-row">
-            <td class="table-left-cell">E-mail</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantEmail)</td>
-            <td class="table-left-cell">E-mail</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
+            <td width="15%" class="table-left-cell">E-mail</td>
+            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.MerchantEmail)</td>
+            <td width="15%" class="table-left-cell">E-mail</td>
+            <td width="35%" width="35%" class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
         </tr>
+    </table>
+    <table class="vat-table">
         <tr class="table-row">
             <th class="table-full-header" colspan="4">PURCHASE ACCORDING TO ORIGINAL RECEIPT</th>
         </tr>

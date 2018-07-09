@@ -1,46 +1,35 @@
 ﻿@model Refundeo.Core.Models.RefundCase.VatFormModel
 
 <style xmlns="http://www.w3.org/1999/html">
-    body {
-        font-size: 15pt
-    }
+    body { font-size: 15pt }
 
     .table-left-cell {
         height: 15px;
+        width: 15%;
     }
 
     .table-right-cell {
         height: 15px;
+        width: 35%;
     }
 
-    .table-row {
-        height: 15px;
-    }
+    .table-row { height: 15px; }
 
-    .table-header {
-        background-color: #d3d3d3;
-    }
+    .table-header { background-color: #d3d3d3; }
 
     .table-full-header {
         background-color: #d3d3d3;
         height: 15px;
     }
 
-    .table-large-cell {
-        height: 15px;
-    }
+    .table-large-cell { height: 15px; }
 
     .table-top-cell {
         height: 100px;
         vertical-align: top;
     }
 
-    .table-full-cell {
-        height: 15px;
-    }
-
-    .table-signature-row {
-    }
+    .table-full-cell { height: 15px; }
 
     .vat-table th, .vat-table td {
         border: 1px solid black;
@@ -70,13 +59,9 @@
         vertical-align: top;
     }
 
-    .table-tight-large-cell {
-        width: 50%;
-    }
+    .table-tight-large-cell { width: 50%; }
 
-    .table-left-small-image {
-        height: 100px;
-    }
+    .table-left-small-image { height: 100px; }
 
     .title-image {
         width: 70%;
@@ -86,14 +71,13 @@
     }
 
     .title-container {
-        width: 100%
+        width: 100%;
+        margin: 0;
     }
 
     .title-border {
-        border: 0 solid;
+        border-bottom: 1px solid;
         width: 25%;
-        border-bottom-width: 1px;
-        display: block;
         margin-left: auto;
         margin-right: auto;
     }
@@ -104,13 +88,9 @@
         font-size: 15px;
     }
 
-    .table-signature-text {
-        text-align: center;
-    }
+    .table-signature-text { text-align: center; }
 
-    .table-signature {
-        height: 50px;
-    }
+    .table-signature { height: 50px; }
 
     .left-container {
         width: 50%;
@@ -122,13 +102,9 @@
         float: right;
     }
 
-    .inner-container {
-        margin: 10px;
-    }
+    .inner-container { margin: 10px; }
 
-    .text-body {
-        font-size: 15px;
-    }
+    .text-body { font-size: 15px; }
 
     .text-headline {
         font-weight: bold;
@@ -160,227 +136,236 @@
 </style>
 
 <div class="container">
-    <div class="title-container">
-        <div class="title-border">
-            <img class="title-image"
-                 src="https://refundeo20180331121625.blob.core.windows.net/publicimages/refundeo_banner_small_border_no_alpha.png">
-        </div>
-        <p class="title-text">
-            <strong>YOUR TAX REFUND - TAX FREE FORM #@Html.DisplayFor(model => model.ReceiptNumber)</strong>
-        </p>
+<div class="title-container">
+    <div class="title-border">
+        <img class="title-image"
+             src="https://refundeo20180331121625.blob.core.windows.net/publicimages/refundeo_banner_small_border_no_alpha.png">
     </div>
-    <table class="vat-table">
-        <tr class="table-row">
-            <th class="table-header" colspan="2">
-                <strong>RETAILER</strong>
-            </th>
-            <th class="table-header" colspan="2">
-                <strong>CUSTOMER</strong>
-            </th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">Name</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantName)</td>
-            <td class="table-left-cell">Name</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerName)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">Address</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantAddres)</td>
-            <td class="table-left-cell">Address</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerAddres)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">Postal code</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantPostalCode)</td>
-            <td class="table-left-cell">Postal code</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPostalCode)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">City</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantCity)</td>
-            <td class="table-left-cell">City</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerCity)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">Country</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantCountry)</td>
-            <td class="table-left-cell">Country</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerCountry)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">VAT no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantVatNo)</td>
-            <td class="table-left-cell">Passport no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPassport)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">Phone no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantPhone)</td>
-            <td class="table-left-cell">Phone no.</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPhone)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-left-cell">E-mail</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantEmail)</td>
-            <td class="table-left-cell">E-mail</td>
-            <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
-        </tr>
-        <tr class="table-row">
-            <th class="table-full-header" colspan="4">PURCHASE ACCORDING TO ORIGINAL RECEIPT</th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">Receipt no.</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.ReceiptNumber)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">Purchase date</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Date)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">Total price of goods (Incl. VAT)</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Amount)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" colspan="2">VAT amount</td>
-            <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.VatAmount)</td>
-        </tr>
-        <tr class="table-row">
-            <td class="table-large-cell" style="font-weight: bold;" colspan="2">Refunded</td>
-            <td class="table-large-cell" style="font-weight: bold;" colspan="2">@Html.DisplayFor(model =>
+    <p class="title-text">
+        <strong>YOUR TAX REFUND - TAX FREE FORM #@Html.DisplayFor(model => model.ReceiptNumber)</strong>
+    </p>
+</div>
+<table class="vat-table">
+    <tr class="table-row">
+        <th class="table-header" colspan="2">
+            <strong>RETAILER</strong>
+        </th>
+        <th class="table-header" colspan="2">
+            <strong>CUSTOMER</strong>
+        </th>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">Name</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantName)</td>
+        <td class="table-left-cell">Name</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerName)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">Address</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantAddres)</td>
+        <td class="table-left-cell">Address</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerAddres)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">Postal code</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantPostalCode)</td>
+        <td class="table-left-cell">Postal code</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPostalCode)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">City</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantCity)</td>
+        <td class="table-left-cell">City</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerCity)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">Country</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantCountry)</td>
+        <td class="table-left-cell">Country</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerCountry)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">VAT no.</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantVatNo)</td>
+        <td class="table-left-cell">Passport no.</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPassport)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">Phone no.</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantPhone)</td>
+        <td class="table-left-cell">Phone no.</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerPhone)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-left-cell">E-mail</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.MerchantEmail)</td>
+        <td class="table-left-cell">E-mail</td>
+        <td class="table-right-cell">@Html.DisplayFor(model => model.CustomerEmail)</td>
+    </tr>
+</table>
+<table>
+    <tr class="table-row">
+        <th class="table-full-header" colspan="4">PURCHASE ACCORDING TO ORIGINAL RECEIPT</th>
+    </tr>
+    <tr class="table-row">
+        <td class="table-large-cell" colspan="2">Receipt no.</td>
+        <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.ReceiptNumber)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-large-cell" colspan="2">Purchase date</td>
+        <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Date)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-large-cell" colspan="2">Total price of goods (Incl. VAT)</td>
+        <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.Amount)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-large-cell" colspan="2">VAT amount</td>
+        <td class="table-large-cell" colspan="2">@Html.DisplayFor(model => model.VatAmount)</td>
+    </tr>
+    <tr class="table-row">
+        <td class="table-large-cell" style="font-weight: bold;" colspan="2">Refunded</td>
+        <td class="table-large-cell" style="font-weight: bold;" colspan="2">
+            @Html.DisplayFor(model =>
                 model.RefundAmount)
-            </td>
-        </tr>
-        <tr class="table-row">
-            <th class="table-full-header" colspan="4">SOLEMN DECLARATION</th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-full-cell" style="font-style: italic; text-align: center; font-size: 15px;" colspan="4">
-                The customer has provided a passport copy, documenting outside-EU residence, for which reason the
-                customer
-                is eligible for a VAT refund. This form is generated automatically based on entries made by both
-                retailer
-                and customer. Both parties thus agree that the entered information is correct and in accordance to the
-                original purchase and receipt.
-            </td>
-        </tr>
-        <tr class="table-signature-row">
-            <td class="table-top-cell table-signature-text" colspan="2">Reatailer signature
-                <div>
-                    <img class="table-signature"
-                         src="data:image/png;base64,@Html.DisplayFor(model => model.MerchantSignature)"/>
-                </div>
-                <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
-            </td>
-            <td class="table-top-cell table-signature-text" colspan="2">Customer signature
-                <div>
-                    <img class="table-signature"
-                         src="data:image/png;base64,@Html.DisplayFor(model => model.CustomerSignature)"/>
-                </div>
-                <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
-            </td>
-        </tr>
-    </table>
-    <table class="vat-table">
-        <tr class="table-row">
-            <th class="table-tight-header" colspan="3">EXPORT VALIDATION - ONLY FOR OFFICIAL USE</th>
-            <th class="table-tight-header" colspan="1">YOUR QR CODE</th>
-        </tr>
-        <tr class="table-row">
-            <td class="table-tight-left-cell">STAMP HERE
-            </td>
-            <td class="table-tight-large-cell" colspan="2">
-                <div>
-                    <p style="text-align: center; font-style: italic;">Optional</p>
-                    <p style="border-bottom: 1px dashed; padding-top: 10px">Date and place of export</p>
-                    <p style="border-bottom: 1px dashed; padding-top: 10px">Customs officer signature</p>
-                </div>
-            </td>
-            <td class="table-tight-cell">
-                <img class="table-left-small-image"
-                     src="data:image/png;base64,@Html.DisplayFor(model => model.QrCode)"/>
-            </td>
-        </tr>
-    </table>
-    <div class="left-container">
-        <div class="inner-container">
-    <span class="text-headline">
-    General instructions
-    </span>
-            <br/>
-            <span class="text-body">
-    Refundeo ApS provides stores/retailers with a solution for managing value-added-tax (VAT) refunds, delivering
-    validated documentation of export effortlessly to retailers for bookkeeping and subsequent tax-exemption in exchange
-    for the VAT, which we in turn refund the customer. For this reason it is essential that the customer keeps original
-    receipt and prints a copy of this Tax Free form (TFF) for validation by local Customs at the last exit point when
-    leaving the EU. When the customer has obtained a validation stamp, on either the original receipt or a copy of this
-    TFF, these documents are uploaded using the Refundeo app, and then are cross-checked to ensure eligibility. Upon
-    approval, the customer is refunded through the Refundeo app. See the in-app guide for further instructions, or feel
-    free to contact us if any questions arise.
-    </span>
-            <br/>
-            <span class="text-headline">
-    Details regarding the refund
-    </span>
-            <br/>
-            <span class="text-body">
-    The customer will recieve an e-mail with the outcome of the cross-check, within five (5) business days. If eligible,
-    the VAT refund will executed subsequently after the approval. NB. Always make sure your in-app payout details are up
-    to date. Depending on your choice of payout, there may be a delay before the refund is registered by your bank. The
-    refund recieved by the customer is the total VAT amount, reduced by the individual retailers administrations costs
-    and our service fee.
-    </span>
-            <br/>
-            <span class="text-headline">
-    Privacy and use of personal information
-    </span>
-            <br/>
-            <span class="text-body">
-    Your privacy is important to us. To read more about what personal information we collect, how we use it, and what we
-    do to keep it safe, please see our app or visit our website, www.refundeo.com/privacy.
-    </span>
-        </div>
+        </td>
+    </tr>
+    <tr class="table-row">
+        <th class="table-full-header" colspan="4">SOLEMN DECLARATION</th>
+    </tr>
+    <tr class="table-row">
+        <td class="table-full-cell" style="font-style: italic; text-align: center; font-size: 15px;" colspan="4">
+            The customer has provided a passport copy, documenting outside-EU residence, for which reason the
+            customer
+            is eligible for a VAT refund. This form is generated automatically based on entries made by both
+            retailer
+            and customer. Both parties thus agree that the entered information is correct and in accordance to the
+            original purchase and receipt.
+        </td>
+    </tr>
+    <tr class="table-signature-row">
+        <td class="table-top-cell table-signature-text" colspan="2">
+            Reatailer signature
+            <div>
+                <img class="table-signature"
+                     src="data:image/png;base64,@Html.DisplayFor(model => model.MerchantSignature)"/>
+            </div>
+            <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
+        </td>
+        <td class="table-top-cell table-signature-text" colspan="2">
+            Customer signature
+            <div>
+                <img class="table-signature"
+                     src="data:image/png;base64,@Html.DisplayFor(model => model.CustomerSignature)"/>
+            </div>
+            <span class="table-signature-text">@Html.DisplayFor(model => model.Date)</span>
+        </td>
+    </tr>
+</table>
+<table class="vat-table">
+    <tr class="table-row">
+        <th class="table-tight-header" colspan="3">EXPORT VALIDATION - ONLY FOR OFFICIAL USE</th>
+        <th class="table-tight-header" colspan="1">YOUR QR CODE</th>
+    </tr>
+    <tr class="table-row">
+        <td class="table-tight-left-cell">
+            STAMP HERE
+        </td>
+        <td class="table-tight-large-cell" colspan="2">
+            <div>
+                <p style="text-align: center; font-style: italic;">Optional</p>
+                <p style="border-bottom: 1px dashed; padding-top: 10px">Date and place of export</p>
+                <p style="border-bottom: 1px dashed; padding-top: 10px">Customs officer signature</p>
+            </div>
+        </td>
+        <td class="table-tight-cell">
+            <img class="table-left-small-image"
+                 src="data:image/png;base64,@Html.DisplayFor(model => model.QrCode)"/>
+        </td>
+    </tr>
+</table>
+<div class="left-container">
+    <div class="inner-container">
+        <span class="text-headline">
+            General instructions
+        </span>
+        <br/>
+        <span class="text-body">
+            Refundeo ApS provides stores/retailers with a solution for managing value-added-tax (VAT) refunds, delivering
+            validated documentation of export effortlessly to retailers for bookkeeping and subsequent tax-exemption in exchange
+            for the VAT, which we in turn refund the customer. For this reason it is essential that the customer keeps original
+            receipt and prints a copy of this Tax Free form (TFF) for validation by local Customs at the last exit point when
+            leaving the EU. When the customer has obtained a validation stamp, on either the original receipt or a copy of this
+            TFF, these documents are uploaded using the Refundeo app, and then are cross-checked to ensure eligibility. Upon
+            approval, the customer is refunded through the Refundeo app. See the in-app guide for further instructions, or feel
+            free to contact us if any questions arise.
+        </span>
+        <br/>
+        <span class="text-headline">
+            Details regarding the refund
+        </span>
+        <br/>
+        <span class="text-body">
+            The customer will recieve an e-mail with the outcome of the cross-check, within five (5) business days. If eligible,
+            the VAT refund will executed subsequently after the approval. NB. Always make sure your in-app payout details are up
+            to date. Depending on your choice of payout, there may be a delay before the refund is registered by your bank. The
+            refund recieved by the customer is the total VAT amount, reduced by the individual retailers administrations costs
+            and our service fee.
+        </span>
+        <br/>
+        <span class="text-headline">
+            Privacy and use of personal information
+        </span>
+        <br/>
+        <span class="text-body">
+            Your privacy is important to us. To read more about what personal information we collect, how we use it, and what we
+            do to keep it safe, please see our app or visit our website, www.refundeo.com/privacy.
+        </span>
     </div>
-    <div class="right-container">
-        <div class="inner-container">
-    <span class="text-headline">
-        Limitation of liability
-    </span>
-            <br/>
-            <span class="text-body">
-    In no event shall Refundeo ApS be liable for losses, or similar, rejection of VAT refunds by Customs, or to any
-    claims regarding the purchased good(s), regardless of whether Refundeo ApS or a Refundeo ApS authorized
-        representative have been notified orally or in writing of the possibility of such damage.
-    </span>
-            <br/>
-            <span class="text-headline">
-        Right of withdrawal
-    </span>
-            <br/>
-            <span class="text-body">In the event of retailers breach of contract, we reserve the right to reverse the payout and claim back the refunded
-    VAT. This also applies to cases, where the relevant Tax Authorities don’t approve of the export validation and
-    reject the VAT-free filing of the purchase, in which case we also reserve the right to claim back the refunded VAT,
-    to be returned to respective retailer, regardless of which party, the shopper, the retailer or Refundeo ApS, carries
-    the fault.
-    </span>
-            <br/>
-            <span class="text-headline">
-    Customer extension of solemn declaration
-    </span>
-            <br/>
-            <span class="text-body">
-    Refund of value-added-taxes is a scheme available only to shoppers in the EU who fulfil certain criteria. Therefore,
-    by using and downloading the Refundeo app you solemnly declare that you are eligible for a VAT refund and fulfil
-    respective prerequisites. Further, by using the app you declare that any information filled in the app, summerized
-    in the above TFF and any materials uploaded to the app is complete, genuine and true as of today.
-    For our complete terms of use, please see the refundeo app or visit our website at www.refundeo.com/terms. If you
-    have any questions, or need support, don’t hesitate to contact us according to information below. We are ready to
-    help you 24/7!
-    </span>
-        </div>
+</div>
+<div class="right-container">
+    <div class="inner-container">
+        <span class="text-headline">
+            Limitation of liability
+        </span>
+        <br/>
+        <span class="text-body">
+            In no event shall Refundeo ApS be liable for losses, or similar, rejection of VAT refunds by Customs, or to any
+            claims regarding the purchased good(s), regardless of whether Refundeo ApS or a Refundeo ApS authorized
+            representative have been notified orally or in writing of the possibility of such damage.
+        </span>
+        <br/>
+        <span class="text-headline">
+            Right of withdrawal
+        </span>
+        <br/>
+        <span class="text-body">
+            In the event of retailers breach of contract, we reserve the right to reverse the payout and claim back the refunded
+            VAT. This also applies to cases, where the relevant Tax Authorities don’t approve of the export validation and
+            reject the VAT-free filing of the purchase, in which case we also reserve the right to claim back the refunded VAT,
+            to be returned to respective retailer, regardless of which party, the shopper, the retailer or Refundeo ApS, carries
+            the fault.
+        </span>
+        <br/>
+        <span class="text-headline">
+            Customer extension of solemn declaration
+        </span>
+        <br/>
+        <span class="text-body">
+            Refund of value-added-taxes is a scheme available only to shoppers in the EU who fulfil certain criteria. Therefore,
+            by using and downloading the Refundeo app you solemnly declare that you are eligible for a VAT refund and fulfil
+            respective prerequisites. Further, by using the app you declare that any information filled in the app, summerized
+            in the above TFF and any materials uploaded to the app is complete, genuine and true as of today.
+            For our complete terms of use, please see the refundeo app or visit our website at www.refundeo.com/terms. If you
+            have any questions, or need support, don’t hesitate to contact us according to information below. We are ready to
+            help you 24/7!
+        </span>
     </div>
-    <div id="footer">
-        <span
-            class="footer-text">REFUNDEO APS  |  CVR 39710293  |  (+45) 52 30 60 35  |  CONTACT@REFUNDEO.COM  |  </span>
-    </div>
+</div>
+<div id="footer">
+    <span
+        class="footer-text">
+        REFUNDEO APS | CVR 39710293 | (+45) 52 30 60 35 | CONTACT@REFUNDEO.COM |
+    </span>
+</div>
 </div>
