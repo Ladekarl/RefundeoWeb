@@ -131,7 +131,7 @@ namespace Refundeo.Core.Services
                 MerchantVatNo = refundCase.MerchantInformation.VATNumber,
                 ReceiptNumber = refundCase.ReceiptNumber,
                 RefundAmount = $"{refundCase.RefundAmount} {refundCase.MerchantInformation.Currency}",
-                VatAmount =  $"{refundCase.Amount * 0.20} {refundCase.MerchantInformation.Currency}",
+                VatAmount = $"{refundCase.Amount * 0.20} {refundCase.MerchantInformation.Currency}",
                 CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
                 MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature),
                 QrCode = await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode)
@@ -145,7 +145,8 @@ namespace Refundeo.Core.Services
                 {
                     ColorMode = ColorMode.Grayscale,
                     Orientation = Orientation.Portrait,
-                    PaperSize = PaperKind.A4,
+                    Margins = new MarginSettings {Top = 5},
+                    PaperSize = PaperKind.A4
                 },
                 Objects =
                 {
