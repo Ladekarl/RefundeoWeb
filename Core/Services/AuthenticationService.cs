@@ -350,23 +350,62 @@ namespace Refundeo.Core.Services
                 .Include(x => x.RefundCases)
                 .SingleOrDefaultAsync();
 
+            var merchantInformation = await _context.MerchantInformations
+                .Where(x => x.Merchant.Id == user.Id)
+                .Include(x => x.Address)
+                .Include(x => x.Location)
+                .Include(x => x.MerchantInformationTags)
+                .Include(x => x.OpeningHours)
+                .SingleOrDefaultAsync();
+
             if (customerInformation != null)
             {
-                if (!string.IsNullOrEmpty(customerInformation.QRCode))
-                    await _blobStorageService.DeleteAsync(new Uri(customerInformation.QRCode));
+                await DeleteCustomerAsync(customerInformation);
+            }
 
-                if (customerInformation.Address != null)
-                {
-                    _context.Addresses.Remove(customerInformation.Address);
-                }
-
-                await _refundCaseService.DeleteRefundCasesAsync(customerInformation.RefundCases);
-
-                _context.CustomerInformations.Remove(customerInformation);
-                await _context.SaveChangesAsync();
+            if (merchantInformation != null)
+            {
+                await DeleteMerchantAsync(merchantInformation);
             }
 
             return await _userManager.DeleteAsync(user);
+        }
+
+        public async Task DeleteCustomerAsync(CustomerInformation customerInformation)
+        {
+            if (!string.IsNullOrEmpty(customerInformation.QRCode))
+                await _blobStorageService.DeleteAsync(new Uri(customerInformation.QRCode));
+
+            if (customerInformation.Address != null)
+                _context.Addresses.Remove(customerInformation.Address);
+
+            await _refundCaseService.DeleteRefundCasesAsync(customerInformation.RefundCases);
+
+            _context.CustomerInformations.Remove(customerInformation);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteMerchantAsync(MerchantInformation merchantInformation)
+        {
+            if (!string.IsNullOrEmpty(merchantInformation.Banner))
+                await _blobStorageService.DeleteAsync(new Uri(merchantInformation.Banner));
+            if (!string.IsNullOrEmpty(merchantInformation.Logo))
+                await _blobStorageService.DeleteAsync(new Uri(merchantInformation.Logo));
+
+            if (merchantInformation.Address != null)
+                _context.Remove(merchantInformation.Address);
+
+            if (merchantInformation.Location != null)
+                _context.Remove(merchantInformation.Location);
+
+            _context.MerchantInformationTags.RemoveRange(merchantInformation.MerchantInformationTags);
+
+            _context.OpeningHours.RemoveRange(merchantInformation.OpeningHours);
+
+            await _refundCaseService.DeleteRefundCasesAsync(merchantInformation.RefundCases);
+
+            _context.MerchantInformations.Remove(merchantInformation);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<string> CreateAndSaveRefreshTokenAsync(RefundeoUser user)
