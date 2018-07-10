@@ -54,10 +54,6 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var refundCases = await _context.RefundCases
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Customer)
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
                 .Include(r => r.MerchantInformation)
@@ -73,7 +69,17 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
+            var dtos = new List<RefundCaseDto>();
+            foreach (var refundCase in refundCases)
+            {
+                refundCase.CustomerSignature = null;
+                refundCase.MerchantSignature = null;
+                refundCase.QRCode = null;
+                refundCase.CustomerInformation = null;
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
+            }
+
+            return new ObjectResult(dtos);
         }
 
         [HttpGet("{first}/{amount}/{sortBy}/{dir}/{filterBy}")]
@@ -97,10 +103,6 @@ namespace Refundeo.Controllers.Merchant
                 .CountAsync();
 
             query = query
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Customer)
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
                 .Include(r => r.MerchantInformation)
@@ -124,6 +126,10 @@ namespace Refundeo.Controllers.Merchant
             var dtos = new List<RefundCaseDto>();
             foreach (var refundCase in refundCases)
             {
+                refundCase.CustomerSignature = null;
+                refundCase.MerchantSignature = null;
+                refundCase.QRCode = null;
+                refundCase.CustomerInformation = null;
                 dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
             }
 
@@ -215,7 +221,7 @@ namespace Refundeo.Controllers.Merchant
                 ReceiptNumber = model.ReceiptNumber
             };
 
-            var refundCaseResult = await _context.RefundCases.AddAsync(refundCase);
+            await _context.RefundCases.AddAsync(refundCase);
 
             await _context.SaveChangesAsync();
 
@@ -243,14 +249,16 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.SaveChangesAsync();
 
-            var text = await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
-                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+            var text =
+                await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
+                await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _notificationService.SendNotificationAsync(customerInformation.Customer.Id, refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);
+            _notificationService.SendNotificationAsync(customerInformation.Customer.Id,
+                refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);
 
             _emailService.SendVATMail(ControllerContext, refundCase, customerInformation.Email);
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
+            return NoContent();
         }
 
         // Do Merchants ever need to put refund case? This would make it unsafe since clients could alter this.

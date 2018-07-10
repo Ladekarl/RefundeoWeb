@@ -1,8 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {RefundCasesService} from '../../../services';
 import {RefundCase} from '../../../models';
 import {ConfirmationService, SelectItem} from 'primeng/api';
-import {ElementRef} from '@angular/core';
 import {DataView} from 'primeng/dataview';
 
 @Component({

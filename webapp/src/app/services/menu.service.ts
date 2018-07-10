@@ -12,8 +12,8 @@ export class MenuService {
         iconClass: 'fa-home'
     }, {
         routerLink: '/refundcases',
-        displayName: 'Refund cases',
-        title: 'Refund Cases',
+        displayName: 'Refunds',
+        title: 'Refunds',
         iconClass: 'fa-exchange'
     }, {
         routerLink: '/docs',

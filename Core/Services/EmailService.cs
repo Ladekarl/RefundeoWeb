@@ -58,6 +58,7 @@ namespace Refundeo.Core.Services
             {
                 Subject = subject,
                 Body = body,
+                From = new MailAddress(_emailAccountOptionsAccessor.Value.Email, "Refundeo"),
                 IsBodyHtml = isHtml,
                 Attachments = {attachment}
             })

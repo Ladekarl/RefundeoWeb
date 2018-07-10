@@ -35,9 +35,6 @@ namespace Refundeo.Controllers.Merchant
                 .SelectMany(m => m.RefundCases.Where(c => c.CustomerInformation != null))
                 .Select(r => new
                 {
-                    r.CustomerInformation.Id,
-                    r.CustomerInformation.FirstName,
-                    r.CustomerInformation.LastName,
                     r.CustomerInformation.Country
                 }).ToListAsync();
 
