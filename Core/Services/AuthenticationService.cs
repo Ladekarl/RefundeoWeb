@@ -344,6 +344,7 @@ namespace Refundeo.Core.Services
             var customerInformation = await _context.CustomerInformations
                 .Where(x => x.Customer.Id == user.Id)
                 .Include(x => x.Address)
+                .Include(x => x.RefundCases)
                 .SingleOrDefaultAsync();
             if (customerInformation != null)
             {
@@ -353,6 +354,22 @@ namespace Refundeo.Core.Services
                 {
                     _context.Addresses.Remove(customerInformation.Address);
                 }
+
+                foreach (var refundCase in customerInformation.RefundCases)
+                {
+                    if (!string.IsNullOrEmpty(refundCase.QRCode))
+                        await _blobStorageService.DeleteAsync(new Uri(refundCase.QRCode));
+                    if (!string.IsNullOrEmpty(refundCase.ReceiptImage))
+                        await _blobStorageService.DeleteAsync(new Uri(refundCase.ReceiptImage));
+                    if (!string.IsNullOrEmpty(refundCase.VATFormImage))
+                        await _blobStorageService.DeleteAsync(new Uri(refundCase.VATFormImage));
+                    if (!string.IsNullOrEmpty(refundCase.CustomerSignature))
+                        await _blobStorageService.DeleteAsync(new Uri(refundCase.CustomerSignature));
+                    if (!string.IsNullOrEmpty(refundCase.MerchantSignature))
+                        await _blobStorageService.DeleteAsync(new Uri(refundCase.MerchantSignature));
+                }
+
+                _context.RemoveRange(customerInformation.RefundCases);
 
                 _context.CustomerInformations.Remove(customerInformation);
                 await _context.SaveChangesAsync();
