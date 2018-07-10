@@ -352,7 +352,8 @@ namespace Refundeo.Core.Services
 
             if (customerInformation != null)
             {
-                await _blobStorageService.DeleteAsync(new Uri(customerInformation.QRCode));
+                if (!string.IsNullOrEmpty(customerInformation.QRCode))
+                    await _blobStorageService.DeleteAsync(new Uri(customerInformation.QRCode));
 
                 if (customerInformation.Address != null)
                 {
