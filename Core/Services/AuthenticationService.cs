@@ -30,10 +30,12 @@ namespace Refundeo.Core.Services
         private readonly IUtilityService _utilityService;
         private readonly IBlobStorageService _blobStorageService;
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
+        private readonly IRefundCaseService _refundCaseService;
 
         public AuthenticationService(IConfiguration configuration, UserManager<RefundeoUser> userManager,
             SignInManager<RefundeoUser> signManager, RefundeoDbContext context, IUtilityService utilityService,
-            IBlobStorageService blobStorageService, IOptions<StorageAccountOptions> optionsAccessor)
+            IBlobStorageService blobStorageService, IOptions<StorageAccountOptions> optionsAccessor,
+            IRefundCaseService refundCaseService)
         {
             Configuration = configuration;
             _signManager = signManager;
@@ -42,6 +44,7 @@ namespace Refundeo.Core.Services
             _utilityService = utilityService;
             _blobStorageService = blobStorageService;
             _optionsAccessor = optionsAccessor;
+            _refundCaseService = refundCaseService;
         }
 
         public async Task<IdentityResult> UpdateRolesAsync(RefundeoUser user, ICollection<string> roles)
@@ -346,6 +349,7 @@ namespace Refundeo.Core.Services
                 .Include(x => x.Address)
                 .Include(x => x.RefundCases)
                 .SingleOrDefaultAsync();
+
             if (customerInformation != null)
             {
                 await _blobStorageService.DeleteAsync(new Uri(customerInformation.QRCode));
@@ -355,21 +359,7 @@ namespace Refundeo.Core.Services
                     _context.Addresses.Remove(customerInformation.Address);
                 }
 
-                foreach (var refundCase in customerInformation.RefundCases)
-                {
-                    if (!string.IsNullOrEmpty(refundCase.QRCode))
-                        await _blobStorageService.DeleteAsync(new Uri(refundCase.QRCode));
-                    if (!string.IsNullOrEmpty(refundCase.ReceiptImage))
-                        await _blobStorageService.DeleteAsync(new Uri(refundCase.ReceiptImage));
-                    if (!string.IsNullOrEmpty(refundCase.VATFormImage))
-                        await _blobStorageService.DeleteAsync(new Uri(refundCase.VATFormImage));
-                    if (!string.IsNullOrEmpty(refundCase.CustomerSignature))
-                        await _blobStorageService.DeleteAsync(new Uri(refundCase.CustomerSignature));
-                    if (!string.IsNullOrEmpty(refundCase.MerchantSignature))
-                        await _blobStorageService.DeleteAsync(new Uri(refundCase.MerchantSignature));
-                }
-
-                _context.RemoveRange(customerInformation.RefundCases);
+                await _refundCaseService.DeleteRefundCasesAsync(customerInformation.RefundCases);
 
                 _context.CustomerInformations.Remove(customerInformation);
                 await _context.SaveChangesAsync();

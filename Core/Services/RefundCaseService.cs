@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Models.RefundCase;
@@ -15,10 +17,15 @@ namespace Refundeo.Core.Services
     public class RefundCaseService : IRefundCaseService
     {
         private readonly IUtilityService _utilityService;
+        private readonly IBlobStorageService _blobStorageService;
+        private readonly RefundeoDbContext _context;
 
-        public RefundCaseService(IUtilityService utilityService)
+        public RefundCaseService(IUtilityService utilityService, IBlobStorageService blobStorageService,
+            RefundeoDbContext context)
         {
             _utilityService = utilityService;
+            _blobStorageService = blobStorageService;
+            _context = context;
         }
 
         public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases)
@@ -59,6 +66,27 @@ namespace Refundeo.Core.Services
                 CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
                 MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature)
             };
+        }
+
+        public async Task DeleteRefundCasesAsync(ICollection<RefundCase> refundCases)
+        {
+            foreach (var refundCase in refundCases)
+            {
+                if (!string.IsNullOrEmpty(refundCase.QRCode))
+                    await _blobStorageService.DeleteAsync(new Uri(refundCase.QRCode));
+                if (!string.IsNullOrEmpty(refundCase.ReceiptImage))
+                    await _blobStorageService.DeleteAsync(new Uri(refundCase.ReceiptImage));
+                if (!string.IsNullOrEmpty(refundCase.VATFormImage))
+                    await _blobStorageService.DeleteAsync(new Uri(refundCase.VATFormImage));
+                if (!string.IsNullOrEmpty(refundCase.CustomerSignature))
+                    await _blobStorageService.DeleteAsync(new Uri(refundCase.CustomerSignature));
+                if (!string.IsNullOrEmpty(refundCase.MerchantSignature))
+                    await _blobStorageService.DeleteAsync(new Uri(refundCase.MerchantSignature));
+            }
+
+            _context.RemoveRange(refundCases);
+
+            await _context.SaveChangesAsync();
         }
     }
 }
