@@ -19,5 +19,6 @@ namespace Refundeo.Core.Services.Interfaces
         Task<ObjectResult> RegisterUserAsync(RefundeoUser user, string password,
             CustomerInformation customerInformation, bool shouldCreateRefreshToken = false);
         Task<string> CreateAndSaveRefreshTokenAsync(RefundeoUser user);
+        Task<IdentityResult> DeleteUserAsync(RefundeoUser user);
     }
 }

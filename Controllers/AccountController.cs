@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -62,6 +63,7 @@ namespace Refundeo.Controllers
                 {
                     refreshToken = await _authenticationService.CreateAndSaveRefreshTokenAsync(user);
                 }
+
                 return await _authenticationService.GenerateTokenResultAsync(user, refreshToken);
             }
 
@@ -173,7 +175,8 @@ namespace Refundeo.Controllers
                 return _utilityService.GenerateBadRequestObjectResult($"Account with id={id} does not exist");
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            var result = await _authenticationService.DeleteUserAsync(user);
+
             if (!result.Succeeded)
             {
                 return _utilityService.GenerateBadRequestObjectResult(result.Errors);
@@ -223,6 +226,7 @@ namespace Refundeo.Controllers
 
         private static async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)
         {
+            // TODO Change to when facebook approves "https://graph.facebook.com/me?fields=id,first_name,last_name,email,location{location}&access_token="
             var path =
                 "https://graph.facebook.com/me?fields=id,first_name,last_name,email,location{location}&access_token=" +
                 accessToken;

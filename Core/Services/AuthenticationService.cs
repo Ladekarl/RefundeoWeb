@@ -339,6 +339,29 @@ namespace Refundeo.Core.Services
             return await GenerateTokenResultAsync(user, refreshToken);
         }
 
+        public async Task<IdentityResult> DeleteUserAsync(RefundeoUser user)
+        {
+            var customerInformation = await _context.CustomerInformations
+                .Where(x => x.Customer.Id == user.Id)
+                .Include(x => x.Address)
+                .SingleOrDefaultAsync();
+            if (customerInformation != null)
+            {
+                await _blobStorageService.DeleteAsync(_optionsAccessor.Value.QrCodesContainerNameOption,
+                    customerInformation.QRCode);
+
+                if (customerInformation.Address != null)
+                {
+                    _context.Addresses.Remove(customerInformation.Address);
+                }
+
+                _context.CustomerInformations.Remove(customerInformation);
+                await _context.SaveChangesAsync();
+            }
+
+            return await _userManager.DeleteAsync(user);
+        }
+
         public async Task<string> CreateAndSaveRefreshTokenAsync(RefundeoUser user)
         {
             var refreshToken = Guid.NewGuid() + user.UserName;
