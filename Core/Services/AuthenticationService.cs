@@ -371,7 +371,7 @@ namespace Refundeo.Core.Services
             return await _userManager.DeleteAsync(user);
         }
 
-        public async Task DeleteCustomerAsync(CustomerInformation customerInformation)
+        private async Task DeleteCustomerAsync(CustomerInformation customerInformation)
         {
             if (!string.IsNullOrEmpty(customerInformation.QRCode))
                 await _blobStorageService.DeleteAsync(new Uri(customerInformation.QRCode));
@@ -385,7 +385,7 @@ namespace Refundeo.Core.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteMerchantAsync(MerchantInformation merchantInformation)
+        private async Task DeleteMerchantAsync(MerchantInformation merchantInformation)
         {
             if (!string.IsNullOrEmpty(merchantInformation.Banner))
                 await _blobStorageService.DeleteAsync(new Uri(merchantInformation.Banner));

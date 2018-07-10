@@ -96,14 +96,16 @@ namespace Refundeo.Core.Services
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
 
-            await blockBlob.DeleteAsync();
+            if (await blockBlob.ExistsAsync())
+                await blockBlob.DeleteAsync();
         }
 
         public async Task DeleteAsync(Uri uri)
         {
             var blockBlob = GetBlockBlob(uri);
 
-            await blockBlob.DeleteAsync();
+            if (await blockBlob.ExistsAsync())
+                await blockBlob.DeleteAsync();
         }
 
         public async Task<bool> ExistsAsync(string containerName, string blobName)
