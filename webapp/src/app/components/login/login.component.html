@@ -1,40 +1,33 @@
-<div class="text-center" style="padding:50px 0">
-    <div class="logo">Login</div>
-    <div class="login-form-1">
-        <form id="login-form" class="text-left" (ngSubmit)="f.form.valid && login()" #f="ngForm" novalidate>
-            <div class="login-form-main-message"></div>
-            <div class="main-login-form">
-                <div class="login-group">
-                    <div class="form-group">
-                        <label for="lg_username" class="sr-only">Username</label>
-                        <input type="text" class="form-control" id="lg_username" name="lg_username"
-                               placeholder="username" [(ngModel)]="model.username"
-                               #username="ngModel" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="lg_password" class="sr-only">Password</label>
-                        <input type="password" class="form-control" id="lg_password" name="lg_password"
-                               placeholder="password" [(ngModel)]="model.password"
-                               #password="ngModel" required>
-                    </div>
-                    <div class="form-group login-group-checkbox">
-                        <input type="checkbox" id="lg_remember" name="lg_remember">
-                        <label for="lg_remember">remember</label>
-                    </div>
-                </div>
-                <button type="submit" class="login-button" [disabled]="loading">
-                    <i class="fa fa-chevron-right"></i>
-                </button>
-            </div>
-            <div class="etc-login-form">
-                <p>forgot your password?
-                    <a href="#">click here</a>
-                </p>
-                <p>new user?
-                    <a href="#">create new account</a>
-                </p>
-            </div>
-        </form>
+<div id="main">
+    <div id="header">
+        Login
     </div>
-    <!-- end:Main Form -->
+    <div class="login-container">
+        <div class="login-form-container">
+            <form class="text-left col-sm-4 offset-sm-4 login-form" (ngSubmit)="f.form.valid && login()" #f="ngForm"
+                  novalidate>
+                <div class="logo col-sm-12">
+                    <img [src]="bannerImageUrl" class="img-fluid" alt="image">
+                </div>
+                <p class="text-danger error-text">{{errorText}}</p>
+                <div class="form-group">
+                    <label for="lg_username" class="sr-only">Username</label>
+                    <input type="text" class="form-control" id="lg_username" name="lg_username"
+                           placeholder="username" [(ngModel)]="model.username"
+                           #username="ngModel" required>
+                </div>
+                <div class="form-group">
+                    <label for="lg_password" class="sr-only">Password</label>
+                    <input type="password" class="form-control" id="lg_password" name="lg_password"
+                           placeholder="password" [(ngModel)]="model.password"
+                           #password="ngModel" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="form-control col-sm-4 offset-sm-8" [disabled]="loading">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

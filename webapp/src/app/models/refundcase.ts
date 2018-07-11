@@ -7,7 +7,11 @@ export class RefundCase {
     refundAmount: number;
     isRequested: boolean;
     isAccepted: boolean;
-    documentation?: string;
+    isRejected: boolean;
+    receiptNumber: string;
+    receiptImage: string;
+    vatFormImage: string;
+    checked: boolean;
     dateCreated: Date;
     dateRequested: Date;
     merchant?: Merchant;

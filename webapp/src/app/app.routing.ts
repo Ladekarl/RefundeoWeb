@@ -14,11 +14,11 @@ const appRoutes: Routes = [
         children: [
             {
                 path: '',
-                component: DashboardComponent,
+                component: RefundCasesComponent,
                 canActivate: [AuthGuard]
             },
             {
-                path: 'refundcases',
+                path: 'refunds',
                 component: RefundCasesComponent,
                 canActivate: [AuthGuard]
             },

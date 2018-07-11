@@ -1,13 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
-using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
@@ -24,7 +23,6 @@ namespace Refundeo.Controllers.User
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly IEmailService _emailService;
-        private readonly INotificationService _notificationService;
 
         public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
@@ -37,7 +35,6 @@ namespace Refundeo.Controllers.User
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
             _emailService = emailService;
-            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -70,7 +67,21 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
+            var dtos = new List<RefundCaseDto>();
+            foreach (var refundCase in refundCases)
+            {
+                refundCase.CustomerSignature = null;
+                refundCase.MerchantSignature = null;
+                refundCase.QRCode = null;
+                if (refundCase.IsRequested)
+                {
+                    refundCase.ReceiptImage = null;
+                    refundCase.VATFormImage = null;
+                }
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
+            }
+
+            return new ObjectResult(dtos);
         }
 
         [HttpGet("{id}")]

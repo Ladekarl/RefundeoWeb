@@ -2,12 +2,16 @@ import {Injectable} from '@angular/core';
 import {RefundCase} from '../models';
 import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/Rx';
 
 @Injectable()
 export class RefundCasesService {
 
     constructor(private http: HttpClient) {
     }
+
+    refundCases: RefundCase[];
 
     private static mapDates(refundCases: RefundCase[]): RefundCase[] {
         if (refundCases) {
@@ -24,18 +28,42 @@ export class RefundCasesService {
         return refundCase;
     }
 
-    getAll() {
-        return this.http.get<RefundCase[]>('/api/merchant/refundcase').map(RefundCasesService.mapDates);
+    getAll(): Observable<RefundCase[]> {
+        if (!this.refundCases || this.refundCases.length === 0)
+            return this.http.get<RefundCase[]>('/api/merchant/refundcase').map(r => {
+                this.refundCases = RefundCasesService.mapDates(r);
+                return this.refundCases;
+            });
+        else
+            return Observable.of(this.refundCases);
     }
 
-    getPaginated(first: number, amount: number, sortBy: string, sortDir: string, filterBy: string) {
-        return this
-            .http
-            .get(`/api/merchant/refundcase/${first}/${amount}/${sortBy}/${sortDir}/${filterBy}`)
-            .map((r: any) => {
-                RefundCasesService.mapDates(r.refundCases);
-                return r;
+    resetRefundCases() {
+        this.refundCases = [];
+    }
+
+    getPaginated(sortBy: string, sortDir: string, filterBy: string): Observable<RefundCase[]> {
+        if (!this.refundCases || this.refundCases.length === 0)
+            return this.getAll().map(r => {
+                return this.filterRefundCases(r, sortBy, sortDir, filterBy);
             });
+        else
+            return Observable.of(this.filterRefundCases(this.refundCases, sortBy, sortDir, filterBy));
+    }
+
+    private filterRefundCases(refundCases: RefundCase[], sortBy: string, sortDir: string, filterBy: string) {
+        let filteredRefundCases = refundCases;
+        if (filterBy !== 'none')
+            filteredRefundCases = refundCases.filter(r => r[filterBy]);
+
+        filteredRefundCases = filteredRefundCases.sort((a, b) => {
+            switch (sortBy) {
+                case 'dateCreated':
+                case 'dateRequested':
+                    return sortDir === 'asc' ? (a > b ? -1 : a < b ? 1 : 0) : (a > b ? 1 : a < b ? -1 : 0);
+            }
+        });
+        return filteredRefundCases;
     }
 
     getById(id: number) {

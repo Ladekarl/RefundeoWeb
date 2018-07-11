@@ -1,12 +1,11 @@
 <div class="row">
     <div class="col-sm-6 text-center">
-        <span i18n>Claimed refund case countries</span>
+        <span i18n>Refunds by country</span>
         <p-chart type="pie" [data]="usersByCountry"></p-chart>
         Total claimed refundcases: {{totalRefundCases}}
     </div>
-    <div class="col-sm-6 text-center">
-        <span i18n>Customer Countries</span>
-        <p-chart type="pie" [data]="distinctUsersByCountry"></p-chart>
-        Total distinct customers: {{totalCustomers}}
+    <div class="col-sm-12 text-center">
+        <span i18n>Amount refunded by date</span>
+        <p-chart type="line" [data]="chartData"></p-chart>
     </div>
 </div>

@@ -1,93 +1,145 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {RefundCasesService} from '../../../services';
 import {RefundCase} from '../../../models';
 import {ConfirmationService, SelectItem} from 'primeng/api';
 import {DataView} from 'primeng/dataview';
+import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
+import * as JSZip from 'jszip';
+import * as FileSaver from 'file-saver';
 
 @Component({
     selector: 'app-refundcases',
     templateUrl: './refundcases.component.html',
     styleUrls: ['./refundcases.component.scss']
 })
-export class RefundCasesComponent {
+export class RefundCasesComponent implements OnInit {
     @ViewChild('refundCasesDataView') refundCasesDataView: DataView;
 
     refundCases: RefundCase[];
+    filteredRefundCases: RefundCase[];
+
+    sortOrderOptions: SelectItem[] = [
+        {label: 'Ascending', value: 1},
+        {label: 'Descending', value: -1}
+    ];
 
     sortOptions: SelectItem[] = [
-        {label: 'Newest', value: '!dateCreated'},
-        {label: 'Oldest', value: 'dateCreated'},
-        {label: 'Newest requested', value: '!dateRequested'},
-        {label: 'Oldest requested', value: 'dateRequested'},
-        {label: 'Status', value: '!isRequested'},
-        {label: 'Purchase amount', value: '!amount'},
-        {label: 'Refund amount', value: '!refundAmount'},
-        {label: 'Customer', value: 'customerinformation'},
-        {label: 'Documentation', value: '!documentation'}
+        {label: 'Date created', value: 'dateCreated'},
+        {label: 'Receipt number', value: 'receiptNumber'},
+        {label: 'Purchase amount', value: 'amount'},
+        {label: 'Refund amount', value: 'refundAmount'}
     ];
-    sortKey: string;
-    sortField = 'dateCreated';
-    sortOrder = 'desc';
+
+    sortField: string;
+    sortOrder: string;
+    sortKey = 'dateCreated';
+    sortOrderKey = -1;
+    filterField = 'none';
+    loading = false;
+    checkAll: boolean;
 
     filterOptions: SelectItem[] = [
         {label: 'None', value: 'none'},
+        {label: 'New', value: '!isRequested'},
         {label: 'Requested', value: 'isRequested'},
-        {label: 'Claimed', value: 'customerinformation'},
         {label: 'Accepted', value: 'isAccepted'},
-        {label: 'Documented', value: 'documentation'}
+        {label: 'Rejected', value: 'isRejected'}
     ];
-    filterKey: string;
-    filterField = 'none';
-    filterOrder = 'desc';
 
-    totalRecords: number;
-
-    constructor(private refundCasesService: RefundCasesService, private confirmationService: ConfirmationService) {
+    constructor(private refundCasesService: RefundCasesService, private confirmationService: ConfirmationService, private spinnerService: Ng4LoadingSpinnerService) {
     }
 
-    onSortChange(event) {
-        const value = event.value;
+    ngOnInit() {
+        this.loadData();
+    }
 
-        if (value.indexOf('!') === 0) {
-            this.sortOrder = 'desc';
-            this.sortField = value.substring(1, value.length);
-        } else {
-            this.sortOrder = 'asc';
-            this.sortField = value;
-        }
+
+    onSortChange(event) {
+        this.sortField = event.value;
+    }
+
+    onSortOrderChange(event) {
+        this.sortOrder = event.value;
     }
 
     onFilterChange(event) {
-        const value = event.value;
+        if (!this.refundCases) return;
 
-        if (value.indexOf('!') === 0) {
-            this.filterOrder = 'desc';
-            this.filterField = value.substring(1, value.length);
-        } else {
-            this.filterOrder = 'asc';
-            this.filterField = value;
+        let filterField = event.value;
+        let isNegated = false;
+
+        if (filterField.indexOf('!') === 0) {
+            filterField = filterField.substring(1, filterField.length);
+            isNegated = true;
         }
-        this.refundCasesDataView.sort();
+
+        if (filterField === 'none')
+            this.filteredRefundCases = this.refundCases;
+        else {
+            if (isNegated)
+                this.filteredRefundCases = this.refundCases.filter(r => !r[filterField]);
+            else
+                this.filteredRefundCases = this.refundCases.filter(r => r[filterField]);
+        }
     }
 
-    loadData(event) {
-        this.refundCasesService.getPaginated(event.first, event.rows, this.sortField, this.sortOrder, this.filterField)
-            .subscribe((response: any) => {
-                this.refundCases = response.refundCases;
-                this.totalRecords = response.totalRecords;
+    onCheckAllChange(event) {
+        this.refundCases.forEach(r => {
+            if (r.isRequested) {
+                r.checked = this.checkAll;
+            }
+            return r;
+        });
+    }
+
+    loadData() {
+        this.loading = true;
+        this.refundCasesService.getAll()
+            .subscribe((refundCases: RefundCase[]) => {
+                this.refundCases = refundCases.reverse();
+                this.loading = false;
+            }, () => {
+                this.loading = false;
             });
     }
 
-    accept(refundCase: RefundCase, accept: boolean) {
-        const sendObject: RefundCase = Object.assign({}, refundCase);
-        sendObject.isAccepted = accept;
-        this.confirmationService.confirm({
-            message: `Are you sure you want to ${accept ? 'accept' : 'reject'} this refund?`,
-            accept: () => {
-                this.refundCasesService.accept(sendObject).subscribe(data => {
-                    refundCase.isAccepted = accept;
-                });
+    downloadCheckedPressed() {
+        let zip = new JSZip();
+        let shouldMakeZip = false;
+        this.loading = true;
+        this.refundCases.forEach(r => {
+            if (r.checked) {
+                let folder = zip.folder(r.dateCreated.toLocaleDateString().replace(new RegExp('/', 'g'), '_'));
+                if (r.receiptImage) {
+                    folder.file(r.receiptNumber + '_receipt.png', r.receiptImage, {base64: true});
+                }
+                if (r.vatFormImage) {
+                    folder.file(r.receiptNumber + '_vatform.png', r.vatFormImage, {base64: true});
+                }
+                shouldMakeZip = true;
             }
+        });
+        if (shouldMakeZip) {
+            zip.generateAsync({type: 'blob'}).then((blob) => {
+                FileSaver.saveAs(blob, 'refundeo.zip');
+                this.loading = false;
+            }).catch(() => {
+                this.loading = false;
+            });
+        }
+    }
+
+    downloadPressed(refundCase) {
+        let zip = new JSZip();
+        if (refundCase.receiptImage) {
+            zip.file(refundCase.receiptNumber + '_receipt.png', refundCase.receiptImage, {base64: true});
+        }
+        if (refundCase.vatFormImage) {
+            zip.file(refundCase.receiptNumber + '_vatform.png', refundCase.vatFormImage, {base64: true, });
+        }
+
+        zip.generateAsync({type: 'blob'}).then((blob) => {
+            FileSaver.saveAs(blob, refundCase.dateCreated.toLocaleDateString() + '.zip');
         });
     }
 }

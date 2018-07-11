@@ -22,6 +22,7 @@ import {ChartModule} from 'primeng/chart';
 import {DropdownModule} from 'primeng/dropdown';
 import {registerLocaleData} from '@angular/common';
 import localeDa from '@angular/common/locales/da';
+import {Ng4LoadingSpinnerModule} from 'ng4-loading-spinner';
 
 registerLocaleData(localeDa, 'da');
 
@@ -45,7 +46,8 @@ registerLocaleData(localeDa, 'da');
         HttpClientModule,
         ChartModule,
         HttpModule,
-        routing
+        routing,
+        Ng4LoadingSpinnerModule.forRoot()
     ],
     providers: [
         {provide: LOCALE_ID, useValue: 'da'},

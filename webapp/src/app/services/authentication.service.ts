@@ -4,13 +4,15 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CurrentUser} from '../models/currentUser';
+import {RefundCasesService} from './refundcases.service';
+import {CustomerInfoService} from './customerinfo.service';
 
 @Injectable()
 export class AuthenticationService {
 
     jwtHelperService: JwtHelperService;
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private refundCasesService: RefundCasesService, private customerInfoService: CustomerInfoService) {
         this.jwtHelperService = new JwtHelperService();
     }
 
@@ -70,6 +72,8 @@ export class AuthenticationService {
 
     logout() {
         localStorage.removeItem('currentUser');
+        this.refundCasesService.resetRefundCases();
+        this.customerInfoService.resetCustomerInfos();
     }
 
     private setCurrentUser(currentUser: CurrentUser) {

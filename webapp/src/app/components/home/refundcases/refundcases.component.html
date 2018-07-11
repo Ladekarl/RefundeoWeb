@@ -1,77 +1,116 @@
-<p-dataView [value]="refundCases" #refundCasesDataView [paginator]="totalRecords > 10" [rows]="10"
-            paginatorPosition="bottom" [lazy]="true" (onLazyLoad)="loadData($event)"
-            [totalRecords]="totalRecords" [sortField]="sortField" [sortOrder]="sortOrder" [filterBy]="filterField"
-            [rowsPerPageOptions]="[5,10,20,50,100]">
-    <p-header>
-        <div class="ui-helper-clearfix header-row">
-            <div class="ui-g">
-                <div class="ui-g-6">
-                    <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By"
-                                (onChange)="onSortChange($event)" [autoWidth]="false"
-                                [style]="{'min-width':'15em'}"></p-dropdown>
+<div class="dataview-container">
+    <p-dataView [value]="filteredRefundCases != null ? filteredRefundCases: refundCases"
+                #refundCasesDataView [paginator]="true" [rows]="10"
+                paginatorPosition="bottom" [sortField]="sortKey" [loading]="loading"
+                [sortOrder]="sortOrderKey" [filterBy]="'receiptNumber'"
+                [rowsPerPageOptions]="[5,10,20,50,100]">
+        <p-header>
+            <div class="ui-helper-clearfix header-row">
+                <div class="ui-g">
+                    <div class="ui-g-3">
+                        <span>Sort By:</span><br/>
+                        <p-dropdown [options]="sortOptions" placeholder="Sort By"
+                                    [(ngModel)]="sortKey" (onChange)="onSortChange($event)" [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Sort Order:</span><br/>
+                        <p-dropdown [options]="sortOrderOptions" placeholder="Sort Order"
+                                    [(ngModel)]="sortOrderKey" (onChange)="onSortOrderChange($event)"
+                                    [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Filter by:</span><br/>
+                        <p-dropdown [options]="filterOptions" placeholder="Filter by"
+                                    (onChange)="onFilterChange($event)"
+                                    [(ngModel)]="filterField"
+                                    [autoWidth]="false" [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Search by Receipt Number:</span><br/>
+                        <input type="search" class="form-control search-field" placeholder="Search"
+                               (keyup)="refundCasesDataView.filter($event.target.value)">
+                    </div>
                 </div>
-                <div class="ui-g-6">
-                    <p-dropdown [options]="filterOptions" [(ngModel)]="filterKey" placeholder="Filter By"
-                                (onChange)="onFilterChange($event)"
-                                [autoWidth]="false" [style]="{'min-width':'15em'}"></p-dropdown>
-                </div>
-                {{totalRecords}}
             </div>
+            <div class="ui-helper-clearfix header-row">
+                <div class="ui-g">
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Created</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Receipt number</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Purchase Amount</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Refund Amount</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Status</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Uploads</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col checkbox-field">
+                        <input type="checkbox"
+                               class="checkbox"
+                               (change)="onCheckAllChange($event)"
+                               [(ngModel)]="checkAll"
+                        >
+                    </div>
+                </div>
+            </div>
+        </p-header>
+        <ng-template let-refundCase let-i="index" pTemplate="listItem">
+            <div class="ui-g table-row">
+                <div class="ui-g-2 ui-md-2 table-col">
+                    {{refundCase.dateCreated | date:'short'}}
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col">
+                    {{refundCase.receiptNumber}}
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col">
+                    {{refundCase.amount | number : '1.2-2'}}
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col">
+                    <b>{{refundCase.refundAmount | number : '1.2-2'}}</b>
+                </div>
+                <div *ngIf="refundCase.isRequested" class="ui-g-2 ui-md-2 table-col">
+                    <div *ngIf="refundCase.isAccepted">
+                        <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
+                    </div>
+                    <div *ngIf="!refundCase.isAccepted">
+                        <div class="ui-g-12 ui-sm-12 text-primary" i18n>Requested</div>
+                    </div>
+                    <div *ngIf="!refundCase.isRequested" class="ui-g-2 ui-md-2 table-col" i18n>
+                        Not requested
+                    </div>
+                    <div *ngIf="refundCase.isRejected" class="ui-g-2 ui-md-2 table-col text-danger" i18n>
+                        Rejected
+                    </div>
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col" *ngIf="!refundCase.isRequested">
+                    New
+                </div>
+                <div class="ui-g-1 ui-md-1 table-col">
+                    <button *ngIf="refundCase.isRequested" class="btn"><i class="fa fa-download"
+                                                                          (click)="downloadPressed(refundCase)"></i>
+                    </button>
+                </div>
+                <div class="ui-g-1 ui-md-1 checkbox-field">
+                    <input *ngIf="refundCase.isRequested" type="checkbox" class="checkbox"
+                           [(ngModel)]="refundCase.checked">
+                </div>
+            </div>
+        </ng-template>
+    </p-dataView>
+    <div class="col-sm-12">
+        <div class="col-sm-1 offset-11 download-button">
+            <button class="btn download-text"><i class="fa fa-download" (click)="downloadCheckedPressed()"></i> Download checked
+            </button>
         </div>
-        <div class="ui-helper-clearfix header-row">
-            <div class="ui-g">
-                <div class="ui-g-1 ui-md-1 header-col">
-                    <b i18n>Created</b>
-                </div>
-                <div class="ui-g-2 ui-md-2 header-col">
-                    <b i18n>Purchase Amount</b>
-                </div>
-                <div class="ui-g-2 ui-md-2 header-col">
-                    <b i18n>Refund Amount</b>
-                </div>
-                <div class="ui-g-2 ui-md-2 header-col">
-                    <b i18n>Documentation</b>
-                </div>
-                <div class="ui-g-2 ui-md-2 header-col">
-                    <b i18n>Status</b>
-                </div>
-                <div class="ui-g-1 ui-md-1 header-col">
-                    <b i18n>Requested</b>
-                </div>
-            </div>
-        </div>
-    </p-header>
-    <ng-template let-refundCase pTemplate="listItem">
-        <div class="ui-g table-row">
-            <div class="ui-g-1 ui-md-1 table-col">
-                {{refundCase.dateCreated | date:'short'}}
-            </div>
-            <div class="ui-g-2 ui-md-2 table-col">
-                {{refundCase.amount}}
-            </div>
-            <div class="ui-g-2 ui-md-2 table-col">
-                <b>{{refundCase.refundAmount}}</b>
-            </div>
-            <div class="ui-g-2 ui-md-2 table-col">
-                <img *ngIf="refundCase.documentation" class="img-fluid"
-                     [src]="'data:image/png;base64,' + refundCase.documentation"/>
-                <span *ngIf="!refundCase.documentation" class="text-danger" i18n>No documentation</span>
-            </div>
-            <div *ngIf="refundCase.isRequested" class="ui-g-2 ui-md-2 table-col">
-                <div *ngIf="refundCase.isAccepted">
-                    <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
-                </div>
-                <div *ngIf="!refundCase.isAccepted">
-                    <div class="ui-g-12 ui-sm-12 text-danger" i18n>Requested</div>
-                </div>
-            </div>
-            <div *ngIf="!refundCase.isRequested" class="ui-g-2 ui-md-2 table-col text-danger" i18n>
-                Not requested
-            </div>
-            <div class="ui-g-1 ui-md-1 table-col">
-                <span *ngIf="refundCase.isRequested">{{refundCase.dateRequested | date:'short'}}</span>
-                <span *ngIf="!refundCase.isRequested" class="text-danger" i18n> Not requested</span>
-            </div>
-        </div>
-    </ng-template>
-</p-dataView>
+    </div>
+</div>
