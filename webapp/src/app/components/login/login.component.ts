@@ -54,7 +54,9 @@ export class LoginComponent implements OnInit {
         this.spinnerService.show();
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(() => {
-                this.getInitialData();
+                if (this.authenticationService.isMerchant()) {
+                    this.getInitialData();
+                }
                 this.router.navigate([this.returnUrl]);
             }, error => {
                 this.loading = false;

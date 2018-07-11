@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -74,7 +73,8 @@ namespace Refundeo.Controllers
                 FirstName = fbUser.FirstName,
                 LastName = fbUser.LastName,
                 Email = fbUser.Email,
-                Country = fbUser.Location.Location.Country,
+                // TODO: Comment in when facebook accepts
+                //Country = fbUser.Location.Location.Country,
                 IsOauth = true,
                 Address = new Address()
             };
@@ -226,9 +226,10 @@ namespace Refundeo.Controllers
 
         private static async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)
         {
-            // TODO Change to when facebook approves "https://graph.facebook.com/me?fields=id,first_name,last_name,email,location{location}&access_token="
+            // TODO Change to when facebook approves
+            //  var path = "https://graph.facebook.com/me?fields=id,first_name,last_name,email,location{location}&access_token=" + accessToken;
             var path =
-                "https://graph.facebook.com/me?fields=id,first_name,last_name,email,location{location}&access_token=" +
+                "https://graph.facebook.com/me?fields=id,first_name,last_name,email&access_token=" +
                 accessToken;
             var client = new HttpClient();
             var uri = new Uri(path);

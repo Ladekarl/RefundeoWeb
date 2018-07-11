@@ -8,7 +8,8 @@ namespace Refundeo.Core.Models.Account
         [JsonProperty("first_name")] public string FirstName { get; set; }
         [JsonProperty("last_name")] public string LastName { get; set; }
         [JsonProperty("email")] public string Email { get; set; }
-        [JsonProperty("location")] public FacebookUserLocationViewModel Location { get; set; }
+        // TODO: Comment in when facebook accepts
+        //[JsonProperty("location")] public FacebookUserLocationViewModel Location { get; set; }
     }
 
     public class FacebookUserLocationViewModel

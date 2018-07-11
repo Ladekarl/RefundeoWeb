@@ -59,7 +59,17 @@ namespace Refundeo.Core.Data.Initializers
             RefundeoConstants.RoleUser
         };
 
-        public static readonly List<UserRegisterDto> UsersTocreate = new List<UserRegisterDto>();
+        public static readonly List<UserRegisterDto> UsersTocreate = new List<UserRegisterDto>
+        {
+            new UserRegisterDto
+            {
+                Username = "Mike",
+                Password = "User1234!",
+                FirstName = "Mike",
+                LastName = "Tyson",
+                Country = "England"
+            }
+        };
 
         public static readonly List<UserRegisterDto> AdminsToCreate = new List<UserRegisterDto>
         {
