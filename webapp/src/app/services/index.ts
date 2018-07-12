@@ -5,3 +5,4 @@ export * from './menu.service';
 export * from './refundcases.service';
 export * from './colors.service';
 export * from './customerinfo.service';
+export * from './authorization.service';

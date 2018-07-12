@@ -7,13 +7,21 @@ import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AdminAuthGuard, AuthGuard} from './guards';
 import {routing} from './app.routing';
 import {JwtInterceptor} from './helpers';
-import {AuthenticationService, UserService, MenuService, RefundCasesService, ColorsService, CustomerInfoService} from './services';
+import {
+    AuthenticationService,
+    UserService,
+    MenuService,
+    RefundCasesService,
+    ColorsService,
+    CustomerInfoService,
+    AuthorizationService
+} from './services';
 import {HomeComponent, RefundCasesComponent} from './components/home';
 import {LoginComponent} from './components/login';
 import {HttpModule} from '@angular/http';
-import {SwaggerComponent} from './components/swagger';
+import {SwaggerComponent} from './components/home/swagger';
 import {SwaggerService} from './services';
-import {AdminComponent} from './components/admin';
+import {AdminComponent} from './components/home/admin';
 import {DashboardComponent} from './components/home';
 import {DataViewModule} from 'primeng/dataview';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
@@ -54,6 +62,7 @@ registerLocaleData(localeDa, 'da');
         AdminAuthGuard,
         AuthGuard,
         AuthenticationService,
+        AuthorizationService,
         ConfirmationService,
         SwaggerService,
         ColorsService,

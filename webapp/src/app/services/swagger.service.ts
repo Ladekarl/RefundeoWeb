@@ -2,14 +2,14 @@ import {Injectable} from '@angular/core';
 import {swaggerUIBundle, swaggerUIStandalonePreset} from '../../polyfills';
 import {environment} from '../../environments/environment';
 import {CurrentUser} from '../models';
-import {AuthenticationService} from './authentication.service';
+import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class SwaggerService {
     currentUser: CurrentUser;
 
-    constructor(private authenticationService: AuthenticationService) {
-        this.currentUser = this.authenticationService.getCurrentUser();
+    constructor(private authorizationService: AuthorizationService) {
+        this.currentUser = this.authorizationService.getCurrentUser();
     }
 
     getSwagger(domNode: any) {

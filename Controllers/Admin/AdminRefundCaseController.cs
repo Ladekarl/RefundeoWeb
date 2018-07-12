@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -43,14 +44,8 @@ namespace Refundeo.Controllers.Admin
             var refundCases = await _context.RefundCases
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
-                .Include(r => r.CustomerInformation)
-                .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Address)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Location)
                 .ToListAsync();
 
             if (refundCases == null)
@@ -58,7 +53,23 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCases);
+            var dtos = new List<RefundCaseDto>();
+            foreach (var refundCase in refundCases)
+            {
+                refundCase.CustomerSignature = null;
+                refundCase.MerchantSignature = null;
+                refundCase.QRCode = null;
+                if (refundCase.MerchantInformation != null)
+                {
+                    refundCase.MerchantInformation.Logo = null;
+                    refundCase.MerchantInformation.Banner = null;
+                    refundCase.CustomerInformation.QRCode = null;
+                }
+
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
+            }
+
+            return new ObjectResult(dtos);
         }
 
         [HttpGet("{id}")]
@@ -147,10 +158,12 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCase);
             await _context.SaveChangesAsync();
 
-            var text = await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
-                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+            var text =
+                await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
+                await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName, text.RefundCreatedText);
+            _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
+                text.RefundCreatedText);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
         }
@@ -207,8 +220,9 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            var text = await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
-                       await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
+            var text =
+                await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
+                await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
             _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
                 refundCaseToUpdate.MerchantInformation.CompanyName,
@@ -241,7 +255,8 @@ namespace Refundeo.Controllers.Admin
             _context.RefundCases.Update(refundCaseToUpdate);
             await _context.SaveChangesAsync();
 
-            var text = await _context.Languages.Where(t => t.Key == refundCaseToUpdate.CustomerInformation.Language).FirstOrDefaultAsync() ??
+            var text = await _context.Languages.Where(t => t.Key == refundCaseToUpdate.CustomerInformation.Language)
+                           .FirstOrDefaultAsync() ??
                        await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
             _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,

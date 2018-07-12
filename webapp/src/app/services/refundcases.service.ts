@@ -4,11 +4,13 @@ import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Rx';
+import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class RefundCasesService {
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient,
+                private authorizationService: AuthorizationService) {
     }
 
     refundCases: RefundCase[];
@@ -29,11 +31,14 @@ export class RefundCasesService {
     }
 
     getAll(): Observable<RefundCase[]> {
-        if (!this.refundCases || this.refundCases.length === 0)
-            return this.http.get<RefundCase[]>('/api/merchant/refundcase').map(r => {
+        const isAdmin = this.authorizationService.isAdmin();
+        if (!this.refundCases || this.refundCases.length === 0) {
+            let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
+            return this.http.get<RefundCase[]>(requestUrl).map(r => {
                 this.refundCases = RefundCasesService.mapDates(r);
                 return this.refundCases;
             });
+        }
         else
             return Observable.of(this.refundCases);
     }

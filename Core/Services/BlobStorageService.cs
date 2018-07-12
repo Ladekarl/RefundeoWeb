@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -60,6 +59,8 @@ namespace Refundeo.Core.Services
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
 
+            if (!await blockBlob.ExistsAsync()) return null;
+
             using (var stream = new MemoryStream())
             {
                 await blockBlob.DownloadToStreamAsync(stream);
@@ -71,12 +72,17 @@ namespace Refundeo.Core.Services
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
 
-            await blockBlob.DownloadToFileAsync(path, FileMode.Create);
+            if (await blockBlob.ExistsAsync())
+            {
+                await blockBlob.DownloadToFileAsync(path, FileMode.Create);
+            }
         }
 
         public async Task<MemoryStream> DownloadAsync(Uri uri)
         {
             var blockBlob = GetBlockBlob(uri);
+
+            if (!await blockBlob.ExistsAsync()) return null;
 
             using (var stream = new MemoryStream())
             {
@@ -88,6 +94,9 @@ namespace Refundeo.Core.Services
         public async Task<byte[]> DownloadFromPathAsync(string path)
         {
             var blobUri = new Uri(path);
+
+            if (!await ExistsAsync(blobUri)) return null;
+
             var imageStream = await DownloadAsync(blobUri);
             return imageStream.ToArray();
         }
@@ -106,6 +115,13 @@ namespace Refundeo.Core.Services
 
             if (await blockBlob.ExistsAsync())
                 await blockBlob.DeleteAsync();
+        }
+
+        public async Task<bool> ExistsAsync(Uri uri)
+        {
+            var blockBlob = GetBlockBlob(uri);
+
+            return await blockBlob.ExistsAsync();
         }
 
         public async Task<bool> ExistsAsync(string containerName, string blobName)

@@ -56,10 +56,6 @@ namespace Refundeo.Controllers.Merchant
             var refundCases = await _context.RefundCases
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Merchant)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Address)
-                .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Location)
                 .Where(r => r.MerchantInformation.Merchant.Id == user.Id)
                 .AsNoTracking()
                 .ToListAsync();
@@ -76,6 +72,7 @@ namespace Refundeo.Controllers.Merchant
                 refundCase.MerchantSignature = null;
                 refundCase.QRCode = null;
                 refundCase.CustomerInformation = null;
+                refundCase.MerchantInformation = null;
                 dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
             }
 

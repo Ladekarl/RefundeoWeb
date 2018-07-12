@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Refundeo.Core.Data;
@@ -21,10 +22,14 @@ namespace Refundeo
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var context = services.GetRequiredService<RefundeoDbContext>();
-                    var userManager = services.GetRequiredService<UserManager<RefundeoUser>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                    DbInitializer.InitializeAsync(userManager, roleManager, context).Wait();
+                    var env = services.GetRequiredService<IHostingEnvironment>();
+                    if (env.IsDevelopment())
+                    {
+                        var context = services.GetRequiredService<RefundeoDbContext>();
+                        var userManager = services.GetRequiredService<UserManager<RefundeoUser>>();
+                        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                        DbInitializer.InitializeAsync(userManager, roleManager, context).Wait();
+                    }
                 }
                 catch (Exception ex)
                 {

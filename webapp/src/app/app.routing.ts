@@ -3,8 +3,8 @@ import {Routes, RouterModule} from '@angular/router';
 import {HomeComponent, DashboardComponent, RefundCasesComponent} from './components/home';
 import {LoginComponent} from './components/login';
 import {AuthGuard, AdminAuthGuard} from './guards';
-import {SwaggerComponent} from './components/swagger';
-import {AdminComponent} from './components/admin';
+import {SwaggerComponent} from './components/home/swagger';
+import {AdminComponent} from './components/home/admin';
 
 const appRoutes: Routes = [
     {

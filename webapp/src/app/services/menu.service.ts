@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {AuthenticationService} from './authentication.service';
 import {MenuItem} from '../models';
+import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class MenuService {
@@ -63,11 +63,11 @@ export class MenuService {
             iconClass: 'fa-sign-out'
         }];
 
-    constructor(private authenticationService: AuthenticationService) {
+    constructor(private authorizationService: AuthorizationService) {
     }
 
     getMenuItems(): MenuItem[] {
-        if (this.authenticationService.isAdmin()) {
+        if (this.authorizationService.isAdmin()) {
             return MenuService.adminMenuItems;
         }
         return MenuService.merchantMenuItems;
