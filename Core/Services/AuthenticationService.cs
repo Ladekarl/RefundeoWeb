@@ -356,6 +356,7 @@ namespace Refundeo.Core.Services
                 .Include(x => x.Location)
                 .Include(x => x.MerchantInformationTags)
                 .Include(x => x.OpeningHours)
+                .Include(x => x.RefundCases)
                 .SingleOrDefaultAsync();
 
             if (customerInformation != null)
