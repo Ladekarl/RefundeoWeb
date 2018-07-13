@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {CustomerInfoService} from '../../../../services';
 import {SelectItem} from 'primeng/api';
+import {CustomerInfo} from '../../../../models/customerinfo';
 
 @Component({
     selector: 'app-shoppers',
@@ -9,9 +10,9 @@ import {SelectItem} from 'primeng/api';
 })
 export class ShoppersComponent implements OnInit {
 
-    customers;
+    customers: CustomerInfo[];
     loading = false;
-    filteredCustomers;
+    filteredCustomers: CustomerInfo[];
 
     sortOrderOptions: SelectItem[] = [
         {label: 'Ascending', value: 1},

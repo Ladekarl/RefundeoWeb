@@ -1,3 +1,100 @@
-<p>
-  retailers works!
-</p>
+<div class="dataview-container" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+    <p-dataView [value]="filteredMerchants ? filteredMerchants : merchants"
+                #retailersDataView [paginator]="true" [rows]="100"
+                paginatorPosition="bottom" [sortField]="sortKey" [loading]="loading"
+                [sortOrder]="sortOrderKey" [filterBy]="searchKey"
+                [rowsPerPageOptions]="[5,10,20,50,100,200,500,1000]">
+        <p-header>
+            <div class="ui-helper-clearfix header-row">
+                <div class="ui-g">
+                    <div class="ui-g-3">
+                        <span>Sort By:</span><br/>
+                        <p-dropdown [options]="sortOptions" placeholder="Sort By"
+                                    [(ngModel)]="sortKey" (onChange)="onSortChange($event)" [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Sort Order:</span><br/>
+                        <p-dropdown [options]="sortOrderOptions" placeholder="Sort Order"
+                                    [(ngModel)]="sortOrderKey" (onChange)="onSortOrderChange($event)"
+                                    [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3 ui-g-offset-3">
+                        <span>Search by:</span>
+                        <p-dropdown [options]="searchOptions" placeholder="Search By"
+                                    [(ngModel)]="searchKey" (onChange)="onSearchChange($event)" [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                        <input type="search" class="form-control search-field" placeholder="Search"
+                               (keyup)="retailersDataView.filter($event.target.value)">
+                    </div>
+                </div>
+            </div>
+            <div class="ui-helper-clearfix">
+                <div class="ui-g">
+                    <div class="ui-g-2 header-col">
+                        <span>Company Name</span>
+                    </div>
+                    <div class="ui-g-1 header-col">
+                        <span>CVR no.</span>
+                    </div>
+                    <div class="ui-g-2 header-col">
+                        <span>VAT no.</span>
+                    </div>
+                    <div class="ui-g-1 header-col">
+                        <span>Currency</span>
+                    </div>
+                    <div class="ui-g-2 header-col">
+                        <span>Contact Email</span>
+                    </div>
+                    <div class="ui-g-1 header-col">
+                        <span>Contact Phone</span>
+                    </div>
+                    <div class="ui-g-2 header-col">
+                        <span>Address</span>
+                    </div>
+                    <div class="ui-g-1 header-col">
+                        <span>Refund (%)</span>
+                    </div>
+                </div>
+            </div>
+        </p-header>
+        <ng-template let-merchant pTemplate="listItem">
+            <div class="ui-g table-row">
+                <div class="ui-g-2 table-col">
+                    <button type="button" class="btn btn-link">
+                        {{merchant.companyName}}
+                    </button>
+                </div>
+                <div class="ui-g-1 table-col">
+                    {{merchant.cvrNumber}}
+                </div>
+                <div class="ui-g-2 table-col">
+                    {{merchant.vatNumber}}
+                </div>
+                <div class="ui-g-1 table-col">
+                    {{merchant.currency}}
+                </div>
+                <div class="ui-g-2 table-col">
+                    {{merchant.contactEmail}}
+                </div>
+                <div class="ui-g-1 table-col">
+                    {{merchant.contactPhone}}
+                </div>
+                <div class="ui-g-2 table-col">
+                    {{merchant.addressStreetName}} {{merchant.addressStreetNumber}} <br/>
+                    {{merchant.addressPostalCode}} {{merchant.addressCity}} <br/>
+                    {{merchant.addressCountry}}
+                </div>
+                <div class="ui-g-1 table-col">
+                    {{merchant.refundPercentage}}
+                </div>
+            </div>
+        </ng-template>
+    </p-dataView>
+    <div class="row total-container">
+        <div class="col-sm-1 download-text" i18n>
+            Total shoppers: {{merchants ? merchants.length : ''}}
+        </div>
+    </div>
+</div>

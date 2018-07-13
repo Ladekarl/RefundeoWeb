@@ -1,7 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 
-import {AuthenticationService, CustomerInfoService, RefundCasesService} from '../../services';
+import {
+    AuthenticationService,
+    AuthorizationService,
+    CustomerInfoService, MerchantInfoService,
+    RefundCasesService
+} from '../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -26,6 +31,8 @@ export class LoginComponent implements OnInit {
         private authenticationService: AuthenticationService,
         private refundCasesService: RefundCasesService,
         private customerInfoSerivce: CustomerInfoService,
+        private authorizationService: AuthorizationService,
+        private merchantInfoService: MerchantInfoService,
         private spinnerService: Ng4LoadingSpinnerService) {
     }
 
@@ -39,10 +46,12 @@ export class LoginComponent implements OnInit {
 
     getInitialData() {
         let tasks = [];
-        const customersObs = this.customerInfoSerivce.getAll();
-        const refundsObs = this.refundCasesService.getAll();
-        tasks.push(customersObs);
-        tasks.push(refundsObs);
+
+        if (this.authorizationService.isAuthenticatedAdmin())
+            tasks.push(this.merchantInfoService.getAll());
+
+        tasks.push(this.customerInfoSerivce.getAll());
+        tasks.push(this.refundCasesService.getAll());
         Observable.forkJoin(tasks).subscribe(() => {
             this.spinnerService.hide();
             this.loading = false;

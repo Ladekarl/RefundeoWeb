@@ -6,3 +6,4 @@ export * from './refundcases.service';
 export * from './colors.service';
 export * from './customerinfo.service';
 export * from './authorization.service';
+export * from './merchantinfo.service';

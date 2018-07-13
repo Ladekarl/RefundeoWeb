@@ -1,16 +1,7 @@
 export class Customer {
-    country: string;
-    email: string;
+    id: string;
+    username: string;
     firstName: string;
     lastName: string;
-    passport: string;
-    username: string;
-    phone: string;
-    swift: string;
-    accountNumber: string;
-    addressStreetName: string;
-    addressStreetNumber: string;
-    addressCity: string;
-    addressCountry: string;
-    addressPostalCode: string;
+    country: string;
 }

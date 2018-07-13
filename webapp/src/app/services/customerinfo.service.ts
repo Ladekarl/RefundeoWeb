@@ -16,7 +16,7 @@ export class CustomerInfoService {
 
     getAll(): Observable<CustomerInfo[]> {
         const isAdmin = this.authorizationService.isAdmin();
-        if (!this.customerInfos || this.customerInfos.length > 0) {
+        if (!this.customerInfos || this.customerInfos.length === 0) {
             let requestUrl = isAdmin ? '/api/user/account' : '/api/merchant/customerinfo';
             return this.http.get<CustomerInfo[]>(requestUrl).map(c => {
                 this.customerInfos = c;

@@ -1,0 +1,38 @@
+.dataview-container {
+    height: 100%
+}
+
+.header-col {
+    text-align: center;
+}
+
+.table-col {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.table-row {
+    border-bottom: 1px solid #d9d9d9;
+    display: flex;
+}
+
+.search-field {
+    font-family: inherit;
+    border-radius: 2px;
+    bottom: 0;
+    line-height: 1.5px;
+    min-width: 15em;
+    margin-top: 5px;
+}
+
+.total-container {
+    margin-top: 5px;
+}
+
+.download-text {
+    font-size: 10px;
+    text-align: center;
+}

@@ -5,8 +5,9 @@ import 'rxjs/add/operator/map';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CurrentUser} from '../models';
 import {RefundCasesService} from './refundcases.service';
-import {CustomerInfoService} from './customerinfo.service';
 import {AuthorizationService} from './authorization.service';
+import {CustomerInfoService} from './customerinfo.service';
+import {MerchantInfoService} from './merchantinfo.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -16,7 +17,8 @@ export class AuthenticationService {
     constructor(private http: HttpClient,
                 private refundCasesService: RefundCasesService,
                 private authorizationService: AuthorizationService,
-                private customerInfoService: CustomerInfoService) {
+                private customerInfoService: CustomerInfoService,
+                private merchantInfoService: MerchantInfoService) {
         this.jwtHelperService = new JwtHelperService();
     }
 
@@ -34,5 +36,6 @@ export class AuthenticationService {
         this.authorizationService.removeCurrentUser();
         this.refundCasesService.resetRefundCases();
         this.customerInfoService.resetCustomerInfos();
+        this.merchantInfoService.resetMerchantInfos();
     }
 }

@@ -1,5 +1,5 @@
-import {Customer} from './customer';
-import {Merchant} from './merchant';
+import {MerchantInfo} from './merchantinfo';
+import {CustomerInfo} from './customerinfo';
 
 export class RefundCase {
     id: number;
@@ -14,6 +14,6 @@ export class RefundCase {
     checked: boolean;
     dateCreated: Date;
     dateRequested: Date;
-    merchant?: Merchant;
-    customer?: Customer;
+    merchant?: MerchantInfo;
+    customer?: CustomerInfo;
 }

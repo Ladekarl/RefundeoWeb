@@ -1,8 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {RefundCasesService} from '../../../../services';
 import {RefundCase} from '../../../../models';
 import {ConfirmationService, SelectItem} from 'primeng/api';
-import {DataView} from 'primeng/dataview';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import * as JSZip from 'jszip';
 import * as FileSaver from 'file-saver';
@@ -13,8 +12,6 @@ import * as FileSaver from 'file-saver';
     styleUrls: ['./adminrefundcases.component.scss']
 })
 export class AdminRefundcasesComponent implements OnInit {
-    @ViewChild('refundCasesDataView') refundCasesDataView: DataView;
-
     refundCases: RefundCase[];
     filteredRefundCases: RefundCase[];
 
@@ -165,11 +162,11 @@ export class AdminRefundcasesComponent implements OnInit {
     }
 
     onAcceptClick(refundCase) {
-        this.confirmChoise(refundCase, true)
+        this.confirmChoise(refundCase, true);
     }
 
     onRejectClick(refundCase) {
-        this.confirmChoise(refundCase, false)
+        this.confirmChoise(refundCase, false);
     }
 
     confirmChoise(refundCase, accept) {
@@ -177,7 +174,7 @@ export class AdminRefundcasesComponent implements OnInit {
             message: `Are you sure you want to ${accept ? 'accept' : 'reject'} this refund?`,
             accept: () => {
                 this.loading = true;
-                this.refundCasesService.accept(refundCase).subscribe(() => {
+                this.refundCasesService.accept(refundCase, accept).subscribe(() => {
                     refundCase.isAccepted = accept;
                     refundCase.isRejected = !accept;
                     this.loading = false;

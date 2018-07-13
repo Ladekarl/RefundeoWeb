@@ -14,7 +14,8 @@ import {
     RefundCasesService,
     ColorsService,
     CustomerInfoService,
-    AuthorizationService
+    AuthorizationService,
+    MerchantInfoService
 } from './services';
 import {RefundCasesComponent} from './components/home/merchant';
 import {HomeComponent} from './components/home/home.component';
@@ -72,6 +73,7 @@ registerLocaleData(localeDa, 'da');
         SwaggerService,
         ColorsService,
         CustomerInfoService,
+        MerchantInfoService,
         RefundCasesService,
         MenuService,
         UserService, {
