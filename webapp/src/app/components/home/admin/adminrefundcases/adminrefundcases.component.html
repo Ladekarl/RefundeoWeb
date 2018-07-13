@@ -1,0 +1,155 @@
+<div class="dataview-container">
+    <p-dataView [value]="filteredRefundCases != null ? filteredRefundCases: refundCases"
+                #refundCasesDataView [paginator]="true" [rows]="100"
+                paginatorPosition="bottom" [sortField]="sortKey" [loading]="loading"
+                [sortOrder]="sortOrderKey" [filterBy]="searchKey"
+                [rowsPerPageOptions]="[5,10,20,50,100,200,500,1000]">
+        <p-header>
+            <div class="ui-helper-clearfix header-row">
+                <div class="ui-g">
+                    <div class="ui-g-3">
+                        <span>Sort By:</span><br/>
+                        <p-dropdown [options]="sortOptions" placeholder="Sort By"
+                                    [(ngModel)]="sortKey" (onChange)="onSortChange($event)" [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Sort Order:</span><br/>
+                        <p-dropdown [options]="sortOrderOptions" placeholder="Sort Order"
+                                    [(ngModel)]="sortOrderKey" (onChange)="onSortOrderChange($event)"
+                                    [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Filter by:</span><br/>
+                        <p-dropdown [options]="filterOptions" placeholder="Filter by"
+                                    (onChange)="onFilterChange($event)"
+                                    [(ngModel)]="filterField"
+                                    [autoWidth]="false" [style]="{'min-width':'15em'}"></p-dropdown>
+                    </div>
+                    <div class="ui-g-3">
+                        <span>Search by:</span>
+                        <p-dropdown [options]="searchOptions" placeholder="Search By"
+                                    [(ngModel)]="searchKey" (onChange)="onSearchChange($event)" [autoWidth]="false"
+                                    [style]="{'min-width':'15em'}"></p-dropdown>
+                        <input type="search" class="form-control search-field" placeholder="Search"
+                               (keyup)="refundCasesDataView.filter($event.target.value)">
+                    </div>
+                </div>
+            </div>
+            <div class="ui-helper-clearfix header-row">
+                <div class="ui-g">
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Created</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Company</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Customer</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Receipt number</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Purchase Amount</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Refund Amount</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Status</b>
+                    </div>
+                    <div class="ui-g-2 ui-md-2 header-col">
+                        <b i18n>Accept</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
+                        <b i18n>Download</b>
+                        <input type="checkbox"
+                               class="checkbox"
+                               (change)="onCheckAllChange($event)"
+                               [(ngModel)]="checkAll"
+                        >
+
+                    </div>
+                </div>
+            </div>
+        </p-header>
+        <ng-template let-refundCase let-i="index" pTemplate="listItem">
+            <div class="ui-g table-row">
+                <div class="ui-g-1 ui-md-1 table-col">
+                    {{refundCase.dateCreated | date:'short'}}
+                </div>
+                <div class="ui-g-1 ui-md-1 table-col">
+                    <button *ngIf="refundCase.merchant" type="button" class="btn btn-link">
+                        {{refundCase.merchant?.companyName}}
+                    </button>
+                </div>
+                <div class="ui-g-1 ui-md-1 table-col">
+                    <button *ngIf="refundCase.customer" type="button" class="btn btn-link">
+                        {{refundCase.customer?.email}}
+                    </button>
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col">
+                    {{refundCase.receiptNumber}}
+                </div>
+                <div class="ui-g-1 ui-md-1 table-col">
+                    {{refundCase.merchant?.currency}} {{refundCase.amount | number : '1.2-2'}}
+                </div>
+                <div class="ui-g-1 ui-md-1 table-col">
+                    <b>{{refundCase.merchant?.currency}} {{refundCase.refundAmount | number : '1.2-2'}}</b>
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col">
+                    <div *ngIf="refundCase.isRequested">
+                        <div *ngIf="refundCase.isAccepted">
+                            <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
+                        </div>
+                        <div *ngIf="!refundCase.isAccepted && !refundCase.isRejected">
+                            <div class="ui-g-12 ui-sm-12 text-primary" i18n>Requested</div>
+                        </div>
+                        <div *ngIf="!refundCase.isRequested" class="ui-g-12 ui-sm-12 table-col" i18n>
+                            Not requested
+                        </div>
+                        <div *ngIf="refundCase.isRejected" class="ui-g-12 ui-sm-12 table-col text-danger" i18n>
+                            Rejected
+                        </div>
+                    </div>
+                    <div *ngIf="!refundCase.isRequested" class="ui-g-12 ui-md-12 table-col">
+                        New
+                    </div>
+                </div>
+                <div class="ui-g-2 ui-md-2 table-col">
+                    <div *ngIf="refundCase.isRequested">
+                        <button type="button" class="btn btn-primary status-button" (click)="onAcceptClick(refundCase)">
+                            Accept
+                        </button>
+                        <button type="button" class="btn btn-danger status-button" (click)="onRejectClick(refundCase)">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+                <div class="ui-g-1 ui-md-1 table-col">
+                    <div class="col-sm-12">
+                        <button *ngIf="refundCase.isRequested" class="btn">
+                            <i class="fa fa-download"
+                               (click)="downloadPressed(refundCase)">
+                            </i>
+                        </button>
+                        <input *ngIf="refundCase.isRequested" type="checkbox" class="checkbox"
+                               [(ngModel)]="refundCase.checked">
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </p-dataView>
+    <div class="row total-container">
+        <div class="col-sm-1 download-text" i18n>
+            Total refunds: {{refundCases ? refundCases.length : ''}}
+        </div>
+        <div class="col-sm-1 offset-10">
+            <button type="button" class="btn download-text" (click)="downloadCheckedPressed()" i18n>
+                <i class="fa fa-download"></i> Download checked
+            </button>
+        </div>
+    </div>
+</div>

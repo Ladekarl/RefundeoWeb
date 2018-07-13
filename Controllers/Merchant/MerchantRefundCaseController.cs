@@ -15,7 +15,7 @@ using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.Merchant
 {
-    [Authorize(Roles = RefundeoConstants.RoleMerchant)]
+    [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
     [Route("/api/merchant/refundcase")]
     public class MerchantRefundCaseController : Controller
     {

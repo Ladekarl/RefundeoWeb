@@ -17,9 +17,12 @@ export class CustomerInfoService {
     getAll(): Observable<CustomerInfo[]> {
         const isAdmin = this.authorizationService.isAdmin();
         if (!this.customerInfos || this.customerInfos.length > 0) {
-            let requestUrl = isAdmin ? '/api/admin/customerinfo' : '/api/merchant/customerinfo';
-            return this.http.get<CustomerInfo[]>('/api/merchant/customerinfo').map(c => {
+            let requestUrl = isAdmin ? '/api/user/account' : '/api/merchant/customerinfo';
+            return this.http.get<CustomerInfo[]>(requestUrl).map(c => {
                 this.customerInfos = c;
+                this.customerInfos.sort((a, b) => {
+                    return ('' + a.username).localeCompare(b.username);
+                });
                 return this.customerInfos;
             });
         }

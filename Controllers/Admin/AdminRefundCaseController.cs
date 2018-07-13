@@ -59,10 +59,15 @@ namespace Refundeo.Controllers.Admin
                 refundCase.CustomerSignature = null;
                 refundCase.MerchantSignature = null;
                 refundCase.QRCode = null;
+
                 if (refundCase.MerchantInformation != null)
                 {
                     refundCase.MerchantInformation.Logo = null;
                     refundCase.MerchantInformation.Banner = null;
+                }
+
+                if (refundCase.CustomerInformation != null)
+                {
                     refundCase.CustomerInformation.QRCode = null;
                 }
 
@@ -259,9 +264,13 @@ namespace Refundeo.Controllers.Admin
                            .FirstOrDefaultAsync() ??
                        await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
-                refundCaseToUpdate.MerchantInformation.CompanyName,
-                text.RefundUpdateText);
+            if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
+                refundCaseToUpdate.MerchantInformation?.CompanyName != null)
+            {
+                _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                    refundCaseToUpdate.MerchantInformation.CompanyName,
+                    text.RefundUpdateText);
+            }
 
             return NoContent();
         }

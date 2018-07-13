@@ -32,22 +32,32 @@ export class MenuService {
         // }
     ];
 
-    private static adminMenuItems: MenuItem[] = [{
-        routerLink: '/',
-        displayName: 'Home',
-        title: 'Home',
-        iconClass: 'fa-home'
-    }, {
-        routerLink: '/docs',
-        displayName: 'API',
-        title: 'Refundeo API',
-        iconClass: 'fa-cloud'
-    }, {
-        routerLink: '/admin',
-        displayName: 'Admin',
-        title: 'Refundeo Admin',
-        iconClass: 'fa-cogs'
-    }];
+    private static adminMenuItems: MenuItem[] = [
+        {
+            routerLink: '/',
+            displayName: 'Refunds',
+            title: 'Refunds',
+            iconClass: 'fa-exchange'
+        },
+        {
+            routerLink: '/retailers',
+            displayName: 'Retailers',
+            title: 'Retailers',
+            iconClass: 'fa-home'
+        },
+        {
+            routerLink: '/shoppers',
+            displayName: 'Shoppers',
+            title: 'Shoppers',
+            iconClass: 'fa-users'
+        },
+        {
+            routerLink: '/docs',
+            displayName: 'API',
+            title: 'Refundeo API',
+            iconClass: 'fa-cloud'
+        }
+    ];
 
     private static bottomMenuItems: MenuItem[] = [
         // {

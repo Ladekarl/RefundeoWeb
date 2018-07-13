@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {RefundCasesService} from '../../../services';
-import {RefundCase} from '../../../models';
+import {RefundCasesService} from '../../../../services';
+import {RefundCase} from '../../../../models';
 import {ConfirmationService, SelectItem} from 'primeng/api';
 import {DataView} from 'primeng/dataview';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
@@ -8,11 +8,11 @@ import * as JSZip from 'jszip';
 import * as FileSaver from 'file-saver';
 
 @Component({
-    selector: 'app-refundcases',
-    templateUrl: './refundcases.component.html',
-    styleUrls: ['./refundcases.component.scss']
+    selector: 'app-adminrefundcases',
+    templateUrl: './adminrefundcases.component.html',
+    styleUrls: ['./adminrefundcases.component.scss']
 })
-export class RefundCasesComponent implements OnInit {
+export class AdminRefundcasesComponent implements OnInit {
     @ViewChild('refundCasesDataView') refundCasesDataView: DataView;
 
     refundCases: RefundCase[];
@@ -27,12 +27,22 @@ export class RefundCasesComponent implements OnInit {
         {label: 'Date created', value: 'dateCreated'},
         {label: 'Receipt number', value: 'receiptNumber'},
         {label: 'Purchase amount', value: 'amount'},
-        {label: 'Refund amount', value: 'refundAmount'}
+        {label: 'Refund amount', value: 'refundAmount'},
+        {label: 'Company', value: 'merchant.companyName'},
+        {label: 'Customer', value: 'customer.email'}
+    ];
+
+    searchOptions: SelectItem[] = [
+        {label: 'Company name', value: 'merchant.companyName'},
+        {label: 'Customer email', value: 'customer.email'},
+        {label: 'Receipt number', value: 'receiptNumber'}
     ];
 
     sortField: string;
     sortOrder: string;
     sortKey = 'dateCreated';
+    searchKey = 'merchant.companyName';
+    searchField: 'merchant.companyName';
     sortOrderKey = -1;
     filterField = 'none';
     loading = false;
@@ -53,9 +63,12 @@ export class RefundCasesComponent implements OnInit {
         this.loadData();
     }
 
-
     onSortChange(event) {
         this.sortField = event.value;
+    }
+
+    onSearchChange(event) {
+        this.searchField = event.value;
     }
 
     onSortOrderChange(event) {
@@ -104,6 +117,7 @@ export class RefundCasesComponent implements OnInit {
     }
 
     downloadCheckedPressed() {
+        if (!this.refundCases) return;
         let zip = new JSZip();
         let shouldMakeZip = false;
         this.loading = true;
@@ -111,12 +125,13 @@ export class RefundCasesComponent implements OnInit {
             if (r.checked) {
                 let folder = zip.folder(r.dateCreated.toLocaleDateString().replace(new RegExp('/', 'g'), '_'));
                 if (r.receiptImage) {
+                    shouldMakeZip = true;
                     folder.file(r.receiptNumber + '_receipt.png', r.receiptImage, {base64: true});
                 }
                 if (r.vatFormImage) {
+                    shouldMakeZip = true;
                     folder.file(r.receiptNumber + '_vatform.png', r.vatFormImage, {base64: true});
                 }
-                shouldMakeZip = true;
             }
         });
         if (shouldMakeZip) {
@@ -126,20 +141,50 @@ export class RefundCasesComponent implements OnInit {
             }).catch(() => {
                 this.loading = false;
             });
+        } else {
+            this.loading = false;
         }
     }
 
     downloadPressed(refundCase) {
         let zip = new JSZip();
+        let shouldMakeZip = false;
         if (refundCase.receiptImage) {
+            shouldMakeZip = true;
             zip.file(refundCase.receiptNumber + '_receipt.png', refundCase.receiptImage, {base64: true});
         }
         if (refundCase.vatFormImage) {
-            zip.file(refundCase.receiptNumber + '_vatform.png', refundCase.vatFormImage, {base64: true, });
+            shouldMakeZip = true;
+            zip.file(refundCase.receiptNumber + '_vatform.png', refundCase.vatFormImage, {base64: true,});
         }
+        if (shouldMakeZip) {
+            zip.generateAsync({type: 'blob'}).then((blob) => {
+                FileSaver.saveAs(blob, refundCase.dateCreated.toLocaleDateString() + '.zip');
+            });
+        }
+    }
 
-        zip.generateAsync({type: 'blob'}).then((blob) => {
-            FileSaver.saveAs(blob, refundCase.dateCreated.toLocaleDateString() + '.zip');
+    onAcceptClick(refundCase) {
+        this.confirmChoise(refundCase, true)
+    }
+
+    onRejectClick(refundCase) {
+        this.confirmChoise(refundCase, false)
+    }
+
+    confirmChoise(refundCase, accept) {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to ${accept ? 'accept' : 'reject'} this refund?`,
+            accept: () => {
+                this.loading = true;
+                this.refundCasesService.accept(refundCase).subscribe(() => {
+                    refundCase.isAccepted = accept;
+                    refundCase.isRejected = !accept;
+                    this.loading = false;
+                }, () => {
+                    this.loading = false;
+                });
+            }
         });
     }
 }

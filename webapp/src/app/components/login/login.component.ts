@@ -46,6 +46,9 @@ export class LoginComponent implements OnInit {
         Observable.forkJoin(tasks).subscribe(() => {
             this.spinnerService.hide();
             this.loading = false;
+        }, () => {
+            this.spinnerService.hide();
+            this.loading = false;
         });
     }
 

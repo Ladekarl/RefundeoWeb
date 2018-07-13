@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnInit} from '@angular/core';
-import {SwaggerService} from '../../../services';
+import {SwaggerService} from '../../../../services';
 
 @Component({
     selector: 'app-swagger',

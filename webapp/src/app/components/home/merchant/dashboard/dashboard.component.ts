@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {AuthenticationService, ColorsService, CustomerInfoService, RefundCasesService} from '../../../services';
-import {CustomerInfo} from '../../../models/customerinfo';
-import {RefundCase} from '../../../models';
+import {AuthenticationService, ColorsService, CustomerInfoService, RefundCasesService} from '../../../../services';
+import {CustomerInfo} from '../../../../models/customerinfo';
+import {RefundCase} from '../../../../models';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 
 @Component({

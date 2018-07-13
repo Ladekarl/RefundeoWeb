@@ -16,13 +16,17 @@ import {
     CustomerInfoService,
     AuthorizationService
 } from './services';
-import {HomeComponent, RefundCasesComponent} from './components/home';
+import {RefundCasesComponent} from './components/home/merchant';
+import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login';
-import {HttpModule} from '@angular/http';
-import {SwaggerComponent} from './components/home/swagger';
+import {
+    SwaggerComponent,
+    AdminRefundcasesComponent,
+    RetailersComponent,
+    ShoppersComponent
+} from './components/home/admin';
 import {SwaggerService} from './services';
-import {AdminComponent} from './components/home/admin';
-import {DashboardComponent} from './components/home';
+import {DashboardComponent} from './components/home/merchant';
 import {DataViewModule} from 'primeng/dataview';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
@@ -40,9 +44,11 @@ registerLocaleData(localeDa, 'da');
         HomeComponent,
         LoginComponent,
         SwaggerComponent,
-        AdminComponent,
         DashboardComponent,
-        RefundCasesComponent
+        RefundCasesComponent,
+        AdminRefundcasesComponent,
+        RetailersComponent,
+        ShoppersComponent
     ],
     imports: [
         BrowserModule,
@@ -53,7 +59,6 @@ registerLocaleData(localeDa, 'da');
         DropdownModule,
         HttpClientModule,
         ChartModule,
-        HttpModule,
         routing,
         Ng4LoadingSpinnerModule.forRoot()
     ],

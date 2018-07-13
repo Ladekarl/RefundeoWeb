@@ -78,10 +78,10 @@ export class RefundCasesService {
             .map(RefundCasesService.mapDate);
     }
 
-    accept(refundCase: RefundCase) {
+    accept(refundCase: RefundCase, isAccepted: boolean) {
         return this
             .http
-            .post(`/api/merchant/refundcase/${refundCase.id}/accept`, {isAccepted: refundCase.isAccepted});
+            .post(`/api/admin/refundcase/${refundCase.id}/accept`, {isAccepted: isAccepted});
     }
 
     delete(id: number) {

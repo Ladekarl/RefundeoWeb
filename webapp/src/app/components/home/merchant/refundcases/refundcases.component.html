@@ -1,9 +1,9 @@
 <div class="dataview-container">
     <p-dataView [value]="filteredRefundCases != null ? filteredRefundCases: refundCases"
-                #refundCasesDataView [paginator]="true" [rows]="10"
+                #refundCasesDataView [paginator]="true" [rows]="100"
                 paginatorPosition="bottom" [sortField]="sortKey" [loading]="loading"
                 [sortOrder]="sortOrderKey" [filterBy]="'receiptNumber'"
-                [rowsPerPageOptions]="[5,10,20,50,100]">
+                [rowsPerPageOptions]="[5,10,20,50,100,200,500,1000]">
         <p-header>
             <div class="ui-helper-clearfix header-row">
                 <div class="ui-g">
@@ -52,7 +52,7 @@
                         <b i18n>Status</b>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Uploads</b>
+                        <b i18n>Download</b>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col checkbox-field">
                         <input type="checkbox"
@@ -82,7 +82,7 @@
                     <div *ngIf="refundCase.isAccepted">
                         <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
                     </div>
-                    <div *ngIf="!refundCase.isAccepted">
+                    <div *ngIf="!refundCase.isAccepted && !refundCase.isRejected">
                         <div class="ui-g-12 ui-sm-12 text-primary" i18n>Requested</div>
                     </div>
                     <div *ngIf="!refundCase.isRequested" class="ui-g-2 ui-md-2 table-col" i18n>
@@ -107,9 +107,13 @@
             </div>
         </ng-template>
     </p-dataView>
-    <div class="col-sm-12">
-        <div class="col-sm-1 offset-11 download-button">
-            <button class="btn download-text"><i class="fa fa-download" (click)="downloadCheckedPressed()"></i> Download checked
+    <div class="row total-container">
+        <div class="col-sm-1 download-text" i18n>
+            Total refunds: {{refundCases ? refundCases.length : ''}}
+        </div>
+        <div class="col-sm-1 offset-10">
+            <button type="button" class="btn download-text" (click)="downloadCheckedPressed()" i18n>
+                <i class="fa fa-download"></i> Download checked
             </button>
         </div>
     </div>

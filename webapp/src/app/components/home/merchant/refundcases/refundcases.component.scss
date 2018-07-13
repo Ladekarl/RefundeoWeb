@@ -1,0 +1,65 @@
+.header-row {
+}
+
+.header-col {
+    text-align: center;
+}
+
+.table-row {
+    border-bottom: 1px solid #d9d9d9;
+    display: flex;
+}
+
+.detail-description {
+    text-align: right;
+}
+
+.detail-value {
+    text-align: left
+}
+
+.table-col {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.ui-widget {
+    font-family: inherit
+}
+
+.ui-button {
+    font-family: inherit;
+}
+
+.search-field {
+    font-family: inherit;
+    border-radius: 2px;
+    bottom: 0;
+    line-height: 1.5px;
+    min-width: 15em;
+}
+
+.checkbox-field {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: right;
+}
+
+.download-text {
+    font-size: 10px;
+    text-align: center;
+}
+
+.dataview-container {
+    height: 100%
+}
+
+.total-container {
+    margin-top: 5px;
+}
+

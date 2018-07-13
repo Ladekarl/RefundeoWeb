@@ -1,37 +1,62 @@
 import {Routes, RouterModule} from '@angular/router';
 
-import {HomeComponent, DashboardComponent, RefundCasesComponent} from './components/home';
+import {
+    DashboardComponent,
+    RefundCasesComponent
+} from './components/home/merchant';
 import {LoginComponent} from './components/login';
 import {AuthGuard, AdminAuthGuard} from './guards';
-import {SwaggerComponent} from './components/home/swagger';
-import {AdminComponent} from './components/home/admin';
+import {
+    AdminRefundcasesComponent,
+    SwaggerComponent,
+    RetailersComponent,
+    ShoppersComponent
+} from './components/home/admin';
+import {HomeComponent} from './components/home/home.component';
 
 const appRoutes: Routes = [
+    {
+        path: '',
+        component: HomeComponent,
+        canActivate: [AdminAuthGuard],
+        children: [
+            {
+                path: '',
+                component: AdminRefundcasesComponent,
+                canActivate: [AdminAuthGuard]
+            },
+            {
+                path: 'refunds',
+                component: AdminRefundcasesComponent,
+                canActivate: [AdminAuthGuard]
+            },
+            {
+                path: 'retailers',
+                component: RetailersComponent,
+                canActivate: [AdminAuthGuard]
+            },
+            {
+                path: 'shoppers',
+                component: ShoppersComponent,
+                canActivate: [AdminAuthGuard]
+            },
+            {
+                path: 'docs',
+                component: SwaggerComponent,
+                canActivate: [AdminAuthGuard]
+            }
+        ]
+    },
     {
         path: '',
         component: HomeComponent,
         canActivate: [AuthGuard],
         children: [
             {
-                path: '',
-                component: RefundCasesComponent,
-                canActivate: [AuthGuard]
-            },
-            {
                 path: 'refunds',
                 component: RefundCasesComponent,
                 canActivate: [AuthGuard]
-            },
-            {
-                path: 'docs',
-                component: SwaggerComponent,
-                canActivate: [AuthGuard]
-            },
-            {
-                path: 'admin',
-                component: AdminComponent,
-                canActivate: [AdminAuthGuard]
-            },
+            }
         ]
     },
     {path: 'login', component: LoginComponent},
