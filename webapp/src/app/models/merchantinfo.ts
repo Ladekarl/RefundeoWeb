@@ -1,5 +1,7 @@
 ﻿export class MerchantInfo {
     id: string;
+    username: string;
+    password: string;
     companyName: string;
     cvrNumber: string;
     refundPercentage: number;

@@ -32,74 +32,90 @@
             </div>
             <div class="ui-helper-clearfix">
                 <div class="ui-g">
-                    <div class="ui-g-1 header-col">
-                        <span>Username</span>
-                    </div>
-                    <div class="ui-g-1 header-col">
-                        <span>Email</span>
+                    <div class="ui-g-2 header-col">
+                        <span class="table-text">Username</span>
                     </div>
                     <div class="ui-g-2 header-col">
-                        <span>Name</span>
+                        <span class="table-text">Email</span>
                     </div>
                     <div class="ui-g-1 header-col">
-                        <span>Country</span>
+                        <span class="table-text">Name</span>
                     </div>
                     <div class="ui-g-1 header-col">
-                        <span>Phone</span>
+                        <span class="table-text">Country</span>
+                    </div>
+                    <div class="ui-g-1 header-col">
+                        <span class="table-text">Phone</span>
                     </div>
                     <div class="ui-g-2 header-col">
-                        <span>Address</span>
-                    </div>
-                    <div class="ui-g-2 header-col">
-                        <span>Passport</span>
+                        <span class="table-text">Address</span>
                     </div>
                     <div class="ui-g-1 header-col">
-                        <span>Swift/BIC</span>
+                        <span class="table-text">Passport</span>
                     </div>
                     <div class="ui-g-1 header-col">
-                        <span>Account Number</span>
+                        <span class="table-text">Swift/BIC</span>
+                    </div>
+                    <div class="ui-g-1 header-col">
+                        <span class="table-text">Account Number</span>
                     </div>
                 </div>
             </div>
         </p-header>
         <ng-template let-customer pTemplate="listItem">
             <div class="ui-g table-row">
-                <div class="ui-g-1 table-col">
-                    <button type="button" class="btn btn-link">
+                <div class="ui-g-2 table-col">
+                    <button type="button" class="btn btn-link table-text">
                         {{customer.username}}
                     </button>
                 </div>
-                <div class="ui-g-1 table-col">
+                <div class="ui-g-2 table-col">
+                    <span class="table-text">
                     {{customer.email}}
+                    </span>
                 </div>
-                <div class="ui-g-2 table-col">
+                <div class="ui-g-1 table-col">
+                    <span class="table-text">
                     {{customer.firstName}} {{customer.lastName}}
+                    </span>
                 </div>
                 <div class="ui-g-1 table-col">
+                    <span class="table-text">
                     {{customer.country}}
+                    </span>
                 </div>
                 <div class="ui-g-1 table-col">
+                    <span class="table-text">
                     {{customer.phone}}
+                    </span>
                 </div>
                 <div class="ui-g-2 table-col">
+                    <span class="table-text">
                     {{customer.addressStreetName}} {{customer.addressStreetNumber}} <br/>
                     {{customer.addressPostalCode}} {{customer.addressCity}} <br/>
                     {{customer.addressCountry}}
+                    </span>
                 </div>
-                <div class="ui-g-2 table-col">
+                <div class="ui-g-1 table-col">
+                    <span class="table-text">
                     {{customer.passport}}
+                    </span>
                 </div>
                 <div class="ui-g-1 table-col">
+                    <span class="table-text">
                     {{customer.swift}}
+                    </span>
                 </div>
                 <div class="ui-g-1 table-col">
+                    <span class="table-text">
                     {{customer.accountNumber}}
+                    </span>
                 </div>
             </div>
         </ng-template>
     </p-dataView>
     <div class="row total-container">
-        <div class="col-sm-1 download-text" i18n>
+        <div class="col-sm-12 download-text" i18n>
             Total shoppers: {{customers ? customers.length : ''}}
         </div>
     </div>

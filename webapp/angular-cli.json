@@ -34,6 +34,7 @@
                 "../node_modules/primeicons/primeicons.css",
                 "../node_modules/primeng/resources/themes/omega/theme.css",
                 "../node_modules/primeng/resources/primeng.min.css",
+                "../node_modules/html5-device-mockups/dist/device-mockups.min.css",
                 "styles/styles.scss"
             ],
             "scripts": [
@@ -46,7 +47,8 @@
             "environments": {
                 "dev": "environments/environment.ts",
                 "hmr": "environments/environment.hmr.ts",
-                "prod": "environments/environment.prod.ts"
+                "prod": "environments/environment.prod.ts",
+                "preprod": "environments/environment.preprod.ts"
             }
         }
     ],

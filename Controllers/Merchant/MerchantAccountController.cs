@@ -62,7 +62,7 @@ namespace Refundeo.Controllers.Merchant
         [HttpPost]
         public async Task<IActionResult> RegisterMerchant([FromBody] MerchantRegisterDto model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || model.Username == null || model.Password == null)
             {
                 return BadRequest();
             }

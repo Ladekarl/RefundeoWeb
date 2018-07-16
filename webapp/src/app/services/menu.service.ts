@@ -40,16 +40,22 @@ export class MenuService {
             iconClass: 'fa-exchange'
         },
         {
+            routerLink: '/shoppers',
+            displayName: 'Shoppers',
+            title: 'Shoppers',
+            iconClass: 'fa-users'
+        },
+        {
             routerLink: '/retailers',
             displayName: 'Retailers',
             title: 'Retailers',
             iconClass: 'fa-home'
         },
         {
-            routerLink: '/shoppers',
-            displayName: 'Shoppers',
-            title: 'Shoppers',
-            iconClass: 'fa-users'
+            routerLink: '/addretailer',
+            displayName: 'Add Retailer',
+            title: 'Add Retailer',
+            iconClass: 'fa-plus'
         },
         {
             routerLink: '/docs',

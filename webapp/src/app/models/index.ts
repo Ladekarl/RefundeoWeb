@@ -4,3 +4,6 @@ export * from './menuitem';
 export * from './refundcase';
 export * from './customer';
 export * from './merchant';
+export * from './merchantinfo';
+export * from './customerinfo';
+export * from './tag';

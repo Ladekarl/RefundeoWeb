@@ -24,7 +24,8 @@ import {
     SwaggerComponent,
     AdminRefundcasesComponent,
     RetailersComponent,
-    ShoppersComponent
+    ShoppersComponent,
+    AddRetailerComponent
 } from './components/home/admin';
 import {SwaggerService} from './services';
 import {DashboardComponent} from './components/home/merchant';
@@ -49,7 +50,8 @@ registerLocaleData(localeDa, 'da');
         RefundCasesComponent,
         AdminRefundcasesComponent,
         RetailersComponent,
-        ShoppersComponent
+        ShoppersComponent,
+        AddRetailerComponent
     ],
     imports: [
         BrowserModule,

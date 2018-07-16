@@ -10,7 +10,8 @@ import {
     AdminRefundcasesComponent,
     SwaggerComponent,
     RetailersComponent,
-    ShoppersComponent
+    ShoppersComponent,
+    AddRetailerComponent
 } from './components/home/admin';
 import {HomeComponent} from './components/home/home.component';
 
@@ -33,6 +34,11 @@ const appRoutes: Routes = [
             {
                 path: 'retailers',
                 component: RetailersComponent,
+                canActivate: [AdminAuthGuard]
+            },
+            {
+                path: 'addretailer',
+                component: AddRetailerComponent,
                 canActivate: [AdminAuthGuard]
             },
             {

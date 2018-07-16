@@ -9,7 +9,7 @@ namespace Refundeo.Core.Data.Models
         public string CompanyName { get; set; }
         public string CVRNumber { get; set; }
         public double RefundPercentage { get; set; }
-        public string Description { get; set; }
+            public string Description { get; set; }
         public string Banner { get; set; }
         public string Logo { get; set; }
         public string VATNumber { get; set; }

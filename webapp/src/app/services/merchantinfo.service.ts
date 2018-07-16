@@ -1,14 +1,21 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {MerchantInfo} from '../models/merchantinfo';
+import {MerchantInfo, Tag} from '../models';
+import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class MerchantInfoService {
 
     merchantInfos: MerchantInfo[];
 
-    constructor(private http: HttpClient) {
+    constructor(
+        private http: HttpClient,
+        private authorizationService: AuthorizationService) {
+    }
+
+    getAllTags(): Observable<Tag[]> {
+        return this.http.get<MerchantInfo[]>('/api/tag');
     }
 
     getAll(): Observable<MerchantInfo[]> {
@@ -24,6 +31,21 @@ export class MerchantInfoService {
         }
         else
             return Observable.of(this.merchantInfos);
+    }
+
+    create(merchant: MerchantInfo) {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.authorizationService.getToken()
+            })
+        };
+        return this.http.post('api/merchant/account', merchant, httpOptions).map((success) => {
+            if (this.merchantInfos && this.merchantInfos.length > 0) {
+                this.merchantInfos.push(merchant);
+            }
+            return success;
+        });
     }
 
     resetMerchantInfos() {

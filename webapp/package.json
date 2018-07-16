@@ -8,6 +8,7 @@
         "hmr": "ng serve --hmr -e=hmr --host=0.0.0.0 --proxy-config proxy.config.json",
         "build": "ng build",
         "release": "ng build --prod --env=prod",
+        "preprod": "ng build --prod --env=preprod",
         "test": "ng test",
         "lint": "ng lint",
         "e2e": "ng e2e"
@@ -29,6 +30,7 @@
         "core-js": "^2.4.1",
         "file-saver": "^1.3.8",
         "font-awesome": "^4.7.0",
+        "html5-device-mockups": "^3.2.1",
         "jquery": "^3.3.1",
         "jquery-ui-dist": "^1.12.1",
         "jqueryui": "^1.11.1",
