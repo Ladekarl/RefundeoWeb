@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {MenuItem} from '../../models';
+import {ChildMenuItem, MenuItem} from '../../models';
 import {Router} from '@angular/router';
 import {AuthorizationService, MenuService} from '../../services';
 import * as $ from 'jquery';
@@ -17,6 +17,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     activeMenuItem: MenuItem;
     menuItems: MenuItem[];
     bottomMenuItems: MenuItem[];
+    activeChild: boolean;
 
     constructor(
         private router: Router,
@@ -27,7 +28,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        $('.menu-content li').on('click', () => {
+        $('.item-collapse').on('click', () => {
             if ($(window).width() <= 768)
                 $('.toggle-btn').click(); //bootstrap 3.x by Richard
         });
@@ -40,21 +41,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
                 const menuWidth = $('#menu').width();
                 $('#main').css({left: menuWidth});
 
-                const menuTexts = $('.menu-text');
+                const toHide = $('.hide-on-collapse');
                 const menuBody = $('.menu-body');
                 const menuIcons = $('.menu-icon');
                 const menuBottomItems = $('.menu-bottom-item');
-                if (menuWidth <= 160) {
-                    menuTexts.hide();
+                const childItems = $('.child-item');
+                if (menuWidth <= 180) {
+                    toHide.hide();
+                    childItems.css({lineHeight: 1.5});
                     menuBody.css({textAlign: 'center'});
                     menuIcons.css({padding: 0});
                     menuBottomItems.css({display: 'block'});
                 } else {
-                    menuTexts.show();
+                    toHide.show();
+                    childItems.css({lineHeight: '60px'});
                     menuBody.css({textAlign: 'left'});
                     menuIcons.css({paddingRight: 30});
                     menuIcons.css({paddingLeft: 25});
-                    menuBottomItems.css({display: 'table-cell   '});
+                    menuBottomItems.css({display: 'table-cell'});
                 }
             }
         });
@@ -63,13 +67,41 @@ export class HomeComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         this.menuItems = this.menuService.getMenuItems();
         this.bottomMenuItems = this.menuService.getBottomMenuItems();
-        const activeMenuItem = this.menuItems.find(menuItem => menuItem.routerLink === this.router.url);
-        this.setActiveMenuItem(activeMenuItem);
+        this.setInitialActiveMenuItem();
         this.brandLink = this.authorizationService.isAuthenticatedAdmin() ? '/admin' : '/';
     }
 
-    setActiveMenuItem(menuItem: MenuItem) {
+    setInitialActiveMenuItem(): void {
+        for (const menuItem of this.menuItems) {
+            if (this.isActiveMenuItem(menuItem)) {
+                this.setActiveMenuItem(menuItem, false);
+                return;
+            } else if (menuItem.children && menuItem.children.length > 0) {
+                for (const childItem of menuItem.children) {
+                    if (this.isActiveMenuItem(childItem)) {
+                        this.setActiveMenuItem(childItem, true);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    isChildActive(menuItem: MenuItem) {
+        for (const childItem of menuItem.children) {
+            if (this.isActiveMenuItem(childItem)) {
+                return true;
+            }
+        }
+    }
+
+    isActiveMenuItem(menuItem: MenuItem | ChildMenuItem) {
+        return menuItem.routerLink === this.router.url;
+    }
+
+    setActiveMenuItem(menuItem: MenuItem, isChild) {
         this.activeMenuItem = menuItem;
+        this.activeChild = isChild;
         this.setTitle('Refundeo - ' + menuItem.displayName);
     }
 

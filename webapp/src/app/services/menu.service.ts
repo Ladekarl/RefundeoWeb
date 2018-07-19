@@ -22,8 +22,14 @@ export class MenuService {
             routerLink: '/account',
             displayName: 'Account',
             title: 'Account',
-            iconClass: 'fa-user-circle'
+            iconClass: 'fa-user-circle',
         },
+        {
+            routerLink: '/retailer',
+            displayName: 'Retailer Information',
+            title: 'Retailer Information',
+            iconClass: 'fa-edit'
+        }
         // {
         //     routerLink: '/refunds',
         //     displayName: 'Refunds',
@@ -71,19 +77,29 @@ export class MenuService {
         }
     ];
 
-    private static bottomMenuItems: MenuItem[] = [
-        // {
-        //     routerLink: '/settings',
-        //     displayName: 'Settings',
-        //     title: 'Settings',
-        //     iconClass: 'fa-cog'
-        // },
+    private static merchantBottomMenuItems: MenuItem[] = [
         {
             routerLink: '/login',
             displayName: 'Logout',
             title: 'Logout',
             iconClass: 'fa-sign-out'
-        }];
+        },
+        // {
+        //     routerLink: '/settings',
+        //     displayName: 'Settings',
+        //     title: 'Settings',
+        //     iconClass: 'fa-cog'
+        // }
+    ];
+
+    private static adminBottomMenuItems: MenuItem[] = [
+        {
+            routerLink: '/login',
+            displayName: 'Logout',
+            title: 'Logout',
+            iconClass: 'fa-sign-out'
+        }
+    ];
 
     constructor(private authorizationService: AuthorizationService) {
     }
@@ -96,7 +112,10 @@ export class MenuService {
     }
 
     getBottomMenuItems(): MenuItem[] {
-        return MenuService.bottomMenuItems;
+        if (this.authorizationService.isAdmin()) {
+            return MenuService.adminBottomMenuItems;
+        }
+        return MenuService.merchantBottomMenuItems;
     }
 
 }

@@ -1,6 +1,7 @@
 export class ChildMenuItem {
     routerLink: string;
     displayName: string;
+    title: string;
 }
 
 export class MenuItem {

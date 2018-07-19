@@ -4,12 +4,14 @@ import {
     LoginComponent,
     HomeComponent,
     DashboardComponent,
+    SettingsComponent,
     RefundCasesComponent,
     AdminRefundcasesComponent,
     SwaggerComponent,
     RetailersComponent,
     ShoppersComponent,
-    RetailerComponent
+    RetailerComponent,
+    AccountComponent
 } from './components';
 
 const appRoutes: Routes = [
@@ -57,9 +59,19 @@ const appRoutes: Routes = [
             },
             {
                 path: 'account',
+                component: AccountComponent,
+                canActivate: [AuthGuard],
+            },
+            {
+                path: 'retailer',
                 component: RetailerComponent,
                 canActivate: [AuthGuard]
-            }
+            },
+            // {
+            //     path: 'settings',
+            //     component: SettingsComponent,
+            //     canActivate: [AuthGuard]
+            // }
         ]
     },
     {path: 'login', component: LoginComponent},

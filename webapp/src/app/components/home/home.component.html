@@ -5,7 +5,7 @@
                 <a [routerLink]="brandLink">
                     <div class="logo-container">
                         <img [src]="logoImageUrl" class="img-fluid" alt="image">
-                        <span i18n class="menu-text">Refundeo</span>
+                        <span i18n class="menu-text hide-on-collapse">Refundeo</span>
                     </div>
                 </a>
             </div>
@@ -13,19 +13,37 @@
             <div class="menu-list">
                 <ul id="menu-content" class="menu-content collapse out">
                     <div *ngFor="let menuItem of menuItems; let last = last">
-                        <li [routerLinkActive]="['active']" [routerLink]="[menuItem.routerLink]"
-                            [routerLinkActiveOptions]="{ exact: true }" data-toggle="collapse"
-                            [attr.data-target]="'#' + menuItem.displayName" class="collapsed"
-                            (click)="setActiveMenuItem(menuItem)" [class.last-item]="last">
+                        <li *ngIf="menuItem.routerLink"
+                            [routerLinkActive]="['active']" [routerLink]="[menuItem.routerLink]"
+                            [class.item-collapse]="!menuItem.children || menuItem.children.length === 0"
+                            data-toggle="collapse"
+                            [attr.data-target]="'#' + menuItem.displayName"
+                            [routerLinkActiveOptions]="{ exact: true }" class="collapsed"
+                            (click)="setActiveMenuItem(menuItem, false)" [class.last-item]="last">
                             <a>
-                                <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i> <span class="menu-text">{{menuItem.displayName}}</span>
-                                <span *ngIf="menuItem.children" class="arrow"></span>
+                                <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i> <span
+                                class="menu-text hide-on-collapse">{{menuItem.displayName}}</span>
                             </a>
                         </li>
-                        <ul *ngIf="menuItem.children" class="sub-menu collapse" [attr.id]="menuItem.displayName">
-                            <li *ngFor="let child of menuItem.children" [routerLinkActive]="['active']"
+                        <li *ngIf="!menuItem.routerLink"
+                            data-toggle="collapse"
+                            [class.last-item]="last"
+                            [attr.data-target]="'#' + menuItem.displayName" class="collapsed">
+                            <a>
+                                <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i> <span
+                                class="menu-text hide-on-collapse">{{menuItem.displayName}}</span>
+                            </a>
+                        </li>
+                        <ul *ngIf="menuItem.children && menuItem.children.length > 0" class="sub-menu collapse"
+                            [class.show]="isChildActive(menuItem)"
+                            [attr.id]="menuItem.displayName">
+                            <li *ngFor="let child of menuItem.children;"
+                                class="item-collapse child-item"
+                                [routerLinkActive]="['active']"
                                 [routerLink]="[child.routerLink]" [routerLinkActiveOptions]="{ exact: true }"
-                                (click)="setActiveMenuItem(child)"><span class="menu-text">{{child.displayName}}</span>
+                                (click)="setActiveMenuItem(child, true)">
+                                <i class="fa fa-lg fa-angle-right submenu-icon hide-on-collapse"></i>
+                                <span class="menu-text">{{child.displayName}}</span>
                             </li>
                         </ul>
                     </div>
@@ -33,9 +51,10 @@
                         <li *ngFor="let menuItem of bottomMenuItems.reverse();" [routerLinkActive]="['active']"
                             [routerLink]="[menuItem.routerLink]"
                             class="menu-bottom-item"
-                            [routerLinkActiveOptions]="{ exact: true }" (click)="setActiveMenuItem(menuItem)">
+                            [routerLinkActiveOptions]="{ exact: true }" (click)="setActiveMenuItem(menuItem, false)">
                             <a>
-                                <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i><span class="menu-text">{{menuItem.displayName}}</span>
+                                <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i><span
+                                class="menu-text hide-on-collapse">{{menuItem.displayName}}</span>
                             </a>
                         </li>
                     </div>
@@ -47,7 +66,7 @@
                 <li *ngFor="let menuItem of bottomMenuItems.reverse();" [routerLinkActive]="['active']"
                     class="menu-bottom-item"
                     [routerLink]="[menuItem.routerLink]" [routerLinkActiveOptions]="{ exact: true }"
-                    (click)="setActiveMenuItem(menuItem)">
+                    (click)="setActiveMenuItem(menuItem, false)">
                     <a>
                         <i [className]="'fa fa-lg menu-icon ' + menuItem.iconClass"></i>
                     </a>

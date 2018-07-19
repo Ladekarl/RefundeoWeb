@@ -26,7 +26,9 @@ import {
     ShoppersComponent,
     DashboardComponent,
     RetailerComponent,
-    LoginComponent
+    LoginComponent,
+    SettingsComponent,
+    AccountComponent
 } from './components';
 import {SwaggerService} from './services';
 import {DataViewModule} from 'primeng/dataview';
@@ -51,7 +53,9 @@ registerLocaleData(localeDa, 'da');
         AdminRefundcasesComponent,
         RetailersComponent,
         ShoppersComponent,
-        RetailerComponent
+        RetailerComponent,
+        SettingsComponent,
+        AccountComponent
     ],
     imports: [
         BrowserModule,
