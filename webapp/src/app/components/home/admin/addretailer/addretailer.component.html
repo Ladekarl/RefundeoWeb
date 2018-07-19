@@ -1,6 +1,7 @@
 <div class="row">
     <div class="col-sm-5">
         <form (ngSubmit)="onSubmit()" #retailerForm="ngForm">
+            <h6>Account Information</h6>
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" class="form-control" id="username" placeholder="Username" required
@@ -11,6 +12,22 @@
                 <input type="password" class="form-control" id="password" placeholder="Password" required
                        [(ngModel)]="model.password" name="password"/>
             </div>
+            <h6>Retailer Information</h6>
+            <div class="col-sm-12">
+                <div class="form-group row">
+                    <label id="uploadLogo"
+                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 upload-button">
+                        Upload Logo <input type="file" accept="image/png" hidden required (change)="uploadLogo($event)"
+                                           name="logo">
+                    </label>
+                    <label id="uploadBanner"
+                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 offset-xl-2 upload-button">
+                        Upload Banner <input type="file" accept="image/png" hidden required
+                                             (change)="uploadBanner($event)"
+                                             name="banner">
+                    </label>
+                </div>
+            </div>
             <div class="form-group">
                 <label for="companyName">Company Name</label>
                 <input type="text" class="form-control"
@@ -19,23 +36,6 @@
                        required
                        [(ngModel)]="model.companyName"
                        name="companyName">
-            </div>
-            <div class="form-group">
-                <label id="uploadLogo" class="form-control btn btn-info col-sm-12 col-lg-12 col-xl-6">
-                    Upload Logo <input type="file" accept="image/png" hidden required (change)="uploadLogo($event)"
-                                       name="logo">
-                </label>
-            </div>
-            <div class="form-group">
-                <label id="uploadBanner" class="form-control btn btn-info col-sm-12 col-lg-12 col-xl-6">
-                    Upload Banner <input type="file" accept="image/png" hidden required (change)="uploadBanner($event)"
-                                         name="banner">
-                </label>
-            </div>
-            <div class="form-group">
-                <label for="refundPercentage">Refund % (incl. admin fee & local VAT)</label>
-                <input type="number" class="form-control" id="refundPercentage" placeholder="Refund %" required
-                       [(ngModel)]="model.refundPercentage" name="refundPercentage"/>
             </div>
             <div class="form-group">
                 <label for="cvrNumber">CVR no.</label>
@@ -48,113 +48,149 @@
                        [(ngModel)]="model.vatNumber" name="vatNumber"/>
             </div>
             <div class="form-group">
-                <label for="contactEmail">Contact Email</label>
-                <input type="email" class="form-control" id="contactEmail" placeholder="Contact Email" required
-                       [(ngModel)]="model.contactEmail" name="contactEmail"/>
-            </div>
-            <div class="form-group">
-                <label for="contactPhone">Contact Phone no.</label>
-                <input type="tel" class="form-control" id="contactPhone" placeholder="Contact Phone no." required
-                       [(ngModel)]="model.contactPhone" name="contactPhone"/>
-            </div>
-            <div class="form-group">
                 <label for="currency">Currency</label>
                 <input type="text" class="form-control" id="currency" placeholder="Currency" required
                        [(ngModel)]="model.currency" name="currency"/>
             </div>
             <div class="form-group">
-                <label for="latitude">Location Lat.</label>
-                <input type="number" class="form-control" id="latitude" placeholder="Latitude" required
-                       [(ngModel)]="model.latitude" name="latitude"/>
-            </div>
-            <div class="form-group">
-                <label for="longitude">Location Lon.</label>
-                <input type="number" class="form-control" id="longitude" placeholder="Longitude" required
-                       [(ngModel)]="model.longitude" name="longitude"/>
-            </div>
-            <div class="form-group">
-                <label for="refundPercentage">Address</label>
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label class="col-sm-12">Street Name</label>
-                        <div class="form-group col-sm-12">
-                            <input type="text" class="form-control" placeholder="Street Name" required
-                                   [(ngModel)]="model.addressStreetName" name="streetName"/>
-                        </div>
-                        <label class="col-sm-12">House Number</label>
-                        <div class="form-group col-sm-12">
-                            <input type="text" class="form-control" placeholder="House Number" required
-                                   [(ngModel)]="model.addressStreetNumber" name="streetNumber"/>
-                        </div>
-                        <label class="col-sm-12">City</label>
-                        <div class="form-group col-sm-12">
-                            <input type="text" class="form-control" placeholder="City" required
-                                   [(ngModel)]="model.addressCity" name="city"/>
-                        </div>
-                        <label class="col-sm-12">Postal Code</label>
-                        <div class="form-group col-sm-12">
-                            <input type="text" class="form-control" placeholder="Postal Code" required
-                                   [(ngModel)]="model.addressPostalCode" name="postalCode"/>
-                        </div>
-                        <label class="col-sm-12">Country</label>
-                        <div class="form-group col-sm-12">
-                            <input type="text" class="form-control" placeholder="Country" required
-                                   [(ngModel)]="model.addressCountry" name="country"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="refundPercentage">Opening Hours</label>
-                <div class="col-sm-12">
-                    <div class="form-group" *ngFor="let openingHour of model.openingHours">
-                        <label *ngIf="openingHour.day === 0" class="col-sm-12">Monday</label>
-                        <label *ngIf="openingHour.day === 1" class="col-sm-12">Tuesday</label>
-                        <label *ngIf="openingHour.day === 2" class="col-sm-12">Wednesday</label>
-                        <label *ngIf="openingHour.day === 3" class="col-sm-12">Thursday</label>
-                        <label *ngIf="openingHour.day === 4" class="col-sm-12">Friday</label>
-                        <label *ngIf="openingHour.day === 5" class="col-sm-12">Saturday</label>
-                        <label *ngIf="openingHour.day === 6" class="col-sm-12">Sunday</label>
-                        <div class="form-group col-sm-12">
-                            <input type="number" class="form-control" placeholder="Open" required
-                                   [(ngModel)]="openingHour.open" name="{{openingHour.day}}open"/>
-                        </div>
-                        <div class="form-group col-sm-12">
-                            <input type="number" class="form-control" placeholder="Close" required
-                                   [(ngModel)]="openingHour.close" name="{{openingHour.day}}close"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Tags</label>
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <div *ngFor="let tag of tags">
-                            <input type="checkbox" id="tag{{tag.key}}"
-                                   (change)="onCheckTag(tag)" name="{{tag.value}}"/>
-                            <label for="tag{{tag.key}}">{{tag.value}}</label>
-                        </div>
-                    </div>
-                </div>
+                <label for="refundPercentage">Refund % (incl. admin fee & local VAT)</label>
+                <input type="number" class="form-control" id="refundPercentage" placeholder="Refund %" required
+                       [(ngModel)]="model.refundPercentage" name="refundPercentage"/>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea class="form-control" id="description" rows="5" placeholder="Description" required
+                <textarea class="form-control description-text" id="description" rows="5" placeholder="Description"
+                          required
                           [(ngModel)]="model.description" name="description"></textarea>
             </div>
-            <div class="row">
-                <button type="submit" [disabled]="!retailerForm.form.valid" class="btn btn-primary col-sm-12">Add
-                    retailer
+            <div class="form-group">
+                <h6>Address</h6>
+                <div class="form-group row">
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="text" class="form-control" placeholder="Street Name" required
+                               [(ngModel)]="model.addressStreetName" name="streetName"/>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="text" class="form-control" placeholder="House Number" required
+                               [(ngModel)]="model.addressStreetNumber" name="streetNumber"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="text" class="form-control" placeholder="City" required
+                               [(ngModel)]="model.addressCity" name="city"/>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="text" class="form-control" placeholder="Postal Code" required
+                               [(ngModel)]="model.addressPostalCode" name="postalCode"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <input type="text" class="form-control" placeholder="Country" required
+                               [(ngModel)]="model.addressCountry" name="country"/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <h6>Location</h6>
+                <div class="form-group row">
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="number" class="form-control" id="latitude" placeholder="Latitude" required
+                               [(ngModel)]="model.latitude" name="latitude"/>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="number" class="form-control" id="longitude" placeholder="Longitude" required
+                               [(ngModel)]="model.longitude" name="longitude"/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <h6>Contact</h6>
+                <div class="form-group row">
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="email" class="form-control" id="contactEmail" placeholder="Contact Email" required
+                               [(ngModel)]="model.contactEmail" name="contactEmail"/>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <input type="tel" class="form-control" id="contactPhone" placeholder="Contact Phone no."
+                               required
+                               [(ngModel)]="model.contactPhone" name="contactPhone"/>
+                    </div>
+                </div>
+            </div>
+            <h6>Opening Hours</h6>
+            <div *ngFor="let openingHour of model.openingHours">
+                <div class="form-group row align-items-center">
+                    <label *ngIf="openingHour.day === 0" class="col-sm-2 center-text">Monday</label>
+                    <label *ngIf="openingHour.day === 1" class="col-sm-2 center-text">Tuesday</label>
+                    <label *ngIf="openingHour.day === 2" class="col-sm-2 center-text">Wednesday</label>
+                    <label *ngIf="openingHour.day === 3" class="col-sm-2 center-text">Thursday</label>
+                    <label *ngIf="openingHour.day === 4" class="col-sm-2 center-text">Friday</label>
+                    <label *ngIf="openingHour.day === 5" class="col-sm-2 center-text">Saturday</label>
+                    <label *ngIf="openingHour.day === 6" class="col-sm-2 center-text">Sunday</label>
+                    <div class="col-lg-5 col-sm-12">
+                        <input type="text" class="form-control" placeholder="Open" required
+                               [(ngModel)]="openingHour.open" name="{{openingHour.day}}open"/>
+                    </div>
+                    <div class="col-lg-5 col-sm-12">
+                        <input type="text" class="form-control" placeholder="Close" required
+                               [(ngModel)]="openingHour.close" name="{{openingHour.day}}close"/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <h6>Tags</h6>
+                <div class="form-group row">
+                    <div class="col-xl-6" *ngFor="let tag of tags">
+                        <input type="checkbox" id="tag{{tag.key}}"
+                               (change)="onCheckTag(tag)" name="{{tag.value}}"/>
+                        <label for="tag{{tag.key}}">{{tag.value}}</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" [disabled]="!retailerForm.form.valid" class="btn btn-primary col-sm-12">
+                    Add retailer
                 </button>
             </div>
         </form>
     </div>
-    <div class="col-sm-6 offset-sm-1 col-xl-4 offset-xl-2">
-        <div class="device-wrapper">
+    <div id="mockup-container" class="col-sm-6 offset-sm-1 col-xl-4 offset-xl-2">
+        <div id="mockup-device" class="device-wrapper">
             <div class="device" data-device="iPhone7" data-orientation="portrait" data-color="black">
                 <div class="screen">
-                    <div class="col-sm-12">
+                    <div class="banner-container" [ngStyle]="{'background-image': 'url(' + model.banner + ')'}">
+                        <div *ngIf="model.logo" class="logo-container">
+                            <img class="logo" [src]="model.logo">
+                        </div>
+                    </div>
+                    <div class="banner-text-bar-container">
+                        <div class="banner-column-container">
+                            <span class="left-text">Opening hours:</span>
+                            <span class="left-text">Refund (%):</span>
+                        </div>
+                        <div class="banner-column-container">
+                            <span class="content-text">{{model.openingHours[date.getDay() - 1].open}} - {{model.openingHours[date.getDay() - 1].close}}</span>
+                            <span class="content-text">{{model.refundPercentage}}</span>
+                        </div>
+                    </div>
+                    <div class="content-container">
+                        <div class=description-container>
+                            {{model.description}}
+                        </div>
+                        <div class="bottom-container" *ngIf="model.addressStreetName">
+                            <span class="bottom-title-text">Address</span>
+                            <span class="bottom-text">
+                            {{model.addressStreetName}} {{model.addressStreetNumber}}, {{model.addressPostalCode}} {{model.addressCity}}, {{model.addressCountry}}
+                        </span>
+                        </div>
+                        <div class="bottom-container" *ngIf="model.vatNumber">
+                            <span class="bottom-title-text">VAT no.</span>
+                            <span class="bottom-text">
+                            {{model.vatNumber}}
+                        </span>
+                        </div>
                     </div>
                 </div>
             </div>

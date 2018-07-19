@@ -13,6 +13,7 @@ export class AddRetailerComponent implements OnInit {
 
     model;
     tags;
+    date;
 
     constructor(
         private confirmationService: ConfirmationService,
@@ -32,6 +33,7 @@ export class AddRetailerComponent implements OnInit {
             {day: 6}
         ];
         this.model.tags = [];
+        this.date = new Date();
         this.merchantInfoService.getAllTags().subscribe(tags => {
             this.tags = tags;
         });
@@ -95,13 +97,11 @@ export class AddRetailerComponent implements OnInit {
     _handleLogoLoaded(e) {
         const reader = e.target;
         this.model.logo = reader.result;
-        alert('Successfully uploaded logo');
     }
 
     _handleBannerLoaded(e) {
         const reader = e.target;
         this.model.banner = reader.result;
-        alert('Successfully uploaded banner');
     }
 
 

@@ -3,6 +3,7 @@ import {MenuItem} from '../../models';
 import {Router} from '@angular/router';
 import {MenuService} from '../../services';
 import * as $ from 'jquery';
+import {Title} from '@angular/platform-browser';
 
 @Component({
     selector: 'app-home',
@@ -17,16 +18,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
     menuItems: MenuItem[];
     bottomMenuItems: MenuItem[];
 
-    constructor(private router: Router, private menuService: MenuService) {
+    constructor(private router: Router, private menuService: MenuService, private titleService: Title) {
     }
 
     ngAfterViewInit() {
+        $('.menu-content li').on('click', () => {
+            if ($( window ).width() <= 768)
+            $('.toggle-btn').click() //bootstrap 3.x by Richard
+        });
         $('#menu').resizable({
             maxWidth: 300,
             minWidth: 75,
             handles: 'e',
             autoHide: true,
-            resize: function () {
+            resize: () => {
                 const menuWidth = $('#menu').width();
                 $('#main').css({left: menuWidth});
 
@@ -59,5 +64,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     setActiveMenuItem(menuItem: MenuItem) {
         this.activeMenuItem = menuItem;
+        this.setTitle('Refundeo - ' + menuItem.displayName);
+    }
+
+    setTitle(newTitle: string) {
+        this.titleService.setTitle(newTitle);
     }
 }

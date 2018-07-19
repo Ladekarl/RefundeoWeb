@@ -1,4 +1,4 @@
-import {BrowserModule} from '@angular/platform-browser';
+import {BrowserModule, Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {AppComponent} from './components/app.component';
@@ -69,6 +69,7 @@ registerLocaleData(localeDa, 'da');
         {provide: LOCALE_ID, useValue: 'da'},
         AdminAuthGuard,
         AuthGuard,
+        Title,
         AuthenticationService,
         AuthorizationService,
         ConfirmationService,

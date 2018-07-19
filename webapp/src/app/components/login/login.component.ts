@@ -10,6 +10,7 @@ import {
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
+import {Title} from '@angular/platform-browser';
 
 @Component({
     selector: 'app-login',
@@ -33,15 +34,20 @@ export class LoginComponent implements OnInit {
         private customerInfoSerivce: CustomerInfoService,
         private authorizationService: AuthorizationService,
         private merchantInfoService: MerchantInfoService,
+        private titleService: Title,
         private spinnerService: Ng4LoadingSpinnerService) {
     }
 
     ngOnInit() {
         // reset login status
         this.authenticationService.logout();
-
+        this.setTitle('Refundeo - Log In to Retailer Suite');
         // get return url from route parameters or default to '/'
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    }
+
+    setTitle(newTitle: string) {
+        this.titleService.setTitle(newTitle);
     }
 
     getInitialData() {

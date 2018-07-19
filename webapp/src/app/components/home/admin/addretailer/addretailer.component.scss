@@ -1,7 +1,125 @@
-.ng-valid[required], .ng-valid.required  {
+.ng-valid[required], .ng-valid.required {
     border-left: 5px solid #42A948; /* green */
 }
 
-.ng-invalid:not(form)  {
+.ng-invalid:not(form) {
     border-left: 5px solid #a94442; /* red */
+}
+
+.device {
+    background-color: #faf7f7;
+}
+
+.device-wrapper {
+    position: fixed;
+    width: (100% / 209.829619921363 * 100);
+    overflow: scroll;
+}
+
+.banner-container {
+    height: 180px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background-size: cover;
+    background: no-repeat 50% 50%;
+}
+
+.logo-container {
+    height: 80px;
+    justify-content: center;
+    align-items: center;
+    background-color: #faf7f7;
+    -webkit-border-radius: 40px;
+    -moz-border-radius: 40px;
+    border-radius: 40px;
+    padding: 11px;
+    border: 1px #CED0CE;
+}
+
+.logo {
+    height: 60px;
+    width: 60px;
+    object-fit: contain;
+}
+
+.screen {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 15px;
+    background-color: #faf7f7;
+    overflow: auto;
+    min-height: 76%;
+    height: auto !important;
+}
+
+.banner-text-bar-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    background-color: #303880;
+    padding: 10px;
+}
+
+.banner-column-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.left-text {
+    margin: 5px;
+    color: #CED0CE;
+}
+
+.content-text {
+    margin: 5px;
+    color: #faf7f7;
+}
+
+.content-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: scroll;
+}
+
+.description-container {
+    white-space: pre-line;
+}
+
+.bottom-container {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.bottom-title-text {
+    color: #303880;
+    font-size: 11px;
+}
+
+.bottom-text {
+    color: #5a5a5a;
+    font-size: 11px;
+}
+
+.center-text {
+    margin-bottom: 0;
+}
+
+.upload-button {
+    margin-top: 5px;
+}
+
+.description-text {
+    white-space: pre-wrap;
 }
