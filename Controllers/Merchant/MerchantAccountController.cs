@@ -58,6 +58,28 @@ namespace Refundeo.Controllers.Merchant
             return userModels;
         }
 
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            var merchantInformation = await _context.MerchantInformations
+                .Where(i => i.Merchant.Id == id)
+                .Include(i => i.Merchant)
+                .Include(i => i.Address)
+                .Include(i => i.Location)
+                .Include(i => i.OpeningHours)
+                .Include(i => i.MerchantInformationTags)
+                .ThenInclude(i => i.Tag)
+                .FirstOrDefaultAsync();
+
+            if (merchantInformation == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation));
+        }
+
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]
         [HttpPost]
         public async Task<IActionResult> RegisterMerchant([FromBody] MerchantRegisterDto model)
@@ -88,7 +110,7 @@ namespace Refundeo.Controllers.Merchant
                 Country = model.AddressCountry,
                 StreetName = model.AddressStreetName,
                 StreetNumber = model.AddressStreetNumber,
-                PostalCode = model.AddressPostalCode,
+                PostalCode = model.AddressPostalCode
             };
 
             await _context.Addresses.AddAsync(address);
@@ -100,17 +122,6 @@ namespace Refundeo.Controllers.Merchant
             };
 
             await _context.Locations.AddAsync(location);
-
-            foreach (var openingHoursModel in model.OpeningHours)
-            {
-                var openingHours = new OpeningHours
-                {
-                    Close = openingHoursModel.Close,
-                    Day = openingHoursModel.Day,
-                    Open = openingHoursModel.Open
-                };
-                await _context.OpeningHours.AddAsync(openingHours);
-            }
 
             var merchantInformation = new MerchantInformation
             {
@@ -139,43 +150,56 @@ namespace Refundeo.Controllers.Merchant
                         MerchantInformation = merchantInformation,
                         Tag = tag
                     };
-                    _context.MerchantInformationTags.Add(merchantInformationTag);
+                    await _context.MerchantInformationTags.AddAsync(merchantInformationTag);
 
                     merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
                     tag.MerchantInformationTags.Add(merchantInformationTag);
                 }
             }
 
+            foreach (var openingHoursModel in model.OpeningHours)
+            {
+                var openingHours = new OpeningHours
+                {
+                    Close = openingHoursModel.Close,
+                    Day = openingHoursModel.Day,
+                    Open = openingHoursModel.Open
+                };
+                await _context.OpeningHours.AddAsync(openingHours);
+
+                merchantInformation.OpeningHours.Add(openingHours);
+            }
+
             await _context.SaveChangesAsync();
 
-            if (model.Logo != null || model.Banner != null)
+            if (model.Logo == null && model.Banner == null)
+                return await _authenticationService.GenerateTokenResultAsync(user);
+
+            if (model.Logo != null)
             {
-                if (model.Logo != null)
-                {
-                    var logoContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
-                    merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
-                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
-                        "image/png");
-                }
-
-                if (model.Banner != null)
-                {
-                    var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
-                    merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
-                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
-                        "image/png");
-                }
-
-                _context.MerchantInformations.Update(merchantInformation);
-                await _context.SaveChangesAsync();
+                var logoContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
+                merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
+                    $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
+                    "image/png");
             }
+
+            if (model.Banner != null)
+            {
+                var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
+                merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
+                    $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
+                    "image/png");
+            }
+
+            _context.MerchantInformations.Update(merchantInformation);
+            await _context.SaveChangesAsync();
 
             return await _authenticationService.GenerateTokenResultAsync(user);
         }
 
         [Authorize(Roles = RefundeoConstants.RoleMerchant)]
         [HttpPut]
-        public async Task<IActionResult> ChangeMerchant([FromBody] ChangeMerchantDto model)
+        public async Task<IActionResult> ChangeMerchant([FromBody] ChangeMerchantRestrictedDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -228,7 +252,74 @@ namespace Refundeo.Controllers.Merchant
 
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CvrNumber;
-            merchantInformation.RefundPercentage = model.RefundPercentage;
+            merchantInformation.Address.StreetName = model.AddressStreetName;
+            merchantInformation.Address.Country = model.AddressCountry;
+            merchantInformation.Address.City = model.AddressCity;
+            merchantInformation.Address.StreetNumber = model.AddressStreetNumber;
+            merchantInformation.Address.PostalCode = model.AddressPostalCode;
+            merchantInformation.Location.Latitude = model.Latitude;
+            merchantInformation.Location.Longitude = model.Longitude;
+            merchantInformation.Description = model.Description;
+            merchantInformation.VATNumber = model.VatNumber;
+            merchantInformation.ContactEmail = model.ContactEmail;
+            merchantInformation.ContactPhone = model.ContactPhone;
+            merchantInformation.Currency = model.Currency;
+
+            _context.MerchantInformations.Update(merchantInformation);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [Authorize(Roles = RefundeoConstants.RoleAdmin)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> ChangeMerchant(string id, [FromBody] ChangeMerchantDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return new BadRequestResult();
+            }
+
+            var merchantInformation = await _context.MerchantInformations
+                .Include(i => i.Merchant)
+                .Include(m => m.Address)
+                .Include(m => m.Location)
+                .Include(m => m.OpeningHours)
+                .Include(m => m.MerchantInformationTags)
+                .ThenInclude(m => m.Tag)
+                .FirstOrDefaultAsync(i => i.Merchant.Id == id);
+
+            if (merchantInformation == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var openingHoursModel in model.OpeningHours)
+            {
+                var existingOpeningHours =
+                    merchantInformation
+                        .OpeningHours
+                        .FirstOrDefault(o => o.Day == openingHoursModel.Day);
+                if (existingOpeningHours == null)
+                {
+                    var openingHours = new OpeningHours
+                    {
+                        Close = openingHoursModel.Close,
+                        Day = openingHoursModel.Day,
+                        Open = openingHoursModel.Open
+                    };
+                    _context.OpeningHours.Add(openingHours);
+                }
+                else
+                {
+                    existingOpeningHours.Close = openingHoursModel.Close;
+                    existingOpeningHours.Open = openingHoursModel.Open;
+                    _context.OpeningHours.Update(existingOpeningHours);
+                }
+            }
+
+            merchantInformation.CompanyName = model.CompanyName;
+            merchantInformation.CVRNumber = model.CvrNumber;
             merchantInformation.Address.StreetName = model.AddressStreetName;
             merchantInformation.Address.Country = model.AddressCountry;
             merchantInformation.Address.City = model.AddressCity;
@@ -247,56 +338,71 @@ namespace Refundeo.Controllers.Merchant
 
             foreach (var tagModel in model.Tags)
             {
-                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == tagModel);
-                if (tag != null && merchantInformation.MerchantInformationTags.Any(m => m.Tag == tag))
-                {
-                    var merchantInformationTag = new MerchantInformationTag
-                    {
-                        MerchantInformation = merchantInformation,
-                        Tag = tag
-                    };
-                    _context.MerchantInformationTags.Add(merchantInformationTag);
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Key == tagModel);
 
-                    merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
-                    tag.MerchantInformationTags.Add(merchantInformationTag);
-                }
+                if (tag == null) continue;
+
+                var merchantInformationTag =
+                    await _context.MerchantInformationTags.FirstOrDefaultAsync(x =>
+                        x.TagId == tag.Id && x.MerhantInformationId == merchantInformation.Id);
+
+                if (merchantInformationTag != null) continue;
+
+                merchantInformationTag = new MerchantInformationTag
+                {
+                    MerchantInformation = merchantInformation,
+                    Tag = tag
+                };
+                _context.MerchantInformationTags.Add(merchantInformationTag);
+
+                merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
+                tag.MerchantInformationTags.Add(merchantInformationTag);
             }
 
-            if (model.Logo != null || model.Banner != null)
+            foreach (var merchantInformationTag in merchantInformation.MerchantInformationTags)
             {
-                if (model.Logo != null)
-                {
-                    var logoContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
-                    try
-                    {
-                        merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
-                            $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
-                            "image/png");
-                    }
-                    catch (FormatException ex)
-                    {
-                        return BadRequest(ex.Message);
-                    }
-                }
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == merchantInformationTag.TagId);
 
-                if (model.Banner != null)
+                if (!model.Tags.Contains(tag.Key))
                 {
-                    try
-                    {
-                        var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
-                        merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
-                            $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
-                            "image/png");
-                    }
-                    catch (FormatException ex)
-                    {
-                        return BadRequest(ex.Message);
-                    }
+                    _context.Remove(merchantInformationTag);
                 }
-
-                _context.MerchantInformations.Update(merchantInformation);
-                await _context.SaveChangesAsync();
             }
+
+            if (model.Logo == null && model.Banner == null) return NoContent();
+
+            if (model.Logo != null)
+            {
+                var logoContainerName = _optionsAccessor.Value.MerchantLogosContainerNameOption;
+                try
+                {
+                    merchantInformation.Logo = await _blobStorageService.UploadAsync(logoContainerName,
+                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-logo", model.Logo,
+                        "image/png");
+                }
+                catch (FormatException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+
+            if (model.Banner != null)
+            {
+                try
+                {
+                    var bannerContainerName = _optionsAccessor.Value.MerchantBannersContainerNameOption;
+                    merchantInformation.Banner = await _blobStorageService.UploadAsync(bannerContainerName,
+                        $"{merchantInformation.CompanyName}-{merchantInformation.Id}-banner", model.Banner,
+                        "image/png");
+                }
+                catch (FormatException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+
+            _context.MerchantInformations.Update(merchantInformation);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

@@ -18,6 +18,12 @@ export class MenuService {
             title: 'Refunds',
             iconClass: 'fa-exchange'
         },
+        {
+            routerLink: '/account',
+            displayName: 'Account',
+            title: 'Account',
+            iconClass: 'fa-user-circle'
+        },
         // {
         //     routerLink: '/refunds',
         //     displayName: 'Refunds',
@@ -34,31 +40,31 @@ export class MenuService {
 
     private static adminMenuItems: MenuItem[] = [
         {
-            routerLink: '/',
+            routerLink: '/admin',
             displayName: 'Refunds',
             title: 'Refunds',
             iconClass: 'fa-exchange'
         },
         {
-            routerLink: '/shoppers',
+            routerLink: '/admin/shoppers',
             displayName: 'Shoppers',
             title: 'Shoppers',
             iconClass: 'fa-users'
         },
         {
-            routerLink: '/retailers',
+            routerLink: '/admin/retailers',
             displayName: 'Retailers',
             title: 'Retailers',
             iconClass: 'fa-home'
         },
         {
-            routerLink: '/addretailer',
+            routerLink: '/admin/addretailer',
             displayName: 'Add Retailer',
             title: 'Add Retailer',
             iconClass: 'fa-plus'
         },
         {
-            routerLink: '/docs',
+            routerLink: '/admin/docs',
             displayName: 'API',
             title: 'Refundeo API',
             iconClass: 'fa-cloud'

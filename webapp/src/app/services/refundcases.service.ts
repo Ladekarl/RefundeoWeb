@@ -72,21 +72,14 @@ export class RefundCasesService {
     }
 
     getById(id: number) {
-        return this
-            .http
-            .get(`/api/merchant/refundcase/${id}`)
-            .map(RefundCasesService.mapDate);
+        return this.http.get(`/api/merchant/refundcase/${id}`).map(RefundCasesService.mapDate);
     }
 
     accept(refundCase: RefundCase, isAccepted: boolean) {
-        return this
-            .http
-            .post(`/api/admin/refundcase/${refundCase.id}/accept`, {isAccepted: isAccepted});
+        return this.http.post(`/api/admin/refundcase/${refundCase.id}/accept`, {isAccepted: isAccepted});
     }
 
     delete(id: number) {
-        return this
-            .http
-            .delete(`/api/merchant/refundcase/${id}`);
+        return this.http.delete(`/api/merchant/refundcase/${id}`);
     }
 }

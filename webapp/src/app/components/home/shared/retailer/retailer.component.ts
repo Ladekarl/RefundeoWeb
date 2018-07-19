@@ -1,27 +1,32 @@
 import {Component, OnInit} from '@angular/core';
-import {MerchantInfo} from '../../../../models';
-import {MerchantInfoService} from '../../../../services';
+import {MerchantInfo, Tag} from '../../../../models';
+import {AuthorizationService, MerchantInfoService} from '../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {ConfirmationService} from 'primeng/api';
 
 @Component({
-    selector: 'app-addretailer',
-    templateUrl: './addretailer.component.html',
-    styleUrls: ['./addretailer.component.scss']
+    selector: 'app-retailer',
+    templateUrl: './retailer.component.html',
+    styleUrls: ['./retailer.component.scss']
 })
-export class AddRetailerComponent implements OnInit {
+export class RetailerComponent implements OnInit {
 
-    model;
-    tags;
-    date;
+    model: MerchantInfo;
+    tags: Tag[];
+    date: Date;
+    isMerchant: boolean;
+    isAdmin: boolean;
 
     constructor(
         private confirmationService: ConfirmationService,
         private merchantInfoService: MerchantInfoService,
+        private authorizationService: AuthorizationService,
         private spinnerService: Ng4LoadingSpinnerService) {
     }
 
     ngOnInit() {
+        this.isMerchant = this.authorizationService.isAuthenticatedMerchant();
+        this.isAdmin = this.authorizationService.isAuthenticatedAdmin();
         this.model = new MerchantInfo();
         this.model.openingHours = [
             {day: 0},
@@ -37,9 +42,48 @@ export class AddRetailerComponent implements OnInit {
         this.merchantInfoService.getAllTags().subscribe(tags => {
             this.tags = tags;
         });
+
+        if (this.isMerchant) {
+            this.spinnerService.show();
+            this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
+                this.model = merchantInfo;
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
+        }
     }
 
     onSubmit() {
+        if (this.isAdmin) {
+            this.createMerchant();
+        } else if (this.isMerchant) {
+            this.updateMerchant();
+        }
+    }
+
+    updateMerchant() {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to update your information?`,
+            accept: () => {
+                this.spinnerService.show();
+                this.merchantInfoService.updateMerchant(this.model).subscribe(() => {
+                    this.spinnerService.hide();
+                }, (e) => {
+                    this.spinnerService.hide();
+                    let errorString = 'Could not update your information\n';
+                    if (e.error && e.error.errors) {
+                        e.error.errors.forEach(e => {
+                            errorString = errorString + e.description + '\n';
+                        });
+                    }
+                    alert(errorString);
+                });
+            }
+        });
+    }
+
+    createMerchant() {
         this.confirmationService.confirm({
             message: `Are you sure you want to create this retailer?`,
             accept: () => {
@@ -74,7 +118,7 @@ export class AddRetailerComponent implements OnInit {
         const file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         const pattern = /image\/png/;
         const reader = new FileReader();
-        if (!file.type.match(pattern)) {
+        if (file && file.type && !file.type.match(pattern)) {
             alert('invalid format' + file.type);
             return;
         }
@@ -96,12 +140,12 @@ export class AddRetailerComponent implements OnInit {
 
     _handleLogoLoaded(e) {
         const reader = e.target;
-        this.model.logo = reader.result;
+        this.model.logo = reader.result.replace('data:image/png;base64,', '');
     }
 
     _handleBannerLoaded(e) {
         const reader = e.target;
-        this.model.banner = reader.result;
+        this.model.banner = reader.result.replace('data:image/png;base64,', '');
     }
 
 

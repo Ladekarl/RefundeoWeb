@@ -14,6 +14,20 @@ export class MerchantInfoService {
         private authorizationService: AuthorizationService) {
     }
 
+    getMerchant(id: string): Observable<MerchantInfo> {
+        return this.http.get<Merchant>('/api/merchant/account/' + id);
+    }
+
+    updateMerchant(merchant: MerchantInfo): Observable {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.authorizationService.getToken()
+            })
+        };
+        return this.http.put('/api/merchant/account', merchant, httpOptions);
+    }
+
     getAllTags(): Observable<Tag[]> {
         return this.http.get<Tag[]>('/api/tag');
     }

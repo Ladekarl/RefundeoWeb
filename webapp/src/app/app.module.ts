@@ -1,7 +1,6 @@
 import {BrowserModule, Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {LOCALE_ID, NgModule} from '@angular/core';
-import {AppComponent} from './components/app.component';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AdminAuthGuard, AuthGuard} from './guards';
@@ -17,18 +16,19 @@ import {
     AuthorizationService,
     MerchantInfoService
 } from './services';
-import {RefundCasesComponent} from './components/home/merchant';
-import {HomeComponent} from './components/home/home.component';
-import {LoginComponent} from './components/login';
 import {
+    AppComponent,
+    RefundCasesComponent,
+    HomeComponent,
     SwaggerComponent,
     AdminRefundcasesComponent,
     RetailersComponent,
     ShoppersComponent,
-    AddRetailerComponent
-} from './components/home/admin';
+    DashboardComponent,
+    RetailerComponent,
+    LoginComponent
+} from './components';
 import {SwaggerService} from './services';
-import {DashboardComponent} from './components/home/merchant';
 import {DataViewModule} from 'primeng/dataview';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
@@ -51,7 +51,7 @@ registerLocaleData(localeDa, 'da');
         AdminRefundcasesComponent,
         RetailersComponent,
         ShoppersComponent,
-        AddRetailerComponent
+        RetailerComponent
     ],
     imports: [
         BrowserModule,

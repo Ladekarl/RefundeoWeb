@@ -73,6 +73,9 @@ export class LoginComponent implements OnInit {
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(() => {
                 this.getInitialData();
+                if (this.authorizationService.isAuthenticatedAdmin()) {
+                    this.returnUrl === '/' ? this.returnUrl = 'admin' : this.returnUrl;
+                }
                 this.router.navigate([this.returnUrl]);
             }, error => {
                 this.loading = false;

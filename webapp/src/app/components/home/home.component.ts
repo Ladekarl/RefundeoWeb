@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {MenuItem} from '../../models';
 import {Router} from '@angular/router';
-import {MenuService} from '../../services';
+import {AuthorizationService, MenuService} from '../../services';
 import * as $ from 'jquery';
 import {Title} from '@angular/platform-browser';
 
@@ -13,18 +13,23 @@ import {Title} from '@angular/platform-browser';
 
 export class HomeComponent implements OnInit, AfterViewInit {
     logoImageUrl = require('../../../assets/images/refundeo_logo.png');
-
+    brandLink: string;
     activeMenuItem: MenuItem;
     menuItems: MenuItem[];
     bottomMenuItems: MenuItem[];
 
-    constructor(private router: Router, private menuService: MenuService, private titleService: Title) {
+    constructor(
+        private router: Router,
+        private menuService: MenuService,
+        private titleService: Title,
+        private authorizationService: AuthorizationService
+    ) {
     }
 
     ngAfterViewInit() {
         $('.menu-content li').on('click', () => {
-            if ($( window ).width() <= 768)
-            $('.toggle-btn').click() //bootstrap 3.x by Richard
+            if ($(window).width() <= 768)
+                $('.toggle-btn').click(); //bootstrap 3.x by Richard
         });
         $('#menu').resizable({
             maxWidth: 300,
@@ -60,6 +65,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.bottomMenuItems = this.menuService.getBottomMenuItems();
         const activeMenuItem = this.menuItems.find(menuItem => menuItem.routerLink === this.router.url);
         this.setActiveMenuItem(activeMenuItem);
+        this.brandLink = this.authorizationService.isAuthenticatedAdmin() ? '/admin' : '/';
     }
 
     setActiveMenuItem(menuItem: MenuItem) {

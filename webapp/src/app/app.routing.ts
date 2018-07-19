@@ -1,33 +1,25 @@
 import {Routes, RouterModule} from '@angular/router';
-
-import {
-    DashboardComponent,
-    RefundCasesComponent
-} from './components/home/merchant';
-import {LoginComponent} from './components/login';
 import {AuthGuard, AdminAuthGuard} from './guards';
 import {
+    LoginComponent,
+    HomeComponent,
+    DashboardComponent,
+    RefundCasesComponent,
     AdminRefundcasesComponent,
     SwaggerComponent,
     RetailersComponent,
     ShoppersComponent,
-    AddRetailerComponent
-} from './components/home/admin';
-import {HomeComponent} from './components/home/home.component';
+    RetailerComponent
+} from './components';
 
 const appRoutes: Routes = [
     {
-        path: '',
+        path: 'admin',
         component: HomeComponent,
         canActivate: [AdminAuthGuard],
         children: [
             {
                 path: '',
-                component: AdminRefundcasesComponent,
-                canActivate: [AdminAuthGuard]
-            },
-            {
-                path: 'refunds',
                 component: AdminRefundcasesComponent,
                 canActivate: [AdminAuthGuard]
             },
@@ -38,7 +30,7 @@ const appRoutes: Routes = [
             },
             {
                 path: 'addretailer',
-                component: AddRetailerComponent,
+                component: RetailerComponent,
                 canActivate: [AdminAuthGuard]
             },
             {
@@ -59,8 +51,13 @@ const appRoutes: Routes = [
         canActivate: [AuthGuard],
         children: [
             {
-                path: 'refunds',
+                path: '',
                 component: RefundCasesComponent,
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'account',
+                component: RetailerComponent,
                 canActivate: [AuthGuard]
             }
         ]
