@@ -14,7 +14,7 @@ import {Title} from '@angular/platform-browser';
 export class HomeComponent implements OnInit, AfterViewInit {
     logoImageUrl = require('../../../assets/images/refundeo_logo.png');
     brandLink: string;
-    activeMenuItem: MenuItem;
+    activeMenuItem: MenuItem | ChildMenuItem;
     menuItems: MenuItem[];
     bottomMenuItems: MenuItem[];
     activeChild: boolean;
@@ -99,7 +99,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         return menuItem.routerLink === this.router.url;
     }
 
-    setActiveMenuItem(menuItem: MenuItem, isChild) {
+    setActiveMenuItem(menuItem: MenuItem | ChildMenuItem, isChild: boolean) {
         this.activeMenuItem = menuItem;
         this.activeChild = isChild;
         this.setTitle('Refundeo - ' + menuItem.displayName);

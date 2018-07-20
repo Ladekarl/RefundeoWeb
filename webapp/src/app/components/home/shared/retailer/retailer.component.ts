@@ -29,13 +29,13 @@ export class RetailerComponent implements OnInit {
         this.isAdmin = this.authorizationService.isAuthenticatedAdmin();
         this.model = new MerchantInfo();
         this.model.openingHours = [
-            {day: 0},
-            {day: 1},
-            {day: 2},
-            {day: 3},
-            {day: 4},
-            {day: 5},
-            {day: 6}
+            {day: 0, close: '', open: ''},
+            {day: 1, close: '', open: ''},
+            {day: 2, close: '', open: ''},
+            {day: 3, close: '', open: ''},
+            {day: 4, close: '', open: ''},
+            {day: 5, close: '', open: ''},
+            {day: 6, close: '', open: ''}
         ];
         this.model.tags = [];
         this.date = new Date();

@@ -23,7 +23,7 @@
     tags: number[];
 }
 
-class OpeningHours {
+export class OpeningHours {
     day: number;
     open: string;
     close: string;

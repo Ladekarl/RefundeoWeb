@@ -1,5 +1,5 @@
 export class CurrentUser {
-    id: number;
+    id: string;
     username: string;
     roles: [string];
     expiration: string;

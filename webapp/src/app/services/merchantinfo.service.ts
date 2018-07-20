@@ -15,10 +15,10 @@ export class MerchantInfoService {
     }
 
     getMerchant(id: string): Observable<MerchantInfo> {
-        return this.http.get<Merchant>('/api/merchant/account/' + id);
+        return this.http.get<MerchantInfo>('/api/merchant/account/' + id);
     }
 
-    updateMerchant(merchant: MerchantInfo): Observable {
+    updateMerchant(merchant: MerchantInfo): Observable<any> {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
