@@ -12,7 +12,8 @@
                 <input type="password" class="form-control" id="password" placeholder="Password" required
                        [(ngModel)]="model.password" name="password"/>
             </div>
-            <h6>Retailer Information</h6>
+            <h6 *ngIf="isAdmin">Retailer Information</h6>
+            <h6 *ngIf="isMerchant">Company</h6>
             <div class="col-sm-12">
                 <div *ngIf="isAdmin" class="form-group row">
                     <label id="uploadLogo"
