@@ -44,7 +44,7 @@ namespace Refundeo.Controllers.Merchant
         {
             var userModels = new List<MerchantInformationDto>();
             foreach (var u in await _context.MerchantInformations
-                .Include(i => i.Merchant)
+                .Include(i => i.Merchants)
                 .Include(i => i.Address)
                 .Include(i => i.Location)
                 .Include(i => i.OpeningHours)
@@ -63,13 +63,13 @@ namespace Refundeo.Controllers.Merchant
         public async Task<IActionResult> GetById(string id)
         {
             var merchantInformation = await _context.MerchantInformations
-                .Where(i => i.Merchant.Id == id)
-                .Include(i => i.Merchant)
+                .Include(i => i.Merchants)
                 .Include(i => i.Address)
                 .Include(i => i.Location)
                 .Include(i => i.OpeningHours)
                 .Include(i => i.MerchantInformationTags)
                 .ThenInclude(i => i.Tag)
+                .Where(i => i.Merchants.Any(x => x.Id == id))
                 .FirstOrDefaultAsync();
 
             if (merchantInformation == null)
@@ -128,7 +128,6 @@ namespace Refundeo.Controllers.Merchant
                 CompanyName = model.CompanyName,
                 CVRNumber = model.CvrNumber,
                 RefundPercentage = model.RefundPercentage,
-                Merchant = user,
                 Location = location,
                 Address = address,
                 Description = model.Description,
@@ -139,6 +138,8 @@ namespace Refundeo.Controllers.Merchant
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
+
+            merchantInformation.Merchants.Add(user);
 
             foreach (var tagModel in model.Tags)
             {
@@ -213,13 +214,13 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var merchantInformation = await _context.MerchantInformations
-                .Include(i => i.Merchant)
+                .Include(i => i.Merchants)
                 .Include(m => m.Address)
                 .Include(m => m.Location)
                 .Include(m => m.OpeningHours)
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
-                .FirstOrDefaultAsync(i => i.Merchant == user);
+                .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == user.Id));
 
             if (merchantInformation == null)
             {
@@ -281,13 +282,13 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var merchantInformation = await _context.MerchantInformations
-                .Include(i => i.Merchant)
+                .Include(i => i.Merchants)
                 .Include(m => m.Address)
                 .Include(m => m.Location)
                 .Include(m => m.OpeningHours)
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
-                .FirstOrDefaultAsync(i => i.Merchant.Id == id);
+                .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == id));
 
             if (merchantInformation == null)
             {

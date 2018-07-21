@@ -44,14 +44,28 @@ export class RetailerComponent implements OnInit {
         });
 
         if (this.isMerchant) {
-            this.spinnerService.show();
-            this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
-                this.model = merchantInfo;
-                this.spinnerService.hide();
-            }, () => {
-                this.spinnerService.hide();
-            });
+            this.getMerchant();
         }
+    }
+
+    getMerchant() {
+        this.spinnerService.show();
+        this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
+            this.model = merchantInfo;
+            this.spinnerService.hide();
+        }, () => {
+            this.spinnerService.hide();
+        });
+    }
+
+    getMerchantNoCache() {
+        this.spinnerService.show();
+        this.merchantInfoService.getMerchantNoCache(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
+            this.model = merchantInfo;
+            this.spinnerService.hide();
+        }, () => {
+            this.spinnerService.hide();
+        });
     }
 
     onSubmit() {
@@ -68,7 +82,7 @@ export class RetailerComponent implements OnInit {
             accept: () => {
                 this.spinnerService.show();
                 this.merchantInfoService.updateMerchant(this.model).subscribe(() => {
-                    this.spinnerService.hide();
+                    this.getMerchantNoCache();
                 }, (e) => {
                     this.spinnerService.hide();
                     let errorString = 'Could not update your information\n';

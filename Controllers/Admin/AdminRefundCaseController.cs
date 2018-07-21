@@ -45,7 +45,7 @@ namespace Refundeo.Controllers.Admin
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Customer)
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .ToListAsync();
 
             if (refundCases == null)
@@ -86,7 +86,7 @@ namespace Refundeo.Controllers.Admin
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
@@ -110,8 +110,8 @@ namespace Refundeo.Controllers.Admin
             }
 
             var merchantInformation = await _context.MerchantInformations
-                .Include(i => i.Merchant)
-                .Where(i => i.Merchant.Id == model.MerchantId)
+                .Include(i => i.Merchants)
+                .Where(i => i.Merchants.Any(m => m.Id == model.MerchantId))
                 .FirstOrDefaultAsync();
 
             if (merchantInformation == null)
@@ -187,7 +187,7 @@ namespace Refundeo.Controllers.Admin
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
@@ -204,7 +204,7 @@ namespace Refundeo.Controllers.Admin
             }
 
             var merchantInformation =
-                await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchant.Id == model.MerchantId);
+                await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchants.Any(m => m.Id == model.MerchantId));
             var customerInformation =
                 await _context.CustomerInformations.FirstOrDefaultAsync(i => i.Customer.Id == model.CustomerId);
 

@@ -1,4 +1,6 @@
-﻿export class MerchantInfo {
+﻿import {AttachedAccount} from './attachedaccount';
+
+export class MerchantInfo {
     id: string;
     username: string;
     password: string;
@@ -20,6 +22,7 @@
     contactPhone: string;
     currency: string;
     openingHours: OpeningHours[];
+    attachedAccounts: AttachedAccount[];
     tags: number[];
 }
 

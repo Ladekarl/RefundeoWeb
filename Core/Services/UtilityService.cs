@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
+using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.Account;
 using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Services.Interfaces;
@@ -117,35 +118,49 @@ namespace Refundeo.Core.Services
 
         public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info)
         {
-            MerchantInformationDto dto = null;
-            if (info != null)
+            RefundeoUser mainMerchant = null;
+
+            if (info == null) return null;
+
+            foreach (var merchant in info.Merchants)
             {
-                dto = new MerchantInformationDto
-                {
-                    Id = info.Merchant?.Id,
-                    CompanyName = info.CompanyName,
-                    CvrNumber = info.CVRNumber,
-                    RefundPercentage = info.RefundPercentage,
-                    AddressCity = info.Address?.City,
-                    AddressCountry = info.Address?.Country,
-                    AddressStreetName = info.Address?.StreetName,
-                    AddressStreetNumber = info.Address?.StreetNumber,
-                    AddressPostalCode = info.Address?.PostalCode,
-                    Latitude = info.Location?.Latitude,
-                    Longitude = info.Location?.Longitude,
-                    Description = info.Description,
-                    OpeningHours =
-                        info.OpeningHours?.Select(o =>
-                            new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
-                    Tags = info.MerchantInformationTags?.Select(m => m.Tag.Key).ToList(),
-                    VatNumber = info.VATNumber,
-                    ContactEmail = info.ContactEmail,
-                    ContactPhone = info.ContactPhone,
-                    Currency = info.Currency,
-                    Banner = await ConvertBlobPathToBase64Async(info.Banner),
-                    Logo = await ConvertBlobPathToBase64Async(info.Logo)
-                };
+                if (!await _userManager.IsInRoleAsync(merchant, RefundeoConstants.RoleMerchant)) continue;
+                mainMerchant = merchant;
+                break;
             }
+
+            var dto = new MerchantInformationDto
+            {
+                Id = info.Id,
+                CompanyName = info.CompanyName,
+                CvrNumber = info.CVRNumber,
+                RefundPercentage = info.RefundPercentage,
+                AddressCity = info.Address?.City,
+                AddressCountry = info.Address?.Country,
+                AddressStreetName = info.Address?.StreetName,
+                AddressStreetNumber = info.Address?.StreetNumber,
+                AddressPostalCode = info.Address?.PostalCode,
+                Latitude = info.Location?.Latitude,
+                Longitude = info.Location?.Longitude,
+                Description = info.Description,
+                OpeningHours =
+                    info.OpeningHours?.Select(o =>
+                        new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
+                Tags = info.MerchantInformationTags?.Select(m => m.Tag.Key).ToList(),
+                VatNumber = info.VATNumber,
+                ContactEmail = info.ContactEmail,
+                ContactPhone = info.ContactPhone,
+                Currency = info.Currency,
+                AttachedAccounts = info.Merchants
+                    .Where(x => mainMerchant != null && x.Id != mainMerchant.Id)
+                    .Select(x => new AttachedAccountDto
+                    {
+                        Id = x.Id,
+                        Username = x.UserName
+                    }).ToList(),
+                Banner = await ConvertBlobPathToBase64Async(info.Banner),
+                Logo = await ConvertBlobPathToBase64Async(info.Logo)
+            };
 
             return dto;
         }

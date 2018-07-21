@@ -21,7 +21,7 @@ namespace Refundeo.Core.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MerchantInformation>()
-                .HasOne(i => i.Merchant)
+                .HasMany(i => i.Merchants)
                 .WithOne(c => c.MerchantInformation);
 
             builder.Entity<MerchantInformationTag>()

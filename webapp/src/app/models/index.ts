@@ -7,3 +7,5 @@ export * from './merchant';
 export * from './merchantinfo';
 export * from './customerinfo';
 export * from './tag';
+export * from './attachedaccount';
+export * from './changepassword';

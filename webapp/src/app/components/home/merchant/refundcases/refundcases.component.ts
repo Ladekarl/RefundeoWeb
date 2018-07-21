@@ -1,9 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {RefundCasesService} from '../../../../services';
 import {RefundCase} from '../../../../models';
-import {ConfirmationService, SelectItem} from 'primeng/api';
+import {SelectItem} from 'primeng/api';
 import {DataView} from 'primeng/dataview';
-import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import * as JSZip from 'jszip';
 import * as FileSaver from 'file-saver';
 
@@ -46,7 +45,7 @@ export class RefundCasesComponent implements OnInit {
         {label: 'Rejected', value: 'isRejected'}
     ];
 
-    constructor(private refundCasesService: RefundCasesService, private confirmationService: ConfirmationService, private spinnerService: Ng4LoadingSpinnerService) {
+    constructor(private refundCasesService: RefundCasesService) {
     }
 
     ngOnInit() {
@@ -83,7 +82,7 @@ export class RefundCasesComponent implements OnInit {
         }
     }
 
-    onCheckAllChange(event) {
+    onCheckAllChange() {
         this.refundCases.forEach(r => {
             if (r.isRequested) {
                 r.checked = this.checkAll;

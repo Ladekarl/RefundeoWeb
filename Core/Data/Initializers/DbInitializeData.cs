@@ -56,7 +56,8 @@ namespace Refundeo.Core.Data.Initializers
         {
             RefundeoConstants.RoleAdmin,
             RefundeoConstants.RoleMerchant,
-            RefundeoConstants.RoleUser
+            RefundeoConstants.RoleUser,
+            RefundeoConstants.RoleAttachedMerchant
         };
 
         public static readonly List<UserRegisterDto> UsersTocreate = new List<UserRegisterDto>

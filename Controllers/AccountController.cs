@@ -218,7 +218,7 @@ namespace Refundeo.Controllers
 
             if (!changePasswordResult.Succeeded)
             {
-                return _utilityService.GenerateBadRequestObjectResult(changePasswordResult.Errors);
+                return _utilityService.GenerateBadRequestObjectResult(changePasswordResult.Errors.Select(x => x.Description));
             }
 
             return NoContent();

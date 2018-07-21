@@ -34,6 +34,7 @@ namespace Refundeo.Core.Data.Initializers
                 if (await context.Tags.Where(t => t.Value == tag.Value).AnyAsync()) continue;
                 context.Tags.Add(tag);
             }
+
             await context.SaveChangesAsync();
         }
 
@@ -45,9 +46,9 @@ namespace Refundeo.Core.Data.Initializers
                 {
                     var existingCase = await context.RefundCases
                         .Include(r => r.MerchantInformation)
-                        .ThenInclude(m => m.Merchant)
+                        .ThenInclude(m => m.Merchants)
                         .FirstOrDefaultAsync(r =>
-                            r.MerchantInformation.Merchant.UserName == refundCase.MerchantName &&
+                            r.MerchantInformation.Merchants.Any(m => m.UserName == refundCase.MerchantName) &&
                             Math.Abs(r.Amount - refundCase.Amount) < 0.1);
                     if (existingCase == null)
                     {
@@ -135,8 +136,8 @@ namespace Refundeo.Core.Data.Initializers
             DbInitializeRefundCase dbInitializeRefundCase)
         {
             var merchantInformation = await context.MerchantInformations
-                .Include(m => m.Merchant)
-                .Where(i => i.Merchant.UserName == dbInitializeRefundCase.MerchantName)
+                .Include(m => m.Merchants)
+                .Where(i => i.Merchants.Any(m => m.UserName == dbInitializeRefundCase.MerchantName))
                 .FirstOrDefaultAsync();
             var customerInformation = await context.CustomerInformations
                 .Include(m => m.Customer)
@@ -246,13 +247,19 @@ namespace Refundeo.Core.Data.Initializers
 
                 await context.SaveChangesAsync();
 
-                merchantInformation.Merchant = user;
                 merchantInformation.Location = location;
                 merchantInformation.Address = address;
 
                 await context.MerchantInformations.AddAsync(merchantInformation);
 
                 await context.SaveChangesAsync();
+
+                if (context.Entry(merchantInformation).Collection(x => x.Merchants).IsLoaded == false)
+                {
+                    await context.Entry(merchantInformation).Collection(x => x.Merchants).LoadAsync();
+                }
+
+                merchantInformation.Merchants.Add(user);
 
                 if (context.Entry(merchantInformation).Collection(x => x.OpeningHours).IsLoaded == false)
                 {

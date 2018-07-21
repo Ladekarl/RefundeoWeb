@@ -50,7 +50,7 @@ namespace Refundeo.Controllers.User
             var refundCases = await _context.RefundCases
                 .Where(r => r.CustomerInformation.Customer == user)
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
@@ -95,7 +95,7 @@ namespace Refundeo.Controllers.User
 
             var refundCase = await _context.RefundCases
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)

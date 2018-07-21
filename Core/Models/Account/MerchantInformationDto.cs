@@ -4,7 +4,7 @@ namespace Refundeo.Core.Models.Account
 {
     public class MerchantInformationDto
     {
-        public string Id { get; set; }
+        public long Id { get; set; }
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
         public double RefundPercentage { get; set; }
@@ -22,6 +22,7 @@ namespace Refundeo.Core.Models.Account
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
+        public ICollection<AttachedAccountDto> AttachedAccounts { get; set; }
         public ICollection<OpeningHoursDto> OpeningHours { get; set; }
         public ICollection<int> Tags { get; set; }
     }

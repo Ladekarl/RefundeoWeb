@@ -31,7 +31,8 @@ namespace Refundeo.Controllers.Merchant
             var userId = _utilityService.GetCallingUserId(Request);
 
             var customerInfos = await _context.MerchantInformations
-                .Where(m => m.Merchant.Id == userId)
+                .Include(m => m.Merchants)
+                .Where(m => m.Merchants.Any(x => x.Id == userId))
                 .SelectMany(m => m.RefundCases.Where(c => c.CustomerInformation != null))
                 .Select(r => new
                 {

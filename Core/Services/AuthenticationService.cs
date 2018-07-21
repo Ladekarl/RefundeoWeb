@@ -86,7 +86,7 @@ namespace Refundeo.Core.Services
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
                 .Include(m => m.OpeningHours)
-                .Where(m => m.Merchant.Id == user.Id)
+                .Where(m => m.Merchants.Any(x => x.Id == user.Id))
                 .FirstOrDefaultAsync();
             var customerInformation = await _context.CustomerInformations
                 .Include(c => c.Address)
@@ -143,6 +143,13 @@ namespace Refundeo.Core.Services
                 VatNumber = merchantInformation.VATNumber,
                 ContactEmail = merchantInformation.ContactEmail,
                 ContactPhone = merchantInformation.ContactPhone,
+                AttachedAccounts = merchantInformation.Merchants
+                    .Where(x => x.Id != user.Id)
+                    .Select(x => new AttachedAccountDto
+                    {
+                        Id = x.Id,
+                        Username = x.UserName
+                    }).ToList(),
                 Banner = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Banner),
                 Logo = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Logo),
                 Currency = merchantInformation.Currency
@@ -351,7 +358,7 @@ namespace Refundeo.Core.Services
                 .SingleOrDefaultAsync();
 
             var merchantInformation = await _context.MerchantInformations
-                .Where(x => x.Merchant.Id == user.Id)
+                .Where(x => x.Merchants.Any(m => m.Id == user.Id))
                 .Include(x => x.Address)
                 .Include(x => x.Location)
                 .Include(x => x.MerchantInformationTags)

@@ -5,6 +5,7 @@ namespace Refundeo.Core.Helpers
         public const string RoleAdmin = "Admin";
         public const string RoleMerchant = "Merchant";
         public const string RoleUser = "User";
+        public const string RoleAttachedMerchant = "AttachedMerchant";
         public static readonly string[] ValidImageTypes = {
             "image/cgm",
             "image/fits",

@@ -53,8 +53,13 @@ export class LoginComponent implements OnInit {
     getInitialData() {
         let tasks = [];
 
-        if (this.authorizationService.isAuthenticatedAdmin())
+        if (this.authorizationService.isAuthenticatedAdmin()) {
             tasks.push(this.merchantInfoService.getAll());
+        }
+
+        if (this.authorizationService.isAuthenticatedMerchant()) {
+            tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id));
+        }
 
         tasks.push(this.customerInfoSerivce.getAll());
         tasks.push(this.refundCasesService.getAll());

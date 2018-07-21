@@ -1,3 +1,114 @@
-<p>
-  account works!
-</p>
+<div style="margin-top: 20px;" class="row">
+    <div class="col-sm-7">
+        <h6>Primary account</h6>
+        <form (ngSubmit)="onChangeAccount()" #changeAccountForm="ngForm">
+            <div class="form-group row">
+                <label for="username" class="col-lg-3 col-form-label">Username</label>
+                <div class="col-lg-9">
+                    <input type="text" readonly class="form-control-plaintext" id="username" [value]="account.username">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label">Change password</label>
+                <div class="col-lg-3">
+                    <input type="password" name="changeAccountCurrentPassword" class="form-control"
+                           id="inputCurrentPassword" required
+                           [(ngModel)]="changeAccountModel.oldPassword"
+                           placeholder="Current password">
+                </div>
+                <!--<label for="inputNewPassword" class="col-lg-3 col-form-label">New password</label>-->
+                <div class="col-lg-3">
+                    <input type="password" name="changeAccountNewPassword" required
+                           [(ngModel)]="changeAccountModel.newPassword" class="form-control"
+                           id="inputNewPassword" placeholder="New password">
+                </div>
+                <!--<label for="inputConfirmPassword" class="col-lg-3 col-form-label">Confirm password</label>-->
+                <div class="col-lg-3">
+                    <input type="password" name="changeAccountConfirmPassword"
+                           [(ngModel)]="changeAccountModel.passwordConfirmation" class="form-control"
+                           id="inputConfirmPassword" required
+                           placeholder="Confirm password">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-9 offset-lg-3">
+                    <button type="submit" class="btn btn-primary col-lg-12" [disabled]="!changeAccountForm.form.valid">
+                        Change password
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-4 offset-sm-1">
+        <h6>Create app account</h6>
+        <form (ngSubmit)="onSubmitAttachedAccount()" #attachedAccountForm="ngForm">
+            <div class="form-group row">
+                <label for="createUsername" class="col-lg-3 col-form-label">Username</label>
+                <div class="col-lg-9">
+                    <input type="text" class="form-control" id="createUsername"
+                           name="createAttachedAccountUsername"
+                           [(ngModel)]="attachedAccountModel.username" placeholder="Username" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputCreatePassword" class="col-lg-3 col-form-label">Password</label>
+                <div class="col-lg-9">
+                    <input type="password" class="form-control" id="inputCreatePassword"
+                           name="createAttachedAccountPassword"
+                           placeholder="Password" required
+                           [(ngModel)]="attachedAccountModel.password">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-9 offset-lg-3">
+                    <button type="submit" class="btn btn-primary col-lg-12"
+                            [disabled]="!attachedAccountForm.form.valid">Create app account
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-12">
+        <h6 style="margin-top: 60px;">App accounts</h6>
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="text-left" scope="col">Username</th>
+                <th class="text-left" scope="col">Current password</th>
+                <th class="text-left" scope="col">New password</th>
+                <th class="text-left" scope="col">Confirm password</th>
+                <th class="text-center" scope="col">Change password</th>
+                <th class="text-center" scope="col">Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let attachedAccount of merchantInfo.attachedAccounts; let i = index" [attr.data-index]="i">
+                <td class="text-left align-middle">{{attachedAccount.username}}</td>
+                <td class="text-left">
+                    <input type="password" class="form-control"
+                           [(ngModel)]="changeAttachedAccountModels[i].oldPassword"
+                           placeholder="Current password">
+                </td>
+                <td class="text-left">
+                    <input type="password" class="form-control"
+                           [(ngModel)]="changeAttachedAccountModels[i].newPassword"
+                           placeholder="New password">
+                </td>
+                <td class="text-left">
+                    <input type="password" class="form-control"
+                           [(ngModel)]="changeAttachedAccountModels[i].passwordConfirmation"
+                           placeholder="Confirm password">
+                </td>
+                <td class="text-center">
+                    <i class="btn btn-outline-primary fa fa-edit"
+                       (click)="onChangePasswordAttachedAccount(attachedAccount, i)"></i>
+                </td>
+                <td class="text-center">
+                    <i class="btn btn-outline-danger fa fa-times"
+                       (click)="onDeleteAttachedAccount(attachedAccount)"></i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -13,7 +13,7 @@
                        [(ngModel)]="model.password" name="password"/>
             </div>
             <h6 *ngIf="isAdmin">Retailer Information</h6>
-            <h6 *ngIf="isMerchant">Company</h6>
+            <h6 class="row" *ngIf="isMerchant">Company</h6>
             <div class="col-sm-12">
                 <div *ngIf="isAdmin" class="form-group row">
                     <label id="uploadLogo"
@@ -29,98 +29,102 @@
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="companyName">Company Name</label>
-                <input type="text" class="form-control"
-                       id="companyName"
-                       placeholder="Company Name"
-                       required
-                       [(ngModel)]="model.companyName"
-                       name="companyName">
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" class="form-control"
+                           id="companyName"
+                           placeholder="Company Name"
+                           required
+                           [(ngModel)]="model.companyName"
+                           name="companyName">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="cvrNumber">CVR no.</label>
-                <input type="text" class="form-control" id="cvrNumber" placeholder="CVR no."
-                       [(ngModel)]="model.cvrNumber" name="cvrNumber"/>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label for="cvrNumber">CVR no.</label>
+                    <input type="text" class="form-control" id="cvrNumber" placeholder="CVR no."
+                           [(ngModel)]="model.cvrNumber" name="cvrNumber"/>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="vatNumber">VAT no.</label>
-                <input type="text" class="form-control" id="vatNumber" placeholder="VAT no." required
-                       [(ngModel)]="model.vatNumber" name="vatNumber"/>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label for="vatNumber">VAT no.</label>
+                    <input type="text" class="form-control" id="vatNumber" placeholder="VAT no." required
+                           [(ngModel)]="model.vatNumber" name="vatNumber"/>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="currency">Currency</label>
-                <input type="text" class="form-control" id="currency" placeholder="Currency" required
-                       [(ngModel)]="model.currency" name="currency"/>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label for="currency">Currency</label>
+                    <input type="text" class="form-control" id="currency" placeholder="Currency" required
+                           [(ngModel)]="model.currency" name="currency"/>
+                </div>
             </div>
-            <div *ngIf="isAdmin" class="form-group">
+            <div *ngIf="isAdmin" class="form-group row">
                 <label for="refundPercentage">Refund % (incl. admin fee & local VAT)</label>
                 <input type="number" class="form-control" id="refundPercentage" placeholder="Refund %" required
                        [(ngModel)]="model.refundPercentage" name="refundPercentage"/>
             </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control description-text" id="description" rows="5" placeholder="Description"
-                          required
-                          [(ngModel)]="model.description" name="description"></textarea>
-            </div>
-            <div class="form-group">
-                <h6>Address</h6>
-                <div class="form-group row">
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="text" class="form-control" placeholder="Street Name" required
-                               [(ngModel)]="model.addressStreetName" name="streetName"/>
-                    </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="text" class="form-control" placeholder="House Number" required
-                               [(ngModel)]="model.addressStreetNumber" name="streetNumber"/>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="text" class="form-control" placeholder="City" required
-                               [(ngModel)]="model.addressCity" name="city"/>
-                    </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="text" class="form-control" placeholder="Postal Code" required
-                               [(ngModel)]="model.addressPostalCode" name="postalCode"/>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" placeholder="Country" required
-                               [(ngModel)]="model.addressCountry" name="country"/>
-                    </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label for="description">Description</label>
+                    <textarea class="form-control description-text" id="description" rows="5" placeholder="Description"
+                              required
+                              [(ngModel)]="model.description" name="description"></textarea>
                 </div>
             </div>
-            <div class="form-group">
-                <h6>Location</h6>
-                <div class="form-group row">
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="number" class="form-control" id="latitude" placeholder="Latitude" required
-                               [(ngModel)]="model.latitude" name="latitude"/>
-                    </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="number" class="form-control" id="longitude" placeholder="Longitude" required
-                               [(ngModel)]="model.longitude" name="longitude"/>
-                    </div>
+            <h6 class="row">Address</h6>
+            <div class="form-group row">
+                <div class="col-lg-6 col-sm-12">
+                    <input type="text" class="form-control" placeholder="Street Name" required
+                           [(ngModel)]="model.addressStreetName" name="streetName"/>
+                </div>
+                <div class="col-lg-6 col-sm-12">
+                    <input type="text" class="form-control" placeholder="House Number" required
+                           [(ngModel)]="model.addressStreetNumber" name="streetNumber"/>
                 </div>
             </div>
-            <div class="form-group">
-                <h6>Contact</h6>
-                <div class="form-group row">
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="email" class="form-control" id="contactEmail" placeholder="Contact Email" required
-                               [(ngModel)]="model.contactEmail" name="contactEmail"/>
-                    </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <input type="tel" class="form-control" id="contactPhone" placeholder="Contact Phone no."
-                               required
-                               [(ngModel)]="model.contactPhone" name="contactPhone"/>
-                    </div>
+            <div class="form-group row">
+                <div class="col-lg-6 col-sm-12">
+                    <input type="text" class="form-control" placeholder="City" required
+                           [(ngModel)]="model.addressCity" name="city"/>
+                </div>
+                <div class="col-lg-6 col-sm-12">
+                    <input type="text" class="form-control" placeholder="Postal Code" required
+                           [(ngModel)]="model.addressPostalCode" name="postalCode"/>
                 </div>
             </div>
-            <h6>Opening Hours</h6>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" placeholder="Country" required
+                           [(ngModel)]="model.addressCountry" name="country"/>
+                </div>
+            </div>
+            <h6 class="row">Location</h6>
+            <div class="form-group row">
+                <div class="col-lg-6 col-sm-12">
+                    <input type="number" class="form-control" id="latitude" placeholder="Latitude" required
+                           [(ngModel)]="model.latitude" name="latitude"/>
+                </div>
+                <div class="col-lg-6 col-sm-12">
+                    <input type="number" class="form-control" id="longitude" placeholder="Longitude" required
+                           [(ngModel)]="model.longitude" name="longitude"/>
+                </div>
+            </div>
+            <h6 class="row">Contact</h6>
+            <div class="form-group row">
+                <div class="col-lg-6 col-sm-12">
+                    <input type="email" class="form-control" id="contactEmail" placeholder="Contact Email" required
+                           [(ngModel)]="model.contactEmail" name="contactEmail"/>
+                </div>
+                <div class="col-lg-6 col-sm-12">
+                    <input type="tel" class="form-control" id="contactPhone" placeholder="Contact Phone no."
+                           required
+                           [(ngModel)]="model.contactPhone" name="contactPhone"/>
+                </div>
+            </div>
+            <h6 class="row">Opening Hours</h6>
             <div *ngFor="let openingHour of model.openingHours">
                 <div class="form-group row align-items-center">
                     <label *ngIf="openingHour.day === 0" class="col-sm-2 center-text">Monday</label>
@@ -145,16 +149,19 @@
                 <div class="form-group row">
                     <div class="col-xl-6" *ngFor="let tag of tags">
                         <input type="checkbox" id="tag{{tag.key}}"
-                               (change)="onCheckTag(tag)" [ngModel]="model.tags.indexOf(tag.key) > -1" name="{{tag.value}}"/>
+                               (change)="onCheckTag(tag)" [ngModel]="model.tags.indexOf(tag.key) > -1"
+                               name="{{tag.value}}"/>
                         <label for="tag{{tag.key}}">{{tag.value}}</label>
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <button *ngIf="!isMerchant" type="submit" [disabled]="!retailerForm.form.valid" class="btn btn-primary col-sm-12">
+                <button *ngIf="!isMerchant" type="submit" [disabled]="!retailerForm.form.valid"
+                        class="btn btn-primary col-sm-12">
                     Add retailer
                 </button>
-                <button *ngIf="isMerchant" type="submit" [disabled]="!retailerForm.form.valid" class="btn btn-primary col-sm-12">
+                <button *ngIf="isMerchant" type="submit" [disabled]="!retailerForm.form.valid"
+                        class="btn btn-primary col-sm-12">
                     Save changes
                 </button>
             </div>

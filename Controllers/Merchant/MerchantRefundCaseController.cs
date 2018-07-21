@@ -15,7 +15,6 @@ using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.Merchant
 {
-    [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
     [Route("/api/merchant/refundcase")]
     public class MerchantRefundCaseController : Controller
     {
@@ -43,6 +42,7 @@ namespace Refundeo.Controllers.Merchant
             _notificationService = notificationService;
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
         [HttpGet]
         public async Task<IActionResult> GetAllMerchantRefundCases()
         {
@@ -55,8 +55,8 @@ namespace Refundeo.Controllers.Merchant
 
             var refundCases = await _context.RefundCases
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
-                .Where(r => r.MerchantInformation.Merchant.Id == user.Id)
+                .ThenInclude(i => i.Merchants)
+                .Where(r => r.MerchantInformation.Merchants.Any(m => m.Id == user.Id))
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -79,6 +79,7 @@ namespace Refundeo.Controllers.Merchant
             return new ObjectResult(dtos);
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
         [HttpGet("{first}/{amount}/{sortBy}/{dir}/{filterBy}")]
         public async Task<IActionResult> GetPaginatedMerchantRefundCases(int first, int amount, string sortBy,
             string dir, string filterBy)
@@ -91,7 +92,9 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var query = _context.RefundCases
-                .Where(r => r.MerchantInformation.Merchant.Id == user.Id);
+                .Include(r => r.MerchantInformation)
+                .ThenInclude(m => m.Merchants)
+                .Where(r => r.MerchantInformation.Merchants.Any(m => m.Id == user.Id));
 
             query = _paginationService.SortAndFilter(query, sortBy, dir, filterBy);
 
@@ -101,7 +104,7 @@ namespace Refundeo.Controllers.Merchant
 
             query = query
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
@@ -137,6 +140,7 @@ namespace Refundeo.Controllers.Merchant
             });
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMerchantRefundCaseById(long id)
         {
@@ -152,12 +156,12 @@ namespace Refundeo.Controllers.Merchant
                 .Include(r => r.CustomerInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
-                .ThenInclude(i => i.Merchant)
+                .ThenInclude(i => i.Merchants)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Address)
                 .Include(r => r.MerchantInformation)
                 .ThenInclude(i => i.Location)
-                .Where(r => r.Id == id && r.MerchantInformation.Merchant.Id == user.Id)
+                .Where(r => r.Id == id && r.MerchantInformation.Merchants.Any(m => m.Id == user.Id))
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
@@ -169,6 +173,9 @@ namespace Refundeo.Controllers.Merchant
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleMerchant + "," +
+                           RefundeoConstants.RoleAdmin + "," +
+                           RefundeoConstants.RoleAttachedMerchant)]
         [HttpPost]
         public async Task<IActionResult> CreateMerchantRefundCase([FromBody] CreateRefundCaseDto model)
         {
@@ -185,8 +192,8 @@ namespace Refundeo.Controllers.Merchant
 
             var merchantInformation = await _context.MerchantInformations
                 .Include(m => m.Address)
-                .Include(m => m.Merchant)
-                .Where(c => c.Merchant.Id == user.Id)
+                .Include(m => m.Merchants)
+                .Where(c => c.Merchants.Any(m => m.Id == user.Id))
                 .FirstOrDefaultAsync();
 
             if (merchantInformation == null)

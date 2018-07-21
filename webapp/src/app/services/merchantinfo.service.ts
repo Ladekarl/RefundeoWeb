@@ -1,13 +1,14 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {Merchant, MerchantInfo, Tag} from '../models';
+import {AttachedAccount, ChangePassword, Merchant, MerchantInfo, Tag} from '../models';
 import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class MerchantInfoService {
 
     merchantInfos: MerchantInfo[];
+    merchantInfo: MerchantInfo;
 
     constructor(
         private http: HttpClient,
@@ -15,7 +16,17 @@ export class MerchantInfoService {
     }
 
     getMerchant(id: string): Observable<MerchantInfo> {
-        return this.http.get<MerchantInfo>('/api/merchant/account/' + id);
+        if (!this.merchantInfo) {
+            return this.getMerchantNoCache(id);
+        }
+        return Observable.of(this.merchantInfo);
+    }
+
+    getMerchantNoCache(id: string): Observable<MerchantInfo> {
+        return this.http.get<MerchantInfo>('/api/merchant/account/' + id).map(m => {
+            this.merchantInfo = m;
+            return this.merchantInfo;
+        });
     }
 
     updateMerchant(merchant: MerchantInfo): Observable<any> {
@@ -54,7 +65,7 @@ export class MerchantInfoService {
                 'Authorization': 'Bearer ' + this.authorizationService.getToken()
             })
         };
-        return this.http.post<Merchant>('api/merchant/account', merchant, httpOptions).map((success) => {
+        return this.http.post<Merchant>('/api/merchant/account', merchant, httpOptions).map((success) => {
             if (this.merchantInfos && this.merchantInfos.length > 0) {
                 this.merchantInfos.push(merchant);
             }
@@ -62,7 +73,42 @@ export class MerchantInfoService {
         });
     }
 
+    createAttachedAccount(attachedAccount: AttachedAccount): Observable<any> {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.authorizationService.getToken()
+            })
+        };
+        return this.http.post('/api/merchant/attachedaccount', attachedAccount, httpOptions);
+    }
+
+    deleteAttachedAccount(id: string): Observable<any> {
+        return this.http.delete('/api/merchant/attachedaccount/' + id);
+    }
+
+    changePassword(changePassword: ChangePassword): Observable<any> {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.authorizationService.getToken()
+            })
+        };
+        return this.http.put('/api/account/ChangePassword', changePassword, httpOptions);
+    }
+
     resetMerchantInfos() {
         this.merchantInfos = [];
+        this.merchantInfo = undefined;
+    }
+
+    changePasswordAttachedAccount(id: string, changePassword: ChangePassword): Observable<any> {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.authorizationService.getToken()
+            })
+        };
+        return this.http.put('/api/merchant/attachedaccount/ChangePassword/' + id, changePassword, httpOptions);
     }
 }
