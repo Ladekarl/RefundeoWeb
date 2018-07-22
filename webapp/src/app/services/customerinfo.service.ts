@@ -30,6 +30,12 @@ export class CustomerInfoService {
             return Observable.of(this.customerInfos);
     }
 
+    deleteCustomer(customer: CustomerInfo): Observable<any> {
+        return this.http.delete('/api/account' + customer.id).map(() => {
+            this.customerInfos.splice(this.customerInfos.indexOf(customer), 1);
+        });
+    }
+
     resetCustomerInfos() {
         this.customerInfos = [];
     }

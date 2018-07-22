@@ -418,7 +418,7 @@ namespace Refundeo.Controllers.Merchant
                 return _utilityService.GenerateBadRequestObjectResult("Merchant does not exist");
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            var result = await _authenticationService.DeleteUserAsync(user);
             if (!result.Succeeded)
             {
                 return _utilityService.GenerateBadRequestObjectResult(result.Errors);

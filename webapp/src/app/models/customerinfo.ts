@@ -1,4 +1,5 @@
 export class CustomerInfo {
+    id: string;
     country: string;
     email: string;
     firstName: string;

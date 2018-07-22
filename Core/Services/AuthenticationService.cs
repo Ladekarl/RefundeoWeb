@@ -317,8 +317,6 @@ namespace Refundeo.Core.Services
 
             var addToRoleResult = await _userManager.AddToRoleAsync(user, RefundeoConstants.RoleUser);
 
-            await _context.SaveChangesAsync();
-
             if (!addToRoleResult.Succeeded)
             {
                 return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
@@ -373,6 +371,13 @@ namespace Refundeo.Core.Services
 
             if (merchantInformation != null)
             {
+                foreach (var attachedMerchant in merchantInformation.Merchants)
+                {
+                    merchantInformation.Merchants.Remove(attachedMerchant);
+                    await _context.SaveChangesAsync();
+                    await _userManager.DeleteAsync(attachedMerchant);
+                }
+
                 await DeleteMerchantAsync(merchantInformation);
             }
 

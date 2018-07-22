@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {CustomerInfoService} from '../../../../services';
-import {SelectItem} from 'primeng/api';
+import {ConfirmationService, SelectItem} from 'primeng/api';
 import {CustomerInfo} from '../../../../models/customerinfo';
 
 @Component({
@@ -42,10 +42,14 @@ export class ShoppersComponent implements OnInit {
     searchField: 'merchant.companyName';
     sortOrderKey = 1;
 
-    constructor(private customerInfoService: CustomerInfoService) {
+    constructor(private customerInfoService: CustomerInfoService, private confirmationService: ConfirmationService) {
     }
 
     ngOnInit() {
+        this.getCustomers();
+    }
+
+    getCustomers() {
         this.loading = true;
         this.customerInfoService.getAll().subscribe(customers => {
             this.customers = customers;
@@ -65,5 +69,26 @@ export class ShoppersComponent implements OnInit {
 
     onSortOrderChange(event) {
         this.sortOrder = event.value;
+    }
+
+    onDeleteCustomer(customer: CustomerInfo) {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${customer.username}?`,
+            accept: () => {
+                this.spinnerService.show();
+                this.customerInfoService.deleteCustomer(customer).subscribe(() => {
+                    this.getCustomers();
+                }, (e) => {
+                    this.spinnerService.hide();
+                    let errorString = `Could not delete ${customer.username}\n`;
+                    if (e.error && e.errors) {
+                        e.error.errors.forEach(e => {
+                            errorString = errorString + e.description + '\n';
+                        });
+                    }
+                    alert(errorString);
+                });
+            }
+        });
     }
 }

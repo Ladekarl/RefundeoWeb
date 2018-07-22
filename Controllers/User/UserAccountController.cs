@@ -52,6 +52,12 @@ namespace Refundeo.Controllers.User
         public async Task<IActionResult> GetCustomer(string id)
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
 
             var customer = await _context.CustomerInformations
@@ -194,7 +200,8 @@ namespace Refundeo.Controllers.User
                 return _utilityService.GenerateBadRequestObjectResult("User does not exist");
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            var result = await _authenticationService.DeleteUserAsync(user);
+
             if (!result.Succeeded)
             {
                 return _utilityService.GenerateBadRequestObjectResult(result.Errors);

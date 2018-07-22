@@ -32,7 +32,7 @@
             </div>
             <div class="ui-helper-clearfix">
                 <div class="ui-g">
-                    <div class="ui-g-2 header-col">
+                    <div class="ui-g-1 header-col">
                         <span class="table-text">Username</span>
                     </div>
                     <div class="ui-g-2 header-col">
@@ -59,12 +59,15 @@
                     <div class="ui-g-1 header-col">
                         <span class="table-text">Account Number</span>
                     </div>
+                    <div class="ui-g-1 header-col">
+                        <span class="table-text">Delete</span>
+                    </div>
                 </div>
             </div>
         </p-header>
         <ng-template let-customer pTemplate="listItem">
             <div class="ui-g table-row">
-                <div class="ui-g-2 table-col">
+                <div class="ui-g-1 table-col">
                     <button type="button" class="btn btn-link table-text">
                         {{customer.username}}
                     </button>
@@ -109,6 +112,12 @@
                 <div class="ui-g-1 table-col">
                     <span class="table-text">
                     {{customer.accountNumber}}
+                    </span>
+                </div>
+                <div class="ui-g-1 table-col">
+                    <span class="table-text">
+                        <i class="btn btn-outline-danger fa fa-times"
+                           (click)="onDeleteCustomer(customer)"></i>
                     </span>
                 </div>
             </div>
