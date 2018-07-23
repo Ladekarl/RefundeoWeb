@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {MerchantInfo, RefundCase} from '../../../../models';
 import {
     MerchantInfoService,
-    authorizationService,
     ColorsService,
     RefundCasesService,
     AuthorizationService
@@ -275,7 +274,7 @@ export class StatisticsComponent implements OnInit {
     }
 
     getMonday(date) {
-        let date = new Date(date.getTime());
+        date = new Date(date.getTime());
         let day = date.getDay() || 7;
         if (day !== 1)
             date.setHours(-24 * (day - 1));
@@ -294,7 +293,7 @@ export class StatisticsComponent implements OnInit {
     }
 
     setMonthsData(refundCases: RefundCase[], daysToShow: number) {
-        let monthsDateAmountMap = new Map<string, number>();
+        let monthsDateAmountMap = new Map<number, number>();
 
         refundCases = this.filterDays(daysToShow, refundCases);
 
