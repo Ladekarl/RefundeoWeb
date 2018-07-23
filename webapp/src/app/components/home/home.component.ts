@@ -25,6 +25,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         private titleService: Title,
         private authorizationService: AuthorizationService
     ) {
+        this.activeMenuItem = new MenuItem();
     }
 
     ngAfterViewInit() {

@@ -19,6 +19,12 @@ export class MenuService {
             iconClass: 'fa-exchange'
         },
         {
+            routerLink: '/statistics',
+            displayName: 'Statistics',
+            title: 'Statistics',
+            iconClass: 'fa-line-chart'
+        },
+        {
             routerLink: '/account',
             displayName: 'Account',
             title: 'Account',

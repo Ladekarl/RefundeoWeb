@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CustomerInfoService} from '../../../../services';
 import {ConfirmationService, SelectItem} from 'primeng/api';
 import {CustomerInfo} from '../../../../models/customerinfo';
+import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 
 @Component({
     selector: 'app-shoppers',
@@ -42,7 +43,9 @@ export class ShoppersComponent implements OnInit {
     searchField: 'merchant.companyName';
     sortOrderKey = 1;
 
-    constructor(private customerInfoService: CustomerInfoService, private confirmationService: ConfirmationService) {
+    constructor(private customerInfoService: CustomerInfoService,
+                private spinnerService: Ng4LoadingSpinnerService,
+                private confirmationService: ConfirmationService) {
     }
 
     ngOnInit() {

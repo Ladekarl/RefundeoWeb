@@ -16,6 +16,7 @@ export class RetailerComponent implements OnInit {
     date: Date;
     isMerchant: boolean;
     isAdmin: boolean;
+    normalizedDay: number;
 
     constructor(
         private confirmationService: ConfirmationService,
@@ -39,6 +40,8 @@ export class RetailerComponent implements OnInit {
         ];
         this.model.tags = [];
         this.date = new Date();
+        let day = this.date.getDay();
+        this.normalizedDay = day === 0 ? 6 : day - 1;
         this.merchantInfoService.getAllTags().subscribe(tags => {
             this.tags = tags;
         });

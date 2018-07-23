@@ -44,10 +44,12 @@ export class DashboardComponent implements OnInit {
     initChartData(refundCases: RefundCase[]) {
         let dateAmountMap = new Map<string, number>();
         refundCases.forEach(refundCase => {
-            const date = refundCase.dateCreated.toLocaleDateString();
-            let mappedAmount = dateAmountMap.get(date);
-            mappedAmount = mappedAmount ? mappedAmount + refundCase.amount : refundCase.amount;
-            dateAmountMap.set(date, mappedAmount);
+            if (refundCase.isAccepted) {
+                const date = refundCase.dateCreated.toLocaleDateString();
+                let mappedAmount = dateAmountMap.get(date);
+                mappedAmount = mappedAmount ? mappedAmount + refundCase.amount : refundCase.amount;
+                dateAmountMap.set(date, mappedAmount);
+            }
         });
         this.chartData = {
             labels: Array.from(dateAmountMap.keys()),

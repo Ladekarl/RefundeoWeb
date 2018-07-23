@@ -12,6 +12,9 @@ namespace Refundeo.Core.Models.Account
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
         public double RefundPercentage { get; set; }
+        public double AdminFee { get; set; }
+        public double VatRate { get; set; }
+        public double MerchantFee { get; set; }
         public IList<string> Roles { get; set; }
         public string RefreshToken { get; set; }
         public string AddressStreetName { get; set; }

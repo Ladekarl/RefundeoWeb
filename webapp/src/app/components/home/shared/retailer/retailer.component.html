@@ -1,6 +1,6 @@
 <div class="row">
-    <div class="col-sm-5">
-        <form (ngSubmit)="onSubmit()" #retailerForm="ngForm">
+    <div class="col-sm-6">
+        <form class="align-self-center" (ngSubmit)="onSubmit()" #retailerForm="ngForm">
             <h6 *ngIf="isAdmin">Account Information</h6>
             <div *ngIf="isAdmin" class="form-group">
                 <label for="username">Username</label>
@@ -16,16 +16,16 @@
             <h6 class="row" *ngIf="isMerchant">Company</h6>
             <div class="col-sm-12">
                 <div *ngIf="isAdmin" class="form-group row">
-                    <label id="uploadLogo"
-                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 upload-button">
-                        Upload Logo <input type="file" accept="image/png" hidden required (change)="uploadLogo($event)"
-                                           name="logo">
-                    </label>
                     <label id="uploadBanner"
                            class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 offset-xl-2 upload-button">
                         Upload Banner <input type="file" accept="image/png" hidden required
                                              (change)="uploadBanner($event)"
                                              name="banner">
+                    </label>
+                    <label id="uploadLogo"
+                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 upload-button">
+                        Upload Logo <input type="file" accept="image/png" hidden required (change)="uploadLogo($event)"
+                                           name="logo">
                     </label>
                 </div>
             </div>
@@ -61,11 +61,6 @@
                            [(ngModel)]="model.currency" name="currency"/>
                 </div>
             </div>
-            <div *ngIf="isAdmin" class="form-group row">
-                <label for="refundPercentage">Refund % (incl. admin fee & local VAT)</label>
-                <input type="number" class="form-control" id="refundPercentage" placeholder="Refund %" required
-                       [(ngModel)]="model.refundPercentage" name="refundPercentage"/>
-            </div>
             <div class="form-group row">
                 <div class="col-sm-12">
                     <label for="description">Description</label>
@@ -74,40 +69,67 @@
                               [(ngModel)]="model.description" name="description"></textarea>
                 </div>
             </div>
+            <h6  *ngIf="isAdmin" class="row">Fees</h6>
+            <div *ngIf="isAdmin" class="form-group row">
+                <div class="col-lg-6 col-sm-12">
+                    <label for="merchantFee">Merchant fee (%)</label>
+                    <input type="number" class="form-control" id="merchantFee" placeholder="Merchant fee %" required
+                           [(ngModel)]="model.merchantFee" name="merchantFee"/>
+                </div>
+                <div class="col-lg-6 col-sm-12">
+                    <label for="adminFee">Admin fee (%)</label>
+                    <input type="number" class="form-control" id="adminFee" placeholder="Admin fee %" required
+                           [(ngModel)]="model.adminFee" name="adminFee"/>
+                </div>
+            </div>
+            <div *ngIf="isAdmin" class="form-group row">
+                <div class="col-lg-6 col-sm-12">
+                    <label for="vatRate">VAT Rate (%)</label>
+                    <input type="number" class="form-control" id="vatRate" placeholder="VAT rate %" required
+                           [(ngModel)]="model.vatRate" name="vatRate"/>
+                </div>
+            </div>
             <h6 class="row">Address</h6>
             <div class="form-group row">
                 <div class="col-lg-6 col-sm-12">
-                    <input type="text" class="form-control" placeholder="Street Name" required
+                    <label for="streetName">Street name</label>
+                    <input type="text" id="streetName" class="form-control" placeholder="Street name" required
                            [(ngModel)]="model.addressStreetName" name="streetName"/>
                 </div>
                 <div class="col-lg-6 col-sm-12">
-                    <input type="text" class="form-control" placeholder="House Number" required
+                    <label for="houseNumber">House number</label>
+                    <input type="text" id="houseNumber" class="form-control" placeholder="House number" required
                            [(ngModel)]="model.addressStreetNumber" name="streetNumber"/>
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-lg-6 col-sm-12">
-                    <input type="text" class="form-control" placeholder="City" required
+                    <label for="city">City</label>
+                    <input type="text" id="city" class="form-control" placeholder="City" required
                            [(ngModel)]="model.addressCity" name="city"/>
                 </div>
                 <div class="col-lg-6 col-sm-12">
-                    <input type="text" class="form-control" placeholder="Postal Code" required
+                    <label for="postalCode">Postal code</label>
+                    <input type="text" id="postalCode" class="form-control" placeholder="Postal code" required
                            [(ngModel)]="model.addressPostalCode" name="postalCode"/>
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-sm-12">
-                    <input type="text" class="form-control" placeholder="Country" required
+                    <label for="country">Country</label>
+                    <input type="text" id="country" class="form-control" placeholder="Country" required
                            [(ngModel)]="model.addressCountry" name="country"/>
                 </div>
             </div>
             <h6 class="row">Location</h6>
             <div class="form-group row">
                 <div class="col-lg-6 col-sm-12">
+                    <label for="latitude">Latitude</label>
                     <input type="number" class="form-control" id="latitude" placeholder="Latitude" required
                            [(ngModel)]="model.latitude" name="latitude"/>
                 </div>
                 <div class="col-lg-6 col-sm-12">
+                    <label for="longitude">Longitude</label>
                     <input type="number" class="form-control" id="longitude" placeholder="Longitude" required
                            [(ngModel)]="model.longitude" name="longitude"/>
                 </div>
@@ -115,11 +137,13 @@
             <h6 class="row">Contact</h6>
             <div class="form-group row">
                 <div class="col-lg-6 col-sm-12">
-                    <input type="email" class="form-control" id="contactEmail" placeholder="Contact Email" required
+                    <label for="contactEmail">Contact email</label>
+                    <input type="email" class="form-control" id="contactEmail" placeholder="Contact email" required
                            [(ngModel)]="model.contactEmail" name="contactEmail"/>
                 </div>
                 <div class="col-lg-6 col-sm-12">
-                    <input type="tel" class="form-control" id="contactPhone" placeholder="Contact Phone no."
+                    <label for="contactPhone">Contact phone</label>
+                    <input type="tel" class="form-control" id="contactPhone" placeholder="Contact phone no."
                            required
                            [(ngModel)]="model.contactPhone" name="contactPhone"/>
                 </div>
@@ -167,7 +191,7 @@
             </div>
         </form>
     </div>
-    <div id="mockup-container" class="col-sm-6 offset-sm-1 col-xl-4 offset-xl-2">
+    <div id="mockup-container" class="col-sm-6 col-lg-5 offset-lg-1 col-xl-4 offset-xl-2">
         <div id="mockup-device" class="device-wrapper">
             <div class="device" data-device="iPhone7" data-orientation="portrait" data-color="black">
                 <div class="screen">

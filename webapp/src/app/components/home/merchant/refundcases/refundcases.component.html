@@ -71,7 +71,7 @@
                 </div>
                 <div class="ui-g-2 ui-md-2 table-col">
                     {{refundCase.receiptNumber}}
-                </div>gdiplus
+                </div>
                 <div class="ui-g-2 ui-md-2 table-col">
                     {{refundCase.amount | number : '1.2-2'}}
                 </div>
@@ -108,11 +108,11 @@
         </ng-template>
     </p-dataView>
     <div class="row total-container">
-        <div class="col-sm-1 download-text" i18n>
+        <div class="col-sm-2 download-text" i18n>
             Total refunds: {{refundCases ? refundCases.length : ''}}
         </div>
-        <div class="col-sm-1 offset-10">
-            <button type="button" class="btn download-text" (click)="downloadCheckedPressed()" i18n>
+        <div class="col-sm-2 offset-sm-8">
+            <button type="button" class="btn download-text btn-outline-primary" (click)="downloadCheckedPressed()" i18n>
                 <i class="fa fa-download"></i> Download checked
             </button>
         </div>

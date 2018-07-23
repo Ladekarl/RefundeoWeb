@@ -132,8 +132,10 @@ namespace Refundeo.Controllers.Admin
                 }
             }
 
-            var factor = merchantInformation.RefundPercentage / 100.0;
-            var refundAmount = factor * model.Amount;
+            var refundAmount = model.Amount * (merchantInformation.RefundPercentage / 100);
+            var vatAmount = model.Amount - model.Amount / (1 + merchantInformation.VATRate / 100);
+            var adminAmount = vatAmount * (merchantInformation.AdminFee / 100);
+            var merchantAmount = vatAmount * (merchantInformation.MerchantFee / 100);
 
             var refundCase = new RefundCase
             {
@@ -141,6 +143,9 @@ namespace Refundeo.Controllers.Admin
                 RefundAmount = refundAmount,
                 MerchantInformation = merchantInformation,
                 CustomerInformation = customerInformation,
+                VATAmount = vatAmount,
+                MerchantAmount = merchantAmount,
+                AdminAmount = adminAmount,
                 DateCreated = DateTime.UtcNow,
                 ReceiptNumber = model.ReceiptNumber
             };
@@ -204,7 +209,8 @@ namespace Refundeo.Controllers.Admin
             }
 
             var merchantInformation =
-                await _context.MerchantInformations.FirstOrDefaultAsync(i => i.Merchants.Any(m => m.Id == model.MerchantId));
+                await _context.MerchantInformations.FirstOrDefaultAsync(i =>
+                    i.Merchants.Any(m => m.Id == model.MerchantId));
             var customerInformation =
                 await _context.CustomerInformations.FirstOrDefaultAsync(i => i.Customer.Id == model.CustomerId);
 
@@ -220,6 +226,9 @@ namespace Refundeo.Controllers.Admin
             refundCaseToUpdate.IsAccepted = model.IsAccepted;
             refundCaseToUpdate.IsRejected = model.IsRejected;
             refundCaseToUpdate.RefundAmount = model.RefundAmount;
+            refundCaseToUpdate.AdminAmount = model.AdminAmount;
+            refundCaseToUpdate.MerchantAmount = model.MerchantAmount;
+            refundCaseToUpdate.VATAmount = model.VatAmount;
             refundCaseToUpdate.ReceiptNumber = model.ReceiptNumber;
 
             _context.RefundCases.Update(refundCaseToUpdate);

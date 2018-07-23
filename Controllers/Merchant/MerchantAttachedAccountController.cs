@@ -14,7 +14,6 @@ using Refundeo.Core.Services.Interfaces;
 
 namespace Refundeo.Controllers.Merchant
 {
-    [Authorize(Roles = RefundeoConstants.RoleMerchant)]
     [Route("/api/merchant/attachedaccount")]
     public class MerchantAttachedAccountController : Controller
     {
@@ -35,6 +34,7 @@ namespace Refundeo.Controllers.Merchant
             _utilityService = utilityService;
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleMerchant)]
         [HttpPost]
         public async Task<IActionResult> RegisterAttachedMerchant([FromBody] CreateAttachedAccountDto model)
         {
@@ -78,6 +78,45 @@ namespace Refundeo.Controllers.Merchant
             return NoContent();
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleAdmin)]
+        [HttpPost("{id}")]
+        public async Task<IActionResult> RegisterAttachedMerchant([FromBody] CreateAttachedAccountDto model, long id)
+        {
+            var merchantInformation = await _context.MerchantInformations
+                .Include(m => m.Merchants)
+                .Where(m => m.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (merchantInformation == null)
+            {
+                return NotFound();
+            }
+
+            var attachedUser = new RefundeoUser {UserName = model.Username};
+            var createUserResult = await _userManager.CreateAsync(attachedUser, model.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(createUserResult.Errors);
+            }
+
+            var addToRoleResult =
+                await _userManager.AddToRoleAsync(attachedUser, RefundeoConstants.RoleAttachedMerchant);
+
+            if (!addToRoleResult.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(addToRoleResult.Errors);
+            }
+
+            merchantInformation.Merchants.Add(attachedUser);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+        [Authorize(Roles = RefundeoConstants.RoleMerchant)]
         [HttpPut("ChangePassword/{id}")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model, string id)
         {
@@ -123,12 +162,14 @@ namespace Refundeo.Controllers.Merchant
 
             if (!changePasswordResult.Succeeded)
             {
-                return _utilityService.GenerateBadRequestObjectResult(changePasswordResult.Errors.Select(x => x.Description));
+                return _utilityService.GenerateBadRequestObjectResult(
+                    changePasswordResult.Errors.Select(x => x.Description));
             }
 
             return NoContent();
         }
 
+        [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAttachedMerchant(string id)
         {
@@ -139,10 +180,22 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            var merchantInformation = await _context.MerchantInformations
-                .Include(m => m.Merchants)
-                .Where(m => m.Merchants.Any(x => x.Id == user.Id))
-                .FirstOrDefaultAsync();
+            var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
+            MerchantInformation merchantInformation = null;
+            if (isAdmin)
+            {
+                merchantInformation = await _context.MerchantInformations
+                    .Include(m => m.Merchants)
+                    .Where(m => m.Merchants.Any(x => x.Id == id))
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                merchantInformation = await _context.MerchantInformations
+                    .Include(m => m.Merchants)
+                    .Where(m => m.Merchants.Any(x => x.Id == user.Id))
+                    .FirstOrDefaultAsync();
+            }
 
             if (merchantInformation == null)
             {

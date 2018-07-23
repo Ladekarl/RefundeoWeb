@@ -123,13 +123,20 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.Locations.AddAsync(location);
 
+            var vatPercentage = 100 - 100 / (1 + model.VatRate / 100);
+            var adminPercentage = vatPercentage * (model.AdminFee / 100);
+            var merchantPercantage = vatPercentage * (model.MerchantFee / 100);
+
             var merchantInformation = new MerchantInformation
             {
                 CompanyName = model.CompanyName,
                 CVRNumber = model.CvrNumber,
-                RefundPercentage = model.RefundPercentage,
+                RefundPercentage = vatPercentage - adminPercentage - merchantPercantage,
                 Location = location,
                 Address = address,
+                VATRate = model.VatRate,
+                AdminFee = model.AdminFee,
+                MerchantFee = model.MerchantFee,
                 Description = model.Description,
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
@@ -138,6 +145,13 @@ namespace Refundeo.Controllers.Merchant
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
+
+            await _context.SaveChangesAsync();
+
+            if (_context.Entry(merchantInformation).Collection(x => x.Merchants).IsLoaded == false)
+            {
+                await _context.Entry(merchantInformation).Collection(x => x.Merchants).LoadAsync();
+            }
 
             merchantInformation.Merchants.Add(user);
 
@@ -156,6 +170,11 @@ namespace Refundeo.Controllers.Merchant
                     merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
                     tag.MerchantInformationTags.Add(merchantInformationTag);
                 }
+            }
+
+            if (_context.Entry(merchantInformation).Collection(x => x.OpeningHours).IsLoaded == false)
+            {
+                await _context.Entry(merchantInformation).Collection(x => x.OpeningHours).LoadAsync();
             }
 
             foreach (var openingHoursModel in model.OpeningHours)
@@ -319,6 +338,10 @@ namespace Refundeo.Controllers.Merchant
                 }
             }
 
+            var vatPercentage = 100 - 100 / (1 + model.VatRate / 100);
+            var adminPercentage = vatPercentage * (model.AdminFee / 100);
+            var merchantPercantage = vatPercentage * (model.MerchantFee / 100);
+
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CvrNumber;
             merchantInformation.Address.StreetName = model.AddressStreetName;
@@ -329,6 +352,10 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Latitude = model.Latitude;
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
+            merchantInformation.VATRate = model.VatRate;
+            merchantInformation.AdminFee = model.AdminFee;
+            merchantInformation.MerchantFee = model.MerchantFee;
+            merchantInformation.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
             merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;

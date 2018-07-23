@@ -1,6 +1,7 @@
 $nav-width: 250px;
 $collapse-break: 768px;
 $nav-background-color: #e9ecef;
+$background-color: #f9f9f9;
 $nav-color: #303880;
 $nav-active-color: #303880;
 $nav-inactive-text-color: #303880;
@@ -241,6 +242,10 @@ $nav-menu-line-height: 60px;
             line-height: 60px;
             margin-bottom: 10px;
         }
+
+        #content {
+            padding: 0 20px 0 20px;
+        }
     }
     .menu-bottom {
         display: none
@@ -266,15 +271,17 @@ $nav-menu-line-height: 60px;
             position: absolute;
             top: 0;
             right: 0;
+            background: $background-color;
             left: 0;
         }
         #content {
             position: absolute;
             top: 60px;
             left: 0px;
+            background: $background-color;
             right: 0;
             bottom: 0;
-            padding: 20px 100px 90px 100px;
+            padding: 20px 50px 80px 50px;
             overflow-y: auto;
             overflow-x: hidden;
         }

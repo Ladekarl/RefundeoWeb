@@ -5,6 +5,9 @@ export class RefundCase {
     id: number;
     amount: number;
     refundAmount: number;
+    vatAmount: number;
+    adminAmount: number;
+    merchantAmount: number;
     isRequested: boolean;
     isAccepted: boolean;
     isRejected: boolean;

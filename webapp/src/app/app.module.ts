@@ -26,6 +26,7 @@ import {
     ShoppersComponent,
     DashboardComponent,
     RetailerComponent,
+    StatisticsComponent,
     LoginComponent,
     SettingsComponent,
     AccountComponent
@@ -35,6 +36,7 @@ import {DataViewModule} from 'primeng/dataview';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
 import {ChartModule} from 'primeng/chart';
+import {GrowlModule} from 'primeng/primeng';
 import {DropdownModule} from 'primeng/dropdown';
 import {registerLocaleData} from '@angular/common';
 import localeDa from '@angular/common/locales/da';
@@ -55,13 +57,15 @@ registerLocaleData(localeDa, 'da');
         ShoppersComponent,
         RetailerComponent,
         SettingsComponent,
-        AccountComponent
+        AccountComponent,
+        StatisticsComponent
     ],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
         FormsModule,
         DataViewModule,
+        GrowlModule,
         ConfirmDialogModule,
         DropdownModule,
         HttpClientModule,

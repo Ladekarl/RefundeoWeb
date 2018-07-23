@@ -108,11 +108,15 @@ namespace Refundeo.Core.Data.Initializers
                         StreetNumber = merchant.AddressStreetNumber
                     };
 
+                    var vatPercentage = 100 - 100 / (1 + merchant.VatRate / 100);
+                    var adminPercentage = vatPercentage * (merchant.AdminFee / 100);
+                    var merchantPercantage = vatPercentage * (merchant.MerchantFee / 100);
+
                     var merchantInformation = new MerchantInformation
                     {
                         CompanyName = merchant.CompanyName,
                         CVRNumber = merchant.CvrNumber,
-                        RefundPercentage = merchant.RefundPercentage,
+                        RefundPercentage = vatPercentage - adminPercentage - merchantPercantage,
                         Description = merchant.Description,
                         VATNumber = merchant.VatNumber,
                         ContactEmail = merchant.ContactEmail,

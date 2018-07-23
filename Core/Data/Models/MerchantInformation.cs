@@ -8,8 +8,11 @@ namespace Refundeo.Core.Data.Models
         public long Id { get; set; }
         public string CompanyName { get; set; }
         public string CVRNumber { get; set; }
+        public double AdminFee { get; set; }
+        public double VATRate { get; set; }
+        public double MerchantFee { get; set; }
         public double RefundPercentage { get; set; }
-            public string Description { get; set; }
+        public string Description { get; set; }
         public string Banner { get; set; }
         public string Logo { get; set; }
         public string VATNumber { get; set; }

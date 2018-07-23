@@ -11,7 +11,8 @@ import {
     RetailersComponent,
     ShoppersComponent,
     RetailerComponent,
-    AccountComponent
+    AccountComponent,
+    StatisticsComponent
 } from './components';
 
 const appRoutes: Routes = [
@@ -58,6 +59,11 @@ const appRoutes: Routes = [
                 canActivate: [AuthGuard]
             },
             {
+                path: 'statistics',
+                component: StatisticsComponent,
+                canActivate: [AuthGuard]
+            },
+            {
                 path: 'account',
                 component: AccountComponent,
                 canActivate: [AuthGuard],
@@ -66,7 +72,7 @@ const appRoutes: Routes = [
                 path: 'retailer',
                 component: RetailerComponent,
                 canActivate: [AuthGuard]
-            },
+            }
             // {
             //     path: 'settings',
             //     component: SettingsComponent,
