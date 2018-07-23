@@ -6,23 +6,23 @@ import {AuthorizationService} from './authorization.service';
 export class MenuService {
 
     private static merchantMenuItems: MenuItem[] = [
-        // {
-        //     routerLink: '/',
-        //     displayName: 'Dashboard',
-        //     title: 'Dashboard',
-        //     iconClass: 'fa-home'
-        // },
         {
             routerLink: '/',
-            displayName: 'Refunds',
-            title: 'Refunds',
-            iconClass: 'fa-exchange'
+            displayName: 'Overview',
+            title: 'Overview',
+            iconClass: 'fa-home'
         },
         {
             routerLink: '/statistics',
             displayName: 'Statistics',
             title: 'Statistics',
             iconClass: 'fa-line-chart'
+        },
+        {
+            routerLink: '/refunds',
+            displayName: 'Refunds',
+            title: 'Refunds',
+            iconClass: 'fa-exchange'
         },
         {
             routerLink: '/account',

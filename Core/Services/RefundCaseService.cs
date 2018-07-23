@@ -45,6 +45,26 @@ namespace Refundeo.Core.Services
             return new ObjectResult(dto);
         }
 
+        public RefundCaseSimpleDto ConvertRefundCaseToDtoSimple(RefundCase refundCase)
+        {
+            return new RefundCaseSimpleDto
+            {
+                Id = refundCase.Id,
+                Amount = refundCase.Amount,
+                RefundAmount = refundCase.RefundAmount,
+                VatAmount = refundCase.VATAmount,
+                MerchantAmount = refundCase.MerchantAmount,
+                AdminAmount = refundCase.AdminAmount,
+                IsRequested = refundCase.IsRequested,
+                IsAccepted = refundCase.IsAccepted,
+                IsRejected = refundCase.IsRejected,
+                DateCreated = refundCase.DateCreated,
+                DateRequested = refundCase.DateRequested,
+                ReceiptNumber = refundCase.ReceiptNumber,
+                Customer = _utilityService.ConvertCustomerInformationToSimpleDto(refundCase.CustomerInformation)
+            };
+        }
+
         public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase)
         {
             return new RefundCaseDto

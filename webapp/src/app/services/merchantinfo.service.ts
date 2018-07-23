@@ -8,24 +8,26 @@ import {AuthorizationService} from './authorization.service';
 export class MerchantInfoService {
 
     merchantInfos: MerchantInfo[];
-    merchantInfo: MerchantInfo;
+    merchantInfo: Map<string, MerchantInfo>;
 
     constructor(
         private http: HttpClient,
         private authorizationService: AuthorizationService) {
+        this.merchantInfo = new Map<string, MerchantInfo>();
     }
 
     getMerchant(id: string): Observable<MerchantInfo> {
-        if (!this.merchantInfo) {
+        let merchantInfo = this.merchantInfo.get(id);
+        if (!merchantInfo) {
             return this.getMerchantNoCache(id);
         }
-        return Observable.of(this.merchantInfo);
+        return Observable.of(merchantInfo);
     }
 
     getMerchantNoCache(id: string): Observable<MerchantInfo> {
         return this.http.get<MerchantInfo>('/api/merchant/account/' + id).map(m => {
-            this.merchantInfo = m;
-            return this.merchantInfo;
+            this.merchantInfo.set(id, m);
+            return this.merchantInfo.get(id);
         });
     }
 
@@ -99,7 +101,7 @@ export class MerchantInfoService {
 
     resetMerchantInfos() {
         this.merchantInfos = [];
-        this.merchantInfo = undefined;
+        this.merchantInfo.clear();
     }
 
     changePasswordAttachedAccount(id: string, changePassword: ChangePassword): Observable<any> {

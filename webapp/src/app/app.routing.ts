@@ -55,12 +55,17 @@ const appRoutes: Routes = [
         children: [
             {
                 path: '',
-                component: RefundCasesComponent,
+                component: DashboardComponent,
                 canActivate: [AuthGuard]
             },
             {
                 path: 'statistics',
                 component: StatisticsComponent,
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'refunds',
+                component: RefundCasesComponent,
                 canActivate: [AuthGuard]
             },
             {

@@ -87,7 +87,7 @@
                     {{merchant.addressCountry}}
                 </div>
                 <div class="ui-g-1 table-col">
-                    {{merchant.refundPercentage}}
+                    {{merchant.refundPercentage | number : '1.2-2'}}
                 </div>
             </div>
         </ng-template>

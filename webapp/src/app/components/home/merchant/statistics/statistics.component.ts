@@ -1,9 +1,16 @@
 import {Component, OnInit} from '@angular/core';
-import {CustomerInfo, RefundCase} from '../../../../models';
-import {AuthenticationService, ColorsService, CustomerInfoService, RefundCasesService} from '../../../../services';
-import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
+import {MerchantInfo, RefundCase} from '../../../../models';
+import {
+    MerchantInfoService,
+    authorizationService,
+    ColorsService,
+    RefundCasesService,
+    AuthorizationService
+} from '../../../../services';
 import {Message, SelectItem} from 'primeng/api';
-import index from '@angular/cli/lib/cli';
+import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
 
 @Component({
     selector: 'app-statistics',
@@ -19,12 +26,22 @@ export class StatisticsComponent implements OnInit {
     monthsData: any;
     meanPurchaseTime: string;
     bestMonth: string;
-    purchasePeriodOptionsKey = 14;
-    earningsPeriodOptionsKey = 14;
+    bestDay: string;
+    averageSpent: number;
+    purchasePeriodOptionsKey = 30;
+    earningsPeriodOptionsKey = 30;
+    monthsPeriodOptionsKey = 0;
+    statisticsPeriodOptionsKey = 0;
+    customersPeriodOptionsKey = 0;
     refundCases: RefundCase[];
     growls: Message[];
     purchasesDateAmountMap: Map<number, number>;
     earningsDateAmountMap: Map<number, number>;
+    merchantInfo: MerchantInfo;
+    purchaseOptions: any;
+    earningsOptions: any;
+    monthsOptions: any;
+    customersOptions: any;
 
     periodOptions: SelectItem[] = [
         {label: 'Last week', value: 7},
@@ -35,57 +52,91 @@ export class StatisticsComponent implements OnInit {
     ];
 
     months: string[];
+    days: string[];
 
-    constructor(private authenticationService: AuthenticationService, private customerInfoService: CustomerInfoService,
-                private colorsService: ColorsService, private refundCasesService: RefundCasesService) {
-        let month = [];
-        month[0] = 'January';
-        month[1] = 'February';
-        month[2] = 'March';
-        month[3] = 'April';
-        month[4] = 'May';
-        month[5] = 'June';
-        month[6] = 'July';
-        month[7] = 'August';
-        month[8] = 'September';
-        month[9] = 'October';
-        month[10] = 'November';
-        month[11] = 'December';
-        this.months = month;
+    constructor(private merchantInfoService: MerchantInfoService,
+                private authorizationService: AuthorizationService,
+                private spinnerService: Ng4LoadingSpinnerService,
+                private colorsService: ColorsService,
+                private refundCasesService: RefundCasesService) {
+        let months = [];
+        months[0] = 'January';
+        months[1] = 'February';
+        months[2] = 'March';
+        months[3] = 'April';
+        months[4] = 'May';
+        months[5] = 'June';
+        months[6] = 'July';
+        months[7] = 'August';
+        months[8] = 'September';
+        months[9] = 'October';
+        months[10] = 'November';
+        months[11] = 'December';
+        this.months = months;
+
+        let days = [];
+        days[0] = 'Sunday';
+        days[1] = 'Monday';
+        days[2] = 'Tuesday';
+        days[3] = 'Wednesday';
+        days[4] = 'Thursday';
+        days[5] = 'Friday';
+        days[6] = 'Saturday';
+        this.days = days;
+        this.merchantInfo = new MerchantInfo();
         this.growls = [];
     }
 
     ngOnInit(): void {
-        this.customerInfoService.getAll().subscribe(customerInfos => {
-            this.initUsersByCountryData(customerInfos);
-        });
-        this.refundCasesService.getAll().subscribe(refundCases => {
+        let tasks = [];
+        this.spinnerService.show();
+
+        tasks.push(this.refundCasesService.getAll().map(refundCases => {
             this.refundCases = refundCases.filter(r => r.isAccepted);
+        }));
+        tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).map(merchantInfo => {
+            this.merchantInfo = merchantInfo;
+        }));
+
+        Observable.forkJoin(tasks).subscribe(() => {
             if (this.refundCases && this.refundCases.length > 0) {
+                this.setUsersByCountryData(this.refundCases, this.customersPeriodOptionsKey);
                 this.setPurchaseData(this.refundCases, this.purchasePeriodOptionsKey);
                 this.setEarningsData(this.refundCases, this.earningsPeriodOptionsKey);
-                this.setMonthsData(this.refundCases);
-                this.calculateStatistics(this.refundCases);
+                this.setMonthsData(this.refundCases, this.monthsPeriodOptionsKey);
+                this.calculateStatistics(this.refundCases, this.statisticsPeriodOptionsKey);
             }
+            this.spinnerService.hide();
+        }, () => {
+            this.spinnerService.hide();
         });
     }
 
-    calculateStatistics(refundCases: RefundCase[]) {
+    calculateStatistics(refundCases: RefundCase[], daysToShow: number) {
+        refundCases = this.filterDays(daysToShow, refundCases);
+
         let times = refundCases.map(x => x.dateCreated.getHours());
 
         times.sort((a, b) => a - b);
 
-        this.meanPurchaseTime = times[times.length / 2].toString();
+        this.meanPurchaseTime = ('0' + times[Math.floor(times.length / 2)].toString()).slice(-2) + ':00';
 
         let monthsDateAmountMap = new Map<string, number>();
+        let daysDateAmountMap = new Map<string, number>();
+
+        let totalSpent = 0;
 
         refundCases
             .sort((a: RefundCase, b: RefundCase) => a.dateCreated.getTime() - b.dateCreated.getTime())
             .forEach(refundCase => {
                 const date = refundCase.dateCreated;
-                let mappedAmount: number = monthsDateAmountMap.get(this.months[date.getMonth()]);
-                mappedAmount = mappedAmount ? mappedAmount + 1 : 1;
-                monthsDateAmountMap.set(this.months[date.getMonth()], mappedAmount);
+                let mappedMonth: number = monthsDateAmountMap.get(this.months[date.getMonth()]);
+                let mappedDay: number = daysDateAmountMap.get(this.days[date.getDay()]);
+                mappedMonth = mappedMonth ? mappedMonth + 1 : 1;
+                mappedDay = mappedDay ? mappedDay + 1 : 1;
+                monthsDateAmountMap.set(this.months[date.getMonth()], mappedMonth);
+                daysDateAmountMap.set(this.days[date.getDay()], mappedDay);
+                totalSpent += refundCase.amount;
             });
 
         let bestMonth = null;
@@ -96,8 +147,19 @@ export class StatisticsComponent implements OnInit {
                 bestMonthAmount = value;
             }
         });
-
         this.bestMonth = bestMonth;
+
+        let bestDay = null;
+        let bestDayAmount = 0;
+        daysDateAmountMap.forEach((value, key) => {
+            if (value > bestDayAmount) {
+                bestDay = key;
+                bestDayAmount = value;
+            }
+        });
+        this.bestDay = bestDay;
+
+        this.averageSpent = (totalSpent / refundCases.length);
     }
 
     selectPurchaseData(event) {
@@ -107,12 +169,12 @@ export class StatisticsComponent implements OnInit {
 
         this.growls = [];
 
-        if (time && amount) {
+        if (time) {
             const date = new Date(time);
             this.growls.push({
                 severity: 'info',
-                summary: `Purchases on ${date.toLocaleDateString()}`,
-                'detail': `Purchase amount: ${amount}`
+                summary: `Tax free purchases on ${date.toLocaleDateString()}`,
+                'detail': `${this.merchantInfo.currency} ${amount}`
             });
         }
     }
@@ -124,12 +186,12 @@ export class StatisticsComponent implements OnInit {
 
         this.growls = [];
 
-        if (time && amount) {
+        if (time) {
             const date = new Date(time);
             this.growls.push({
                 severity: 'info',
-                summary: `Earnings on ${date.toLocaleDateString()}`,
-                'detail': `Earnings amount: ${amount}`
+                summary: `Tax free earnings on ${date.toLocaleDateString()}`,
+                'detail': `${this.merchantInfo.currency} ${amount}`
             });
         }
     }
@@ -146,20 +208,53 @@ export class StatisticsComponent implements OnInit {
         }
     }
 
-    initUsersByCountryData(customerInfos: CustomerInfo[]) {
-        const usersByCountryMap = this.getUsersByCountry(customerInfos);
+    onStatisticsPeriodChange(event) {
+        if (this.refundCases && this.refundCases.length > 0) {
+            this.calculateStatistics(this.refundCases, event.value);
+        }
+    }
+
+    onCustomersPeriodChange(event) {
+        if (this.refundCases && this.refundCases.length > 0) {
+            this.setUsersByCountryData(this.refundCases, event.value);
+        }
+    }
+
+    onMonthsPeriodChange(event) {
+        if (this.refundCases && this.refundCases.length > 0) {
+            this.setMonthsData(this.refundCases, event.value);
+        }
+    }
+
+    setUsersByCountryData(refundCases: RefundCase[], daysToShow: number) {
+        refundCases = this.filterDays(daysToShow, refundCases);
+
+        const usersByCountryMap = this.getUsersByCountry(refundCases);
+
         const countries = Array.from(usersByCountryMap.keys());
         const amounts = Array.from(usersByCountryMap.values());
         const colorPalette = this.colorsService.getColorPallete(usersByCountryMap.keys.length);
-        this.totalRefundCases = customerInfos.length;
+        this.totalRefundCases = refundCases.length;
         this.usersByCountry = {
-            labels: countries.map(c => `${c} ${usersByCountryMap.get(c)}`),
+            labels: countries,
             datasets: [
                 {
                     backgroundColor: colorPalette,
                     hoverBackgroundColor: colorPalette,
                     data: amounts
                 }]
+        };
+
+        this.customersOptions = {
+            title: {
+                display: true,
+                text: 'Nationalities',
+                fontSize: 16
+            },
+            legend: {
+                position: 'bottom'
+            },
+            responsive: true
         };
     }
 
@@ -179,32 +274,79 @@ export class StatisticsComponent implements OnInit {
         return refundCases;
     }
 
-    setMonthsData(refundCases: RefundCase[]) {
+    getMonday(date) {
+        let date = new Date(date.getTime());
+        let day = date.getDay() || 7;
+        if (day !== 1)
+            date.setHours(-24 * (day - 1));
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    getDateFormatted(date: Date, daysToShow: number) {
+        let dateFormatted: Date = null;
+        if (daysToShow > 0 && daysToShow <= 7)
+            dateFormatted = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        else if (daysToShow > 7 && daysToShow < 365)
+            dateFormatted = this.getMonday(date);
+        else if (daysToShow >= 365 || daysToShow === 0)
+            dateFormatted = new Date(date.getFullYear(), date.getMonth());
+        return dateFormatted;
+    }
+
+    setMonthsData(refundCases: RefundCase[], daysToShow: number) {
         let monthsDateAmountMap = new Map<string, number>();
 
-        this.months.forEach(month => {
-            monthsDateAmountMap.set(month, 0);
-        });
+        refundCases = this.filterDays(daysToShow, refundCases);
 
         refundCases
             .sort((a: RefundCase, b: RefundCase) => a.dateCreated.getTime() - b.dateCreated.getTime())
             .forEach(refundCase => {
-                const date: Date = refundCase.dateCreated;
-                let mappedAmount: number = monthsDateAmountMap.get(this.months[date.getMonth()]);
-                mappedAmount++;
-                monthsDateAmountMap.set(this.months[date.getMonth()], mappedAmount);
+                const dateFormatted = this.getDateFormatted(refundCase.dateCreated, daysToShow);
+                let mappedAmount: number = monthsDateAmountMap.get(dateFormatted.getTime());
+                mappedAmount = mappedAmount ? mappedAmount + 1 : 1;
+                monthsDateAmountMap.set(dateFormatted.getTime(), mappedAmount);
             });
 
+        const chartLabels = this.getChartLabels(daysToShow, Array.from(monthsDateAmountMap.keys()), false);
+
         this.monthsData = {
-            labels: Array.from(monthsDateAmountMap.keys()),
+            labels: chartLabels,
             datasets: [
                 {
                     label: 'Customers',
                     data: Array.from(monthsDateAmountMap.values()),
-                    borderColor: '#303880',
-                    backgroundColor: '#303880'
+                    borderColor: 'rgba(48,56,128,1)',
+                    backgroundColor: 'rgba(48,56,128,0.8)',
+                    borderWidth: 1
                 },
             ]
+        };
+
+        this.monthsOptions = {
+            title: {
+                display: true,
+                text: 'Customers',
+                fontSize: 16
+            },
+            responsive: true,
+            legend: {
+                display: false
+            },
+            scales: {
+                yAxes: [{
+                    display: true,
+                    min: 0,
+                    ticks: {
+                        suggestedMin: 0,
+                        beginAtZero: true,
+                        callback: (label) => {
+                            if (Math.floor(label) === label) {
+                                return label;
+                            }
+                        }
+                    }
+                }]
+            }
         };
     }
 
@@ -229,12 +371,46 @@ export class StatisticsComponent implements OnInit {
             labels: chartLabels,
             datasets: [
                 {
-                    label: 'Earnings amount',
+                    label: 'Tax free earnings',
                     data: Array.from(this.earningsDateAmountMap.values()),
                     fill: false,
-                    borderColor: '#303880'
+                    lineTension: 0,
+                    borderColor: 'rgba(48,56,128,1)',
+                    backgroundColor: 'rgba(48,56,128,0.8)',
+                    borderWidth: 1
                 },
             ]
+        };
+
+        this.earningsOptions = {
+            title: {
+                display: true,
+                text: 'Tax free earnings',
+                fontSize: 16
+            },
+            responsive: true,
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: false,
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: false,
+                    },
+                    ticks: {
+                        callback: (label) => {
+                            return this.merchantInfo.currency + ' ' + label;
+                        }
+                    }
+                }]
+            }
         };
 
     }
@@ -260,16 +436,50 @@ export class StatisticsComponent implements OnInit {
             labels: chartLabels,
             datasets: [
                 {
-                    label: 'Purchase amount',
+                    label: 'Tax free purchases',
                     data: Array.from(this.purchasesDateAmountMap.values()),
                     fill: false,
-                    borderColor: '#303880'
+                    lineTension: 0,
+                    borderColor: 'rgba(48,56,128,1)',
+                    backgroundColor: 'rgba(48,56,128,0.8)',
+                    borderWidth: 1
                 },
             ]
         };
+
+        this.purchaseOptions = {
+            title: {
+                display: true,
+                text: 'Tax free purchases',
+                fontSize: 16
+            },
+            responsive: true,
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: false,
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: false,
+                    },
+                    ticks: {
+                        callback: (label) => {
+                            return this.merchantInfo.currency + ' ' + label;
+                        }
+                    }
+                }]
+            }
+        };
     }
 
-    getChartLabels(daysToShow: number, keys: number[]): string[] {
+    getChartLabels(daysToShow: number, keys: number[], pushIfExists: boolean = true): string[] {
         let chartLabels: string[] = [];
         if (daysToShow > 0 && daysToShow <= 7) {
             for (let time of keys) {
@@ -283,7 +493,7 @@ export class StatisticsComponent implements OnInit {
                 const date = new Date(time);
                 let week = this.getWeekNumber(date);
                 let weekString = 'Week ' + week;
-                if (chartLabels.indexOf(weekString) > -1) {
+                if (chartLabels.indexOf(weekString) > -1 && pushIfExists) {
                     chartLabels.push('');
                 } else {
                     chartLabels.push(weekString);
@@ -295,7 +505,7 @@ export class StatisticsComponent implements OnInit {
             for (let time of keys) {
                 const date = new Date(time);
                 let month = this.months[date.getMonth()];
-                if (chartLabels.indexOf(month) > -1) {
+                if (chartLabels.indexOf(month) > -1 && pushIfExists) {
                     chartLabels.push('');
                 } else {
                     chartLabels.push(month);
@@ -306,13 +516,16 @@ export class StatisticsComponent implements OnInit {
         return chartLabels;
     }
 
-    getUsersByCountry(customerInfos: CustomerInfo[]): Map<string, number> {
+    getUsersByCountry(refundCases: RefundCase[]): Map<string, number> {
         const usersByCountryMap = new Map<string, number>();
-        customerInfos.forEach(c => {
-            let amount: number = usersByCountryMap.get(c.country);
-            amount = amount ? ++amount : 1;
-            usersByCountryMap.set(c.country, amount);
-        });
+        refundCases
+            .forEach(r => {
+                if (r.customer && r.customer.country) {
+                    let amount: number = usersByCountryMap.get(r.customer.country);
+                    amount = amount ? ++amount : 1;
+                    usersByCountryMap.set(r.customer.country, amount);
+                }
+            });
         return usersByCountryMap;
     }
 

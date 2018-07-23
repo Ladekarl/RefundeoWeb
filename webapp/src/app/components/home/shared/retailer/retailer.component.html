@@ -17,13 +17,13 @@
             <div class="col-sm-12">
                 <div *ngIf="isAdmin" class="form-group row">
                     <label id="uploadBanner"
-                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 offset-xl-2 upload-button">
+                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 upload-button">
                         Upload Banner <input type="file" accept="image/png" hidden required
                                              (change)="uploadBanner($event)"
                                              name="banner">
                     </label>
                     <label id="uploadLogo"
-                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 upload-button">
+                           class="form-control btn btn-primary col-sm-12 col-lg-12 col-xl-5 offset-xl-2 upload-button">
                         Upload Logo <input type="file" accept="image/png" hidden required (change)="uploadLogo($event)"
                                            name="logo">
                     </label>
@@ -69,7 +69,7 @@
                               [(ngModel)]="model.description" name="description"></textarea>
                 </div>
             </div>
-            <h6  *ngIf="isAdmin" class="row">Fees</h6>
+            <h6 *ngIf="isAdmin" class="row">Fees</h6>
             <div *ngIf="isAdmin" class="form-group row">
                 <div class="col-lg-6 col-sm-12">
                     <label for="merchantFee">Merchant fee (%)</label>

@@ -38,16 +38,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="webapp\node_modules\**" />
+    <Compile Remove="wwwroot\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="webapp\node_modules\**" />
     <EmbeddedResource Remove="Migrations\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="webapp\node_modules\**" />
     <None Remove="Migrations\**" />
+    <None Remove="wwwroot\**" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="libwkhtmltox.dll" CopyToPublishDirectory="always" />
+    <Content Remove="wwwroot\**" />
   </ItemGroup>
 </Project>
