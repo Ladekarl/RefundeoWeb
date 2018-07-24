@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             .subscribe((event) => {
                 if (event instanceof NavigationStart) {
                     let menuItem = this.menuItems.find(m => m.routerLink === event.url);
-                    this.setActiveMenuItem(menuItem);
+                    this.setActiveMenuItem(menuItem, false);
                 }
             });
     }
