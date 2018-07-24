@@ -1,3 +1,128 @@
 <div class="row">
-    dashboard
+    <div class="card-container class col-sm-12">
+        <div class="card">
+            <div class="col-sm-12">
+                <span class="card-title">Live Statistics</span>
+            </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    <app-purchase-chart [height]="innerHeight / 2"></app-purchase-chart>
+                </div>
+                <div class="col-lg-4">
+                    <div class="stats-container">
+                        <app-static-stats></app-static-stats>
+                    </div>
+                    <div class="stats-button text-right col-sm-12">
+                        <div class="center-button">
+                            <button class="btn btn-outline-primary" (click)="onStatsClick()">
+                                See All <i class="fa fa-angle-right fa-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-7 card-container">
+        <div class="card">
+            <div class="col-sm-12">
+                <span class="card-title">Latest Refunds</span>
+            </div>
+            <div class="stats-container col-sm-12">
+                <p-dataView [value]="refundCases"
+                            [paginator]="false"
+                            [loading]="loading">
+                    <p-header>
+                        <div class="ui-helper-clearfix header-row">
+                            <div class="ui-g">
+                                <div class="ui-g-2 ui-md-2 header-col">
+                                    <b i18n>Created</b>
+                                </div>
+                                <div class="ui-g-3 ui-md-3 header-col">
+                                    <b i18n>Receipt number</b>
+                                </div>
+                                <div class="ui-g-3 ui-md-3 header-col">
+                                    <b i18n>Purchase Amount</b>
+                                </div>
+                                <div class="ui-g-2 ui-md-2 header-col">
+                                    <b i18n>Country</b>
+                                </div>
+                                <div class="ui-g-2 ui-md-2 header-col">
+                                    <b i18n>Status</b>
+                                </div>
+                            </div>
+                        </div>
+                    </p-header>
+                    <ng-template let-refundCase let-i="index" pTemplate="listItem">
+                        <div class="ui-g table-row">
+                            <div class="ui-g-2 ui-md-2 table-col">
+                                {{refundCase.dateCreated | date:'short'}}
+                            </div>
+                            <div class="ui-g-3 ui-md-3 table-col">
+                                {{refundCase.receiptNumber}}
+                            </div>
+                            <div class="ui-g-3 ui-md-3 table-col">
+                                {{merchantInfo.currency}} {{refundCase.amount | number : '1.2-2'}}
+                            </div>
+                            <div class="ui-g-2 ui-md-2 table-col">
+                                {{refundCase.customer?.country}}
+                            </div>
+                            <div *ngIf="refundCase.isRequested" class="ui-g-2 ui-md-2 table-col">
+                                <div *ngIf="refundCase.isAccepted">
+                                    <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
+                                </div>
+                                <div *ngIf="!refundCase.isAccepted && !refundCase.isRejected">
+                                    <div class="ui-g-12 ui-sm-12 text-primary" i18n>Requested</div>
+                                </div>
+                                <div *ngIf="!refundCase.isRequested" class="ui-g-2 ui-md-2 table-col" i18n>
+                                    Not requested
+                                </div>
+                                <div *ngIf="refundCase.isRejected" class="ui-g-2 ui-md-2 table-col text-danger" i18n>
+                                    Rejected
+                                </div>
+                            </div>
+                            <div class="ui-g-2 ui-md-2 table-col" *ngIf="!refundCase.isRequested">
+                                New
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-dataView>
+            </div>
+            <div class="stats-button text-right col-sm-12">
+                <div class="center-button">
+                    <button class="btn btn-outline-primary" (click)="onRefundsClick()">
+                        See All <i class="fa fa-angle-right angle-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-container align-self-center col-sm-5">
+        <div class="card">
+            <div class="col-sm-12">
+                <div class="row">
+                    <span class="card-title">Your Retailer Information</span>
+                </div>
+                <div class="row">
+                    <span class="card-text text-muted">Change company description</span>
+                </div>
+                <div class="row">
+                    <span class="card-text text-muted">Change address and location</span>
+                </div>
+                <div class="row">
+                    <span class="card-text text-muted">Change opening hours</span>
+                </div>
+                <div class="row">
+                    <span class="card-text text-muted">Change contact details</span>
+                </div>
+            </div>
+            <div class="stats-button text-right col-sm-12">
+                <div class="center-button">
+                    <button class="btn btn-outline-primary" (click)="onAccountClick()">
+                        See All <i class="fa fa-angle-right angle-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

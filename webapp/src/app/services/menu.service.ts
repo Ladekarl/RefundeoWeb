@@ -25,16 +25,16 @@ export class MenuService {
             iconClass: 'fa-exchange'
         },
         {
-            routerLink: '/account',
-            displayName: 'Account',
-            title: 'Account',
-            iconClass: 'fa-user-circle',
-        },
-        {
             routerLink: '/retailer',
             displayName: 'Retailer Information',
             title: 'Retailer Information',
             iconClass: 'fa-edit'
+        },
+        {
+            routerLink: '/account',
+            displayName: 'Account',
+            title: 'Account',
+            iconClass: 'fa-user-circle',
         }
         // {
         //     routerLink: '/refunds',

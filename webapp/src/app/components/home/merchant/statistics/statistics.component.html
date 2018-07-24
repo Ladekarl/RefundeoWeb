@@ -1,51 +1,17 @@
-<div class="row image-background">
+<div class="row">
     <p-growl [value]="growls"></p-growl>
     <div class="col-lg-7">
-        <div class="card">
-            <div>
-                <span class="text-muted">Period</span>
-                <p-dropdown [options]="periodOptions" placeholder="Period"
-                            class="col-sm-10"
-                            [(ngModel)]="purchasePeriodOptionsKey" (onChange)="onPurchasePeriodChange($event)"
-                            [autoWidth]="true"
-                            [style]="{'min-width':'10em'}"></p-dropdown>
-            </div>
-            <div class="col-sm-12 text-center">
-                <p-chart type="line" [options]="purchaseOptions" (onDataSelect)="selectPurchaseData($event)"
-                         [data]="purchaseData"></p-chart>
-            </div>
+        <div class="card" *ngIf="earningsData">
+            <app-purchase-chart></app-purchase-chart>
         </div>
     </div>
     <div class="col-lg-5 align-self-center">
         <div class="card">
-            <div>
-                <span class="text-muted">Period</span>
-                <p-dropdown [options]="periodOptions" placeholder="Period"
-                            class="col-sm-10"
-                            [(ngModel)]="statisticsPeriodOptionsKey" (onChange)="onStatisticsPeriodChange($event)"
-                            [autoWidth]="true"
-                            [style]="{'min-width':'10em'}"></p-dropdown>
-            </div>
-            <div class="col-sm-12 statistic-row top-row">
-                <span class="statistic-left text-muted">Mean purchase time of day:</span>
-                <span class="statistic-right">{{meanPurchaseTime}}</span>
-            </div>
-            <div class="col-sm-12 statistic-row center-row">
-                <span class="statistic-left text-muted">Average tax free spent:</span>
-                <span class="statistic-right">{{merchantInfo.currency}} {{averageSpent | number : '1.2-2'}}</span>
-            </div>
-            <div class="col-sm-12 statistic-row center-row">
-                <span class="statistic-left text-muted">Best day of the week:</span>
-                <span class="statistic-right">{{bestDay}}</span>
-            </div>
-            <div class="col-sm-12 statistic-row bottom-row">
-                <span class="statistic-left text-muted">Best month:</span>
-                <span class="statistic-right">{{bestMonth}}</span>
-            </div>
+            <app-static-stats></app-static-stats>
         </div>
     </div>
     <div class="col-lg-7">
-        <div class="card">
+        <div class="card" *ngIf="earningsData">
             <div>
                 <span class="text-muted">Period</span>
                 <p-dropdown [options]="periodOptions" placeholder="Period"
@@ -61,7 +27,7 @@
         </div>
     </div>
     <div class="col-lg-5 align-self-center">
-        <div class="card">
+        <div class="card" *ngIf="usersByCountry">
             <div>
                 <span class="text-muted">Period</span>
                 <p-dropdown [options]="periodOptions" placeholder="Period"
@@ -70,11 +36,13 @@
                             [autoWidth]="true"
                             [style]="{'min-width':'10em'}"></p-dropdown>
             </div>
-            <p-chart type="pie" [options]="customersOptions" [data]="usersByCountry"></p-chart>
+            <div>
+                <p-chart type="pie" [options]="customersOptions" [data]="usersByCountry"></p-chart>
+            </div>
         </div>
     </div>
     <div class="col-lg-12">
-        <div class="card">
+        <div class="card" *ngIf="monthsData">
             <div>
                 <span class="text-muted">Period</span>
                 <p-dropdown [options]="periodOptions" placeholder="Period"

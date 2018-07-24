@@ -53,7 +53,10 @@ export class AdminRefundcasesComponent implements OnInit {
         {label: 'Rejected', value: 'isRejected'}
     ];
 
-    constructor(private refundCasesService: RefundCasesService, private confirmationService: ConfirmationService, private spinnerService: Ng4LoadingSpinnerService) {
+    constructor(
+        private refundCasesService: RefundCasesService,
+        private confirmationService: ConfirmationService,
+        private spinnerService: Ng4LoadingSpinnerService) {
     }
 
     ngOnInit() {
@@ -104,12 +107,15 @@ export class AdminRefundcasesComponent implements OnInit {
 
     loadData() {
         this.loading = true;
+        this.spinnerService.show();
         this.refundCasesService.getAll()
             .subscribe((refundCases: RefundCase[]) => {
                 this.refundCases = refundCases.reverse();
                 this.loading = false;
+                this.spinnerService.hide();
             }, () => {
                 this.loading = false;
+                this.spinnerService.hide();
             });
     }
 

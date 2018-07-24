@@ -14,7 +14,8 @@ import {
     ColorsService,
     CustomerInfoService,
     AuthorizationService,
-    MerchantInfoService
+    MerchantInfoService,
+    ChartService
 } from './services';
 import {
     AppComponent,
@@ -29,7 +30,9 @@ import {
     StatisticsComponent,
     LoginComponent,
     SettingsComponent,
-    AccountComponent
+    StaticStatsComponent,
+    AccountComponent,
+    PurchaseChartComponent
 } from './components';
 import {SwaggerService} from './services';
 import {DataViewModule} from 'primeng/dataview';
@@ -58,7 +61,9 @@ registerLocaleData(localeDa, 'da');
         RetailerComponent,
         SettingsComponent,
         AccountComponent,
-        StatisticsComponent
+        StatisticsComponent,
+        PurchaseChartComponent,
+        StaticStatsComponent
     ],
     imports: [
         BrowserModule,
@@ -86,6 +91,7 @@ registerLocaleData(localeDa, 'da');
         CustomerInfoService,
         MerchantInfoService,
         RefundCasesService,
+        ChartService,
         MenuService,
         UserService, {
             provide: HTTP_INTERCEPTORS,

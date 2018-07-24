@@ -40,14 +40,14 @@
                            name="companyName">
                 </div>
             </div>
-            <div class="form-group row">
+            <div *ngIf="isAdmin" class="form-group row">
                 <div class="col-sm-12">
                     <label for="cvrNumber">CVR no.</label>
                     <input type="text" class="form-control" id="cvrNumber" placeholder="CVR no."
                            [(ngModel)]="model.cvrNumber" name="cvrNumber"/>
                 </div>
             </div>
-            <div class="form-group row">
+            <div *ngIf="isAdmin" class="form-group row">
                 <div class="col-sm-12">
                     <label for="vatNumber">VAT no.</label>
                     <input type="text" class="form-control" id="vatNumber" placeholder="VAT no." required

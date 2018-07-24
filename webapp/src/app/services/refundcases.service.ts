@@ -36,7 +36,7 @@ export class RefundCasesService {
             let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
             return this.http.get<RefundCase[]>(requestUrl).map(r => {
                 this.refundCases = RefundCasesService.mapDates(r);
-                return this.refundCases;
+                return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
             });
         }
         else

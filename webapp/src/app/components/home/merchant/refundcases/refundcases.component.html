@@ -48,7 +48,10 @@
                     <div class="ui-g-2 ui-md-2 header-col">
                         <b i18n>Refund Amount</b>
                     </div>
-                    <div class="ui-g-2 ui-md-2 header-col">
+                    <div class="ui-g-1 ui-md-1 table-col">
+                        <b>Country</b>
+                    </div>
+                    <div class="ui-g-1 ui-md-1 header-col">
                         <b i18n>Status</b>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
@@ -73,12 +76,15 @@
                     {{refundCase.receiptNumber}}
                 </div>
                 <div class="ui-g-2 ui-md-2 table-col">
-                    {{refundCase.amount | number : '1.2-2'}}
+                    {{merchantInfo.currency}} {{refundCase.amount | number : '1.2-2'}}
                 </div>
                 <div class="ui-g-2 ui-md-2 table-col">
-                    <b>{{refundCase.refundAmount | number : '1.2-2'}}</b>
+                    {{merchantInfo.currency}} {{refundCase.refundAmount | number : '1.2-2'}}
                 </div>
-                <div *ngIf="refundCase.isRequested" class="ui-g-2 ui-md-2 table-col">
+                <div class="ui-g-1 ui-md-1 table-col">
+                    {{refundCase.customer?.country}}
+                </div>
+                <div *ngIf="refundCase.isRequested" class="ui-g-1 ui-md-1 table-col">
                     <div *ngIf="refundCase.isAccepted">
                         <div class="ui-g-12 ui-sm-12 text-success" i18n>Accepted</div>
                     </div>
@@ -92,7 +98,7 @@
                         Rejected
                     </div>
                 </div>
-                <div class="ui-g-2 ui-md-2 table-col" *ngIf="!refundCase.isRequested">
+                <div class="ui-g-1 ui-md-1 table-col" *ngIf="!refundCase.isRequested">
                     New
                 </div>
                 <div class="ui-g-1 ui-md-1 table-col">

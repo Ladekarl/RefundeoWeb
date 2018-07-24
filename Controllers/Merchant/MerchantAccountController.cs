@@ -271,7 +271,6 @@ namespace Refundeo.Controllers.Merchant
             }
 
             merchantInformation.CompanyName = model.CompanyName;
-            merchantInformation.CVRNumber = model.CvrNumber;
             merchantInformation.Address.StreetName = model.AddressStreetName;
             merchantInformation.Address.Country = model.AddressCountry;
             merchantInformation.Address.City = model.AddressCity;
@@ -280,7 +279,6 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Latitude = model.Latitude;
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
-            merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;
             merchantInformation.Currency = model.Currency;

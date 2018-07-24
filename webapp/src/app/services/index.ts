@@ -7,3 +7,4 @@ export * from './colors.service';
 export * from './customerinfo.service';
 export * from './authorization.service';
 export * from './merchantinfo.service';
+export * from './chart.service';

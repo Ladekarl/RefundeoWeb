@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {ChildMenuItem, MenuItem} from '../../models';
-import {Router} from '@angular/router';
+import {Router, NavigationStart} from '@angular/router';
 import {AuthorizationService, MenuService} from '../../services';
 import * as $ from 'jquery';
 import {Title} from '@angular/platform-browser';
@@ -26,6 +26,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
         private authorizationService: AuthorizationService
     ) {
         this.activeMenuItem = new MenuItem();
+        router.events
+            .subscribe((event) => {
+                if (event instanceof NavigationStart) {
+                    this.setInitialActiveMenuItem();
+                }
+            });
     }
 
     ngAfterViewInit() {

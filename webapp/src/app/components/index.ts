@@ -9,6 +9,8 @@ export * from './home/home.component';
 export * from './home/merchant/settings/settings.component';
 export * from './home/merchant/account/account.component';
 export * from './home/merchant/statistics/statistics.component';
+export * from './home/merchant/statistics/purchase-chart/purchase-chart.component';
+export * from './home/merchant/statistics/static-stats/static-stats.component';
 
 export * from './login/login.component';
 

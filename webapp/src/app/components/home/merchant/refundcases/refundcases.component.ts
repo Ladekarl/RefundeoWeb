@@ -1,10 +1,13 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {RefundCasesService} from '../../../../services';
-import {RefundCase} from '../../../../models';
+import {AuthorizationService, MerchantInfoService, RefundCasesService} from '../../../../services';
+import {MerchantInfo, RefundCase} from '../../../../models';
 import {SelectItem} from 'primeng/api';
 import {DataView} from 'primeng/dataview';
 import * as JSZip from 'jszip';
 import * as FileSaver from 'file-saver';
+import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
+import 'rxjs/add/observable/forkJoin';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'app-refundcases',
@@ -36,6 +39,7 @@ export class RefundCasesComponent implements OnInit {
     filterField = 'none';
     loading = false;
     checkAll: boolean;
+    merchantInfo: MerchantInfo;
 
     filterOptions: SelectItem[] = [
         {label: 'None', value: 'none'},
@@ -45,7 +49,12 @@ export class RefundCasesComponent implements OnInit {
         {label: 'Rejected', value: 'isRejected'}
     ];
 
-    constructor(private refundCasesService: RefundCasesService) {
+    constructor(
+        private refundCasesService: RefundCasesService,
+        private merchantInfoService: MerchantInfoService,
+        private authorizationService: AuthorizationService,
+        private spinnerService: Ng4LoadingSpinnerService) {
+        this.merchantInfo = new MerchantInfo();
     }
 
     ngOnInit() {
@@ -93,13 +102,25 @@ export class RefundCasesComponent implements OnInit {
 
     loadData() {
         this.loading = true;
-        this.refundCasesService.getAll()
-            .subscribe((refundCases: RefundCase[]) => {
+        this.spinnerService.show();
+        let tasks = [];
+
+        tasks.push(this.refundCasesService.getAll()
+            .map((refundCases: RefundCase[]) => {
                 this.refundCases = refundCases.reverse();
-                this.loading = false;
-            }, () => {
-                this.loading = false;
-            });
+            }));
+        tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id)
+            .map(merchantInfo => {
+                this.merchantInfo = merchantInfo;
+            }));
+
+        Observable.forkJoin(tasks).subscribe(() => {
+            this.spinnerService.hide();
+            this.loading = false;
+        }, () => {
+            this.spinnerService.hide();
+            this.loading = false;
+        });
     }
 
     downloadCheckedPressed() {
