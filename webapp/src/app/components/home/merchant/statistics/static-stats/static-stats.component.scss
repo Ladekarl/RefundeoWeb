@@ -1,0 +1,50 @@
+.statistic-left {
+    font-size: 15px;
+}
+
+.statistic-right {
+    font-size: 15px;
+}
+
+.statistic-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.top-row {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.center-row {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.bottom-row {
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.stat-container {
+    height: 100%;
+    width: 100%
+}
+
+.static-stat-container {
+    height: 100%;
+}
+
+.stat-row {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.stat-table {
+    height: 90%;
+    width: 100%;
+}
+
+.top-container {
+    height: 10%;
+}

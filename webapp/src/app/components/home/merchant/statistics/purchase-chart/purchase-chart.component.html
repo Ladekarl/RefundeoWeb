@@ -1,0 +1,12 @@
+<div *ngIf="purchaseData">
+    <span class="text-muted">Period</span>
+    <p-dropdown [options]="periodOptions" placeholder="Period"
+                class="col-sm-10"
+                [(ngModel)]="purchasePeriodOptionsKey" (onChange)="onPurchasePeriodChange($event)"
+                [autoWidth]="true"
+                [style]="{'min-width':'10em'}"></p-dropdown>
+</div>
+<div class="col-sm-12 text-center">
+    <p-chart type="line" [height]="height" [options]="purchaseOptions" (onDataSelect)="selectPurchaseData($event)"
+             [data]="purchaseData"></p-chart>
+</div>

@@ -1,0 +1,32 @@
+<div class="stat-container">
+    <div class="top-container">
+        <span class="text-muted">Period</span>
+        <p-dropdown [options]="periodOptions" placeholder="Period"
+                    class="col-sm-10"
+                    [(ngModel)]="statisticsPeriodOptionsKey" (onChange)="onStatisticsPeriodChange($event)"
+                    [autoWidth]="true"
+                    [style]="{'min-width':'10em'}"></p-dropdown>
+    </div>
+    <table class="stat-table">
+        <tbody>
+        <tr class="stat-row">
+            <td class="col-sm-12 statistic-row top-row">
+                <span class="statistic-left text-muted">Average tax free spent:</span>
+                <span class="statistic-right">{{merchantInfo.currency}} {{averageSpent | number : '1.2-2'}}</span>
+            </td>
+            <td class="col-sm-12 statistic-row center-row">
+                <span class="statistic-left text-muted">Mean purchase time of day:</span>
+                <span class="statistic-right">{{meanPurchaseTime}}</span>
+            </td>
+            <td class="col-sm-12 statistic-row center-row">
+                <span class="statistic-left text-muted">Best day of the week:</span>
+                <span class="statistic-right">{{bestDay}}</span>
+            </td>
+            <td class="col-sm-12 statistic-row bottom-row">
+                <span class="statistic-left text-muted">Best month:</span>
+                <span class="statistic-right">{{bestMonth}}</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
