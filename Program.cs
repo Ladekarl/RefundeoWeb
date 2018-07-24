@@ -23,12 +23,16 @@ namespace Refundeo
                 try
                 {
                     var env = services.GetRequiredService<IHostingEnvironment>();
+                    var context = services.GetRequiredService<RefundeoDbContext>();
+                    var userManager = services.GetRequiredService<UserManager<RefundeoUser>>();
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     if (env.IsDevelopment())
                     {
-                        var context = services.GetRequiredService<RefundeoDbContext>();
-                        var userManager = services.GetRequiredService<UserManager<RefundeoUser>>();
-                        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                         DbInitializer.InitializeAsync(userManager, roleManager, context).Wait();
+                    }
+                    else
+                    {
+                        DbInitializer.InitializeProductionAsync(userManager, roleManager, context).Wait();
                     }
                 }
                 catch (Exception ex)

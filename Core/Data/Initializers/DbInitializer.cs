@@ -23,8 +23,16 @@ namespace Refundeo.Core.Data.Initializers
         {
             await InitializeTags(context);
             await InitializeRolesAsync(roleManager);
-            await InitializeUsersAsync(userManager, context);
+            await InitializeUsersAsync(userManager, context, false);
             await InitializeRefundCasesAsync(context);
+        }
+
+        public static async Task InitializeProductionAsync(UserManager<RefundeoUser> userManager,
+            RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
+        {
+            await InitializeTags(context);
+            await InitializeRolesAsync(roleManager);
+            await InitializeUsersAsync(userManager, context, true);
         }
 
         private static async Task InitializeTags(RefundeoDbContext context)
@@ -71,7 +79,8 @@ namespace Refundeo.Core.Data.Initializers
             }
         }
 
-        private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context)
+        private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
+            bool prod)
         {
             foreach (var user in DbInitializeData.UsersTocreate)
             {
@@ -90,6 +99,7 @@ namespace Refundeo.Core.Data.Initializers
                 }
             }
 
+            if (prod) return;
             foreach (var merchant in DbInitializeData.MerchantsToCreate)
             {
                 if (!userManager.Users.Any(u => u.UserName == merchant.Username))
