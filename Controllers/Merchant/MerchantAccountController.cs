@@ -270,13 +270,6 @@ namespace Refundeo.Controllers.Merchant
                 }
             }
 
-            var openingHoursToDelete = merchantInformation
-                .OpeningHours
-                .Where(o => model.OpeningHours.All(m => m.Day != o.Day))
-                .ToList();
-
-            _context.OpeningHours.RemoveRange(openingHoursToDelete);
-
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.Address.StreetName = model.AddressStreetName;
             merchantInformation.Address.Country = model.AddressCountry;
@@ -342,11 +335,6 @@ namespace Refundeo.Controllers.Merchant
                     _context.OpeningHours.Update(existingOpeningHours);
                 }
             }
-
-            var openingHoursToDelete = merchantInformation
-                .OpeningHours
-                .Where(o => model.OpeningHours.All(m => m.Day != o.Day))
-                .ToList();
 
             var vatPercentage = 100 - 100 / (1 + model.VatRate / 100);
             var adminPercentage = vatPercentage * (model.AdminFee / 100);
