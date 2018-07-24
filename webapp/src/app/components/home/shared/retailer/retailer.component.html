@@ -149,7 +149,7 @@
                 </div>
             </div>
             <h6 class="row">Opening Hours (HH:MM)</h6>
-            <div *ngFor="let openingHour of model.openingHours">
+            <div *ngFor="let openingHour of openingHours">
                 <div class="form-group row align-items-center">
                     <label *ngIf="openingHour.day === 0" class="col-sm-2 center-text">Monday</label>
                     <label *ngIf="openingHour.day === 1" class="col-sm-2 center-text">Tuesday</label>
@@ -160,11 +160,11 @@
                     <label *ngIf="openingHour.day === 6" class="col-sm-2 center-text">Sunday</label>
                     <div class="col-lg-5 col-sm-12">
                         <input type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" class="form-control" placeholder="Open"
-                               [(ngModel)]="openingHour.open" name="{{openingHour.day}}open"/>
+                               [(ngModel)]="model.openingHours[openingHour.day].open" name="{{model.openingHours[openingHour.day].day}}open"/>
                     </div>
                     <div class="col-lg-5 col-sm-12">
                         <input type="text" class="form-control" placeholder="Close"
-                               [(ngModel)]="openingHour.close" name="{{openingHour.day}}close"/>
+                               [(ngModel)]="model.openingHours[openingHour.day].close" name="{{model.openingHours[openingHour.day].day}}close"/>
                     </div>
                 </div>
             </div>
