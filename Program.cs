@@ -15,7 +15,7 @@ namespace Refundeo
     {
         public static void Main(string[] args)
         {
-            var host = BuildWebHost(args);
+            var host = CreateWebHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
             {
@@ -32,7 +32,8 @@ namespace Refundeo
                     }
                     else
                     {
-                        DbInitializer.InitializeProductionAsync(userManager, roleManager, context).Wait();
+                        // TODO: UNCOMMENT THIS WHEN NEXT APP RELEASES
+                        //DbInitializer.InitializeProductionAsync(userManager, roleManager, context).Wait();
                     }
                 }
                 catch (Exception ex)
@@ -45,11 +46,10 @@ namespace Refundeo
             host.Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseKestrel()
                 .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
+                .UseStartup<Startup>();
     }
 }

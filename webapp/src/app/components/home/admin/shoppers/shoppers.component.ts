@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {CustomerInfoService} from '../../../../services';
 import {ConfirmationService, SelectItem} from 'primeng/api';
-import {CustomerInfo} from '../../../../models/customerinfo';
+import {CustomerInfo} from '../../../../models';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 
 @Component({

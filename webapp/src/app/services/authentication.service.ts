@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
+import {Observable, forkJoin} from 'rxjs';
+import {map, flatMap} from 'rxjs/operators';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CurrentUser} from '../models';
 import {RefundCasesService} from './refundcases.service';
@@ -24,18 +24,21 @@ export class AuthenticationService {
 
     login(username: string, password: string): Observable<CurrentUser> {
         return this.http.post<any>('/Token', {username: username, password: password})
-            .map((response: CurrentUser) => {
+            .pipe(flatMap((response: CurrentUser) => {
                 if (response && response.token) {
-                    this.authorizationService.setCurrentUser(response);
+                    return this.authorizationService.setCurrentUser(response).pipe(map(() => {
+                        return response;
+                    }));
                 }
-                return response;
-            });
-    }
+            }));
+    };
 
-    logout() {
-        this.authorizationService.removeCurrentUser();
-        this.refundCasesService.resetRefundCases();
-        this.customerInfoService.resetCustomerInfos();
-        this.merchantInfoService.resetMerchantInfos();
+    logout(): Observable<any> {
+        let tasks = [];
+        tasks.push(this.authorizationService.removeCurrentUser());
+        tasks.push(this.refundCasesService.resetRefundCases());
+        tasks.push(this.customerInfoService.resetCustomerInfos());
+        tasks.push(this.merchantInfoService.resetMerchantInfos());
+        return forkJoin(tasks);
     }
 }

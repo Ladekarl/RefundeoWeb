@@ -145,6 +145,7 @@ namespace Refundeo.Core.Services
                 AddressPostalCode = info.Address?.PostalCode,
                 Latitude = info.Location?.Latitude,
                 Longitude = info.Location?.Longitude,
+                DateCreated = info.DateCreated,
                 Description = info.Description,
                 OpeningHours =
                     info.OpeningHours?.Select(o =>

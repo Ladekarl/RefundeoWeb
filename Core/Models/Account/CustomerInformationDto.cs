@@ -1,3 +1,5 @@
+using System;
+
 namespace Refundeo.Core.Models.Account
 {
     public class CustomerInformationDto
@@ -23,5 +25,6 @@ namespace Refundeo.Core.Models.Account
         public string AddressCountry { get; set; }
         public string AddressPostalCode { get; set; }
         public string QRCode { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 }

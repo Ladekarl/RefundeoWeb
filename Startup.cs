@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,12 +29,12 @@ namespace Refundeo
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
             {
-                builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+                builder.AddJsonFile("appsettings.Development.json");
                 builder.AddUserSecrets<Startup>();
             }
             else
@@ -47,8 +46,6 @@ namespace Refundeo
                     config["ClientId"],
                     config["ClientSecret"]);
             }
-
-            ;
 
             Configuration = builder.Build();
             HostingEnvironment = env;
@@ -124,9 +121,8 @@ namespace Refundeo
             else
             {
                 app.UseSwaggerAuthorized();
-                var options = new RewriteOptions()
-                    .AddRedirectToHttps();
-                app.UseRewriter(options);
+                app.UseHttpsRedirection();
+                app.UseHsts();
             }
 
             app.UseSwagger();

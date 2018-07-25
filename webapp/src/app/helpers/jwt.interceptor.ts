@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse} from '@angular/common/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable, of} from 'rxjs';
 import {Router} from '@angular/router';
-import 'rxjs/add/operator/do';
-import {AuthorizationService} from '../services/authorization.service';
+import {tap, map, flatMap} from 'rxjs/operators';
+
+import {AuthorizationService} from '../services';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -11,21 +12,32 @@ export class JwtInterceptor implements HttpInterceptor {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const isAuthenticated = this.authorizationService.isAuthenticated();
-        if (isAuthenticated) {
-            request = request.clone({
-                setHeaders: {
-                    Authorization: `Bearer ${this.authorizationService.getToken()}`
-                }
-            });
-        }
-        return next.handle(request).do((event: HttpEvent<any>) => {
+        return this.authorizationService.isAuthenticated().pipe(flatMap(isAuthenticated => {
+            if (isAuthenticated) {
+                return this.authorizationService.getToken().pipe(flatMap(token => {
+                    request = request.clone({
+                        setHeaders: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    return this.handleAuthenticated(request, next);
+                }));
+            } else {
+                return this.handleAuthenticated(request, next);
+            }
+        }));
+    }
+
+
+    handleAuthenticated(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        return next.handle(request).pipe(tap((event: HttpEvent<any>) => {
         }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
-                if (err.status === 401 && !this.authorizationService.isAuthenticated()) {
+                if (err.status === 401 || err.status === 403) {
                     this.router.navigate(['/login']);
                 }
             }
-        });
+        }));
     }
 }

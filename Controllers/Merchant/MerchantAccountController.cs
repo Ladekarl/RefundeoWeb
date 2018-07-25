@@ -141,7 +141,8 @@ namespace Refundeo.Controllers.Merchant
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
                 VATNumber = model.VatNumber,
-                Currency = model.Currency
+                Currency = model.Currency,
+                DateCreated = DateTime.Now,
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
@@ -157,7 +158,7 @@ namespace Refundeo.Controllers.Merchant
 
             foreach (var tagModel in model.Tags)
             {
-                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == tagModel);
+                var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Key == tagModel);
                 if (tag != null)
                 {
                     var merchantInformationTag = new MerchantInformationTag
@@ -380,9 +381,6 @@ namespace Refundeo.Controllers.Merchant
                     Tag = tag
                 };
                 _context.MerchantInformationTags.Add(merchantInformationTag);
-
-                merchantInformation.MerchantInformationTags.Add(merchantInformationTag);
-                tag.MerchantInformationTags.Add(merchantInformationTag);
             }
 
             foreach (var merchantInformationTag in merchantInformation.MerchantInformationTags)
@@ -395,7 +393,11 @@ namespace Refundeo.Controllers.Merchant
                 }
             }
 
-            if (model.Logo == null && model.Banner == null) return NoContent();
+            if (model.Logo == null && model.Banner == null)
+            {
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
 
             if (model.Logo != null)
             {

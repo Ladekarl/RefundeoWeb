@@ -25,30 +25,37 @@ export class AccountComponent implements OnInit {
         this.changeAccountModel = new ChangePassword();
         this.merchantInfo = new MerchantInfo();
         this.changeAttachedAccountModels = [];
+        this.account = new CurrentUser();
     }
 
     ngOnInit() {
         this.getMerchantInfo();
-        this.account = this.authorizationService.getCurrentUser();
+        this.authorizationService.getCurrentUser().subscribe(account => {
+            this.account = account;
+        });
     }
 
     getMerchantInfo() {
         this.spinnerService.show();
-        this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
-            this.setMerchantInfo(merchantInfo);
-            this.spinnerService.hide();
-        }, () => {
-            this.spinnerService.hide();
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
+                this.setMerchantInfo(merchantInfo);
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
         });
     }
 
     getMerchantInfoNoCache() {
         this.spinnerService.show();
-        this.merchantInfoService.getMerchantNoCache(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
-            this.setMerchantInfo(merchantInfo);
-            this.spinnerService.hide();
-        }, () => {
-            this.spinnerService.hide();
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            this.merchantInfoService.getMerchantNoCache(currentUser.id).subscribe(merchantInfo => {
+                this.setMerchantInfo(merchantInfo);
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
         });
     }
 

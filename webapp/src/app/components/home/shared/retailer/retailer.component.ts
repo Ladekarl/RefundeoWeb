@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MerchantInfo, Tag} from '../../../../models';
+import {Merchant, MerchantInfo, Tag} from '../../../../models';
 import {AuthorizationService, MerchantInfoService} from '../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {ConfirmationService} from 'primeng/api';
@@ -27,8 +27,20 @@ export class RetailerComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.isMerchant = this.authorizationService.isAuthenticatedMerchant();
-        this.isAdmin = this.authorizationService.isAuthenticatedAdmin();
+        this.authorizationService.isAuthenticatedMerchant().subscribe(isMerchant => {
+            this.isMerchant = isMerchant;
+            if (this.isMerchant) {
+                this.getMerchant();
+            }
+        });
+        this.authorizationService.isAuthenticatedAdmin().subscribe(isAdmin => {
+            this.isAdmin = isAdmin;
+            if (this.isAdmin) {
+                this.merchantInfoService.getAllTags().subscribe(tags => {
+                    this.tags = tags;
+                });
+            }
+        });
         this.model = new MerchantInfo();
         this.model.openingHours = [
             {day: 0, close: '', open: ''},
@@ -52,32 +64,29 @@ export class RetailerComponent implements OnInit {
         this.date = new Date();
         let day = this.date.getDay();
         this.normalizedDay = day === 0 ? 6 : day - 1;
-        this.merchantInfoService.getAllTags().subscribe(tags => {
-            this.tags = tags;
-        });
-
-        if (this.isMerchant) {
-            this.getMerchant();
-        }
     }
 
     getMerchant() {
         this.spinnerService.show();
-        this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
-            this.model = merchantInfo;
-            this.spinnerService.hide();
-        }, () => {
-            this.spinnerService.hide();
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
+                this.model = merchantInfo;
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
         });
     }
 
     getMerchantNoCache() {
         this.spinnerService.show();
-        this.merchantInfoService.getMerchantNoCache(this.authorizationService.getCurrentUser().id).subscribe(merchantInfo => {
-            this.model = merchantInfo;
-            this.spinnerService.hide();
-        }, () => {
-            this.spinnerService.hide();
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            this.merchantInfoService.getMerchantNoCache(currentUser.id).subscribe(merchantInfo => {
+                this.model = merchantInfo;
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
         });
     }
 

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {MerchantInfoService} from '../../../../services';
 import {SelectItem} from 'primeng/api';
-import {MerchantInfo} from '../../../../models/merchantinfo';
+import {MerchantInfo} from '../../../../models';
 
 @Component({
     selector: 'app-retailers',

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Refundeo.Core.Data.Models
@@ -20,8 +21,10 @@ namespace Refundeo.Core.Data.Models
         public string PrivacyPolicy { get; set; }
         public string TermsOfService { get; set; }
         public string QRCode { get; set; }
+        public string CustomerId { get; set; }
         public virtual RefundeoUser Customer { get; set; }
         public virtual Address Address { get; set; }
+        public DateTime DateCreated { get; set; }
         public ICollection<RefundCase> RefundCases { get; set; }
         public string Language { get; set; }
     }

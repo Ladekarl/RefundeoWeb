@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Refundeo.Core.Data.Models
@@ -19,6 +20,7 @@ namespace Refundeo.Core.Data.Models
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
+        public DateTime DateCreated { get; set; }
         public virtual ICollection<RefundeoUser> Merchants { get; set; }
         public virtual Location Location { get; set; }
         public virtual Address Address { get; set; }

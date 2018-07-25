@@ -1,66 +1,95 @@
 import {Injectable} from '@angular/core';
-import 'rxjs/add/operator/map';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CurrentUser} from '../models';
+import {LocalStorage, JSONSchema} from '@ngx-pwa/local-storage';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class AuthorizationService {
 
     jwtHelperService: JwtHelperService;
 
-    constructor() {
+    schema: JSONSchema = {
+        properties: {
+            id: {type: 'string'},
+            username: {type: 'string'},
+            roles: {type: 'string'},
+            expiration: {type: 'array'},
+            token: {type: 'string'}
+        },
+        required: ['id', 'username', 'roles', 'expiration', 'token']
+    };
+
+    constructor(private localStorage: LocalStorage) {
         this.jwtHelperService = new JwtHelperService();
     }
 
-    getToken(): string {
-        const currentUser = this.getCurrentUser();
-        if (!currentUser) {
-            return null;
-        }
-        return currentUser.token;
+    getToken(): Observable<string> {
+        return this.getCurrentUser().pipe(map(currentUser => {
+            if (!currentUser) {
+                return null;
+            }
+            return currentUser.token;
+        }));
     }
 
-    getCurrentUser(): CurrentUser {
-        return JSON.parse(localStorage.getItem('currentUser'));
+    getCurrentUser(): Observable<CurrentUser> {
+        return this.localStorage.getItem<CurrentUser>('currentUser');
     }
 
-    removeCurrentUser() {
-        localStorage.removeItem('currentUser');
+    removeCurrentUser(): Observable<boolean> {
+        return this.localStorage.removeItem('currentUser');
     }
 
-    isMerchant(): boolean {
-        const user = this.getCurrentUser();
-        if (!user) {
-            return false;
-        }
-        return user.roles.indexOf('Merchant') > -1;
+    isMerchant(): Observable<boolean> {
+        return this.getCurrentUser().pipe(map(user => {
+            if (!user) {
+                return false;
+            }
+            return user.roles.indexOf('Merchant') > -1;
+        }));
     }
 
-    isAdmin(): boolean {
-        const user = this.getCurrentUser();
-        if (!user) {
-            return false;
-        }
-        return user.roles.indexOf('Admin') > -1;
+    isAdmin(): Observable<boolean> {
+        return this.getCurrentUser().pipe(map(user => {
+            if (!user) {
+                return false;
+            }
+            return user.roles.indexOf('Admin') > -1;
+        }));
     }
 
-    isAuthenticated(): boolean {
-        const token = this.getToken();
-        if (!token) {
-            return false;
-        }
-        return !this.jwtHelperService.isTokenExpired(token);
+    isAuthenticated(): Observable<boolean> {
+        return this.getToken().pipe(map(token => {
+            if (!token) {
+                return false;
+            }
+            return !this.jwtHelperService.isTokenExpired(token);
+        }));
     }
 
-    isAuthenticatedMerchant(): boolean {
-        return this.isAuthenticated() && this.isMerchant();
+    isAuthenticatedMerchant(): Observable<boolean> {
+        return this.getCurrentUser().pipe(map(currentUser => {
+            if (!currentUser) {
+                return null;
+            }
+            const token = currentUser.token;
+            return token && !this.jwtHelperService.isTokenExpired(token) && currentUser.roles.indexOf('Merchant') > -1;
+        }));
     }
 
-    isAuthenticatedAdmin(): boolean {
-        return this.isAuthenticated() && this.isAdmin();
+    isAuthenticatedAdmin(): Observable<boolean> {
+        return this.getCurrentUser().pipe(map(currentUser => {
+            if (!currentUser) {
+                return null;
+            }
+            const token = currentUser.token;
+            return token && !this.jwtHelperService.isTokenExpired(token) && currentUser.roles.indexOf('Admin') > -1;
+        }));
     }
 
-    setCurrentUser(currentUser: CurrentUser) {
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    setCurrentUser(currentUser: CurrentUser): Observable<boolean> {
+        return this.localStorage.setItem('currentUser', currentUser);
     }
 }

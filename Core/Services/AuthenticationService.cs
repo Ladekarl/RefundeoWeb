@@ -81,11 +81,6 @@ namespace Refundeo.Core.Services
             var token = await GenerateTokenAsync(user);
 
             var merchantInformation = await _context.MerchantInformations
-                .Include(m => m.Address)
-                .Include(m => m.Location)
-                .Include(m => m.MerchantInformationTags)
-                .ThenInclude(m => m.Tag)
-                .Include(m => m.OpeningHours)
                 .Where(m => m.Merchants.Any(x => x.Id == user.Id))
                 .FirstOrDefaultAsync();
             var customerInformation = await _context.CustomerInformations
@@ -96,7 +91,7 @@ namespace Refundeo.Core.Services
 
             if (merchantInformation != null)
             {
-                return await GenerateMerchantObjectResultAsync(token, user, merchantInformation, refreshToken);
+                return await GenerateMerchantObjectResultAsync(token, user, refreshToken);
             }
 
             if (customerInformation != null)
@@ -115,8 +110,7 @@ namespace Refundeo.Core.Services
             });
         }
 
-        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(SecurityToken token, RefundeoUser user,
-            MerchantInformation merchantInformation, string refreshToken)
+        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(SecurityToken token, RefundeoUser user, string refreshToken)
         {
             return new ObjectResult(new MerchantDto
             {
@@ -124,38 +118,8 @@ namespace Refundeo.Core.Services
                 Expiration = token.ValidTo,
                 Id = user.Id,
                 Username = user.UserName,
-                CompanyName = merchantInformation.CompanyName,
-                CvrNumber = merchantInformation.CVRNumber,
-                RefundPercentage = merchantInformation.RefundPercentage,
-                VatRate = merchantInformation.VATRate,
-                AdminFee = merchantInformation.AdminFee,
-                MerchantFee = merchantInformation.MerchantFee,
-                Roles = await _userManager.GetRolesAsync(user),
                 RefreshToken = refreshToken,
-                AddressCity = merchantInformation.Address?.City,
-                AddressCountry = merchantInformation.Address?.Country,
-                AddressStreetName = merchantInformation.Address?.StreetName,
-                AddressStreetNumber = merchantInformation.Address?.StreetNumber,
-                AddressPostalCode = merchantInformation.Address?.PostalCode,
-                Latitude = merchantInformation.Location?.Latitude,
-                Longitude = merchantInformation.Location?.Longitude,
-                Description = merchantInformation.Description,
-                OpeningHours = merchantInformation.OpeningHours
-                    .Select(o => new OpeningHoursDto {Close = o.Close, Day = o.Day, Open = o.Open}).ToList(),
-                Tags = merchantInformation.MerchantInformationTags.Select(m => m.Tag.Key).ToList(),
-                VatNumber = merchantInformation.VATNumber,
-                ContactEmail = merchantInformation.ContactEmail,
-                ContactPhone = merchantInformation.ContactPhone,
-                AttachedAccounts = merchantInformation.Merchants
-                    .Where(x => x.Id != user.Id)
-                    .Select(x => new AttachedAccountDto
-                    {
-                        Id = x.Id,
-                        Username = x.UserName
-                    }).ToList(),
-                Banner = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Banner),
-                Logo = await _utilityService.ConvertBlobPathToBase64Async(merchantInformation.Logo),
-                Currency = merchantInformation.Currency
+                Roles = await _userManager.GetRolesAsync(user)
             });
         }
 

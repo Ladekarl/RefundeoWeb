@@ -131,6 +131,7 @@ namespace Refundeo.Core.Data.Initializers
                         VATNumber = merchant.VatNumber,
                         ContactEmail = merchant.ContactEmail,
                         ContactPhone = merchant.ContactPhone,
+                        DateCreated = DateTime.Now,
                         Logo = merchant.Logo,
                         Banner = merchant.Banner,
                         Currency = merchant.Currency
@@ -204,6 +205,7 @@ namespace Refundeo.Core.Data.Initializers
                     LastName = lastName,
                     Country = country,
                     Swift = swift,
+                    DateCreated = DateTime.Now,
                     Customer = user
                 });
                 await context.SaveChangesAsync();

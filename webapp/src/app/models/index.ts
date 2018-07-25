@@ -1,5 +1,5 @@
 export * from './user';
-export * from './currentUser';
+export * from './currentuser';
 export * from './menuitem';
 export * from './refundcase';
 export * from './customer';

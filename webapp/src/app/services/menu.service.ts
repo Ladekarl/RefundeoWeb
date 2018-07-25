@@ -1,11 +1,13 @@
 import {Injectable} from '@angular/core';
 import {MenuItem} from '../models';
 import {AuthorizationService} from './authorization.service';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class MenuService {
 
-    private static merchantMenuItems: MenuItem[] = [
+    private static readonly merchantMenuItems: MenuItem[] = [
         {
             routerLink: '/',
             displayName: 'Overview',
@@ -50,7 +52,7 @@ export class MenuService {
         // }
     ];
 
-    private static adminMenuItems: MenuItem[] = [
+    private static readonly adminMenuItems: MenuItem[] = [
         {
             routerLink: '/admin',
             displayName: 'Refunds',
@@ -83,7 +85,7 @@ export class MenuService {
         }
     ];
 
-    private static merchantBottomMenuItems: MenuItem[] = [
+    private static readonly merchantBottomMenuItems: MenuItem[] = [
         {
             routerLink: '/login',
             displayName: 'Logout',
@@ -98,7 +100,7 @@ export class MenuService {
         // }
     ];
 
-    private static adminBottomMenuItems: MenuItem[] = [
+    private static readonly adminBottomMenuItems: MenuItem[] = [
         {
             routerLink: '/login',
             displayName: 'Logout',
@@ -110,18 +112,22 @@ export class MenuService {
     constructor(private authorizationService: AuthorizationService) {
     }
 
-    getMenuItems(): MenuItem[] {
-        if (this.authorizationService.isAdmin()) {
-            return MenuService.adminMenuItems;
-        }
-        return MenuService.merchantMenuItems;
+    getMenuItems(): Observable<MenuItem[]> {
+        return this.authorizationService.isAdmin().pipe(map(isAdmin => {
+            if (isAdmin) {
+                return MenuService.adminMenuItems;
+            }
+            return MenuService.merchantMenuItems;
+        }));
     }
 
-    getBottomMenuItems(): MenuItem[] {
-        if (this.authorizationService.isAdmin()) {
-            return MenuService.adminBottomMenuItems;
-        }
-        return MenuService.merchantBottomMenuItems;
+    getBottomMenuItems(): Observable<MenuItem[]> {
+        return this.authorizationService.isAdmin().pipe(map(isAdmin => {
+            if (isAdmin) {
+                return MenuService.adminBottomMenuItems;
+            }
+            return MenuService.merchantBottomMenuItems;
+        }));
     }
 
 }

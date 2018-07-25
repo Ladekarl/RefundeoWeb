@@ -2,7 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {AuthorizationService, ChartService, ColorsService, MerchantInfoService, RefundCasesService} from '../../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {MerchantInfo, RefundCase} from '../../../../../models';
-import {Observable} from 'rxjs/Observable';
+import {forkJoin} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {SelectItem} from 'primeng/api';
 
 @Component({
@@ -32,21 +33,25 @@ export class StaticStatsComponent implements OnInit {
     }
 
     ngOnInit() {
-        let tasks = [];
         this.spinnerService.show();
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            let tasks = [];
+            tasks.push(this.refundCasesService.getAll()
+                .pipe(map((refundCases: RefundCase[]) => {
+                    this.refundCases = refundCases.filter(r => r.isAccepted);
+                })));
+            tasks.push(this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
+                this.merchantInfo = merchantInfo;
+            }));
 
-        tasks.push(this.refundCasesService.getAll().map(refundCases => {
-            this.refundCases = refundCases.filter(r => r.isAccepted);
-        }));
-        tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).map(merchantInfo => {
-            this.merchantInfo = merchantInfo;
-        }));
-
-        Observable.forkJoin(tasks).subscribe(() => {
-            if (this.refundCases && this.refundCases.length > 0) {
-                this.calculateStatistics(this.refundCases, this.statisticsPeriodOptionsKey);
-            }
-            this.spinnerService.hide();
+            forkJoin(tasks).subscribe(() => {
+                if (this.refundCases && this.refundCases.length > 0) {
+                    this.calculateStatistics(this.refundCases, this.statisticsPeriodOptionsKey);
+                }
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
         }, () => {
             this.spinnerService.hide();
         });

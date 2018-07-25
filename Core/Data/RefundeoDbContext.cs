@@ -18,6 +18,7 @@ namespace Refundeo.Core.Data
             builder.Entity<CustomerInformation>()
                 .HasOne(i => i.Customer)
                 .WithOne(c => c.CustomerInformation)
+                .HasForeignKey<CustomerInformation>(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MerchantInformation>()

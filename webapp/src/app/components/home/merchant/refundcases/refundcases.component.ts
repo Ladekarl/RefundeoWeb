@@ -6,8 +6,8 @@ import {DataView} from 'primeng/dataview';
 import * as JSZip from 'jszip';
 import * as FileSaver from 'file-saver';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
-import 'rxjs/add/observable/forkJoin';
-import {Observable} from 'rxjs/Observable';
+import {forkJoin} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
     selector: 'app-refundcases',
@@ -103,20 +103,24 @@ export class RefundCasesComponent implements OnInit {
     loadData() {
         this.loading = true;
         this.spinnerService.show();
-        let tasks = [];
 
-        tasks.push(this.refundCasesService.getAll()
-            .map((refundCases: RefundCase[]) => {
-                this.refundCases = refundCases.reverse();
-            }));
-        tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id)
-            .map(merchantInfo => {
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            let tasks = [];
+            tasks.push(this.refundCasesService.getAll()
+                .pipe(map((refundCases: RefundCase[]) => {
+                    this.refundCases = refundCases.reverse().slice(0, 5);
+                })));
+            tasks.push(this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
                 this.merchantInfo = merchantInfo;
             }));
 
-        Observable.forkJoin(tasks).subscribe(() => {
-            this.spinnerService.hide();
-            this.loading = false;
+            forkJoin(tasks).subscribe(() => {
+                this.spinnerService.hide();
+                this.loading = false;
+            }, () => {
+                this.spinnerService.hide();
+                this.loading = false;
+            });
         }, () => {
             this.spinnerService.hide();
             this.loading = false;

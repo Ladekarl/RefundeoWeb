@@ -8,8 +8,7 @@ import {
     RefundCasesService
 } from '../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import {forkJoin} from 'rxjs';
 import {Title} from '@angular/platform-browser';
 
 @Component({
@@ -51,21 +50,39 @@ export class LoginComponent implements OnInit {
     }
 
     getInitialData() {
-        let tasks = [];
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            let tasks = [];
+            this.authorizationService.isAuthenticatedAdmin().subscribe(isAdmin => {
+                if (isAdmin) {
+                    tasks.push(this.merchantInfoService.getAll());
+                    tasks.push(this.customerInfoSerivce.getAll());
+                    tasks.push(this.refundCasesService.getAll());
+                    forkJoin(tasks).subscribe(() => {
+                    }, () => {
+                    }, () => {
+                        this.spinnerService.hide();
+                        this.loading = false;
+                    });
+                }
+            });
 
-        if (this.authorizationService.isAuthenticatedAdmin()) {
-            tasks.push(this.merchantInfoService.getAll());
-        }
-
-        if (this.authorizationService.isAuthenticatedMerchant()) {
-            tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id));
-        }
-
-        tasks.push(this.customerInfoSerivce.getAll());
-        tasks.push(this.refundCasesService.getAll());
-        Observable.forkJoin(tasks).subscribe(() => {
-            this.spinnerService.hide();
-            this.loading = false;
+            this.authorizationService.isAuthenticatedMerchant().subscribe(isMerchant => {
+                if (isMerchant && currentUser) {
+                    tasks.push(this.merchantInfoService.getMerchant(currentUser.id));
+                    tasks.push(this.customerInfoSerivce.getAll());
+                    tasks.push(this.refundCasesService.getAll());
+                    forkJoin(tasks).subscribe(() => {
+                        this.spinnerService.hide();
+                        this.loading = false;
+                    }, () => {
+                        this.spinnerService.hide();
+                        this.loading = false;
+                    });
+                }
+            }, () => {
+                this.spinnerService.hide();
+                this.loading = false;
+            });
         }, () => {
             this.spinnerService.hide();
             this.loading = false;
@@ -78,10 +95,12 @@ export class LoginComponent implements OnInit {
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(() => {
                 this.getInitialData();
-                if (this.authorizationService.isAuthenticatedAdmin()) {
-                    this.returnUrl === '/' ? this.returnUrl = 'admin' : this.returnUrl;
-                }
-                this.router.navigate([this.returnUrl]);
+                this.authorizationService.isAuthenticatedAdmin().subscribe(isAuthenticatedAdmin => {
+                    if (isAuthenticatedAdmin) {
+                        this.returnUrl === '/' ? this.returnUrl = 'admin' : this.returnUrl;
+                    }
+                    this.router.navigate([this.returnUrl]);
+                });
             }, error => {
                 this.loading = false;
                 this.spinnerService.hide();

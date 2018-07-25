@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {RefundCase} from '../models';
 import {HttpClient} from '@angular/common/http';
-import 'rxjs/add/operator/map';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/Rx';
+import {map, flatMap} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
 import {AuthorizationService} from './authorization.service';
 
 @Injectable()
@@ -31,16 +30,17 @@ export class RefundCasesService {
     }
 
     getAll(): Observable<RefundCase[]> {
-        const isAdmin = this.authorizationService.isAdmin();
         if (!this.refundCases || this.refundCases.length === 0) {
-            let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
-            return this.http.get<RefundCase[]>(requestUrl).map(r => {
-                this.refundCases = RefundCasesService.mapDates(r);
-                return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
-            });
+            return this.authorizationService.isAdmin().pipe(flatMap(isAdmin => {
+                let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
+                return this.http.get<RefundCase[]>(requestUrl).pipe(map(r => {
+                    this.refundCases = RefundCasesService.mapDates(r);
+                    return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
+                }));
+            }));
         }
         else
-            return Observable.of(this.refundCases);
+            return of(this.refundCases);
     }
 
     resetRefundCases() {
@@ -49,11 +49,11 @@ export class RefundCasesService {
 
     getPaginated(sortBy: string, sortDir: string, filterBy: string): Observable<RefundCase[]> {
         if (!this.refundCases || this.refundCases.length === 0)
-            return this.getAll().map(r => {
+            return this.getAll().pipe(map(r => {
                 return this.filterRefundCases(r, sortBy, sortDir, filterBy);
-            });
+            }));
         else
-            return Observable.of(this.filterRefundCases(this.refundCases, sortBy, sortDir, filterBy));
+            return of(this.filterRefundCases(this.refundCases, sortBy, sortDir, filterBy));
     }
 
     private filterRefundCases(refundCases: RefundCase[], sortBy: string, sortDir: string, filterBy: string) {
@@ -72,7 +72,7 @@ export class RefundCasesService {
     }
 
     getById(id: number) {
-        return this.http.get(`/api/merchant/refundcase/${id}`).map(RefundCasesService.mapDate);
+        return this.http.get(`/api/merchant/refundcase/${id}`).pipe(map(RefundCasesService.mapDate));
     }
 
     accept(refundCase: RefundCase, isAccepted: boolean) {

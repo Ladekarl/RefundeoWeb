@@ -8,8 +8,8 @@ import {
 } from '../../../../services';
 import {Message, SelectItem} from 'primeng/api';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import {forkJoin} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
     selector: 'app-statistics',
@@ -47,23 +47,27 @@ export class StatisticsComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        let tasks = [];
         this.spinnerService.show();
+        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            let tasks = [];
+            tasks.push(this.refundCasesService.getAll()
+                .pipe(map((refundCases: RefundCase[]) => {
+                    this.refundCases = refundCases.filter(r => r.isAccepted);
+                })));
+            tasks.push(this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
+                this.merchantInfo = merchantInfo;
+            }));
 
-        tasks.push(this.refundCasesService.getAll().map(refundCases => {
-            this.refundCases = refundCases.filter(r => r.isAccepted);
-        }));
-        tasks.push(this.merchantInfoService.getMerchant(this.authorizationService.getCurrentUser().id).map(merchantInfo => {
-            this.merchantInfo = merchantInfo;
-        }));
-
-        Observable.forkJoin(tasks).subscribe(() => {
-            if (this.refundCases && this.refundCases.length > 0) {
-                this.setUsersByCountryData(this.refundCases, this.customersPeriodOptionsKey);
-                this.setEarningsData(this.refundCases, this.earningsPeriodOptionsKey);
-                this.setMonthsData(this.refundCases, this.monthsPeriodOptionsKey);
-            }
-            this.spinnerService.hide();
+            forkJoin(tasks).subscribe(() => {
+                if (this.refundCases && this.refundCases.length > 0) {
+                    this.setUsersByCountryData(this.refundCases, this.customersPeriodOptionsKey);
+                    this.setEarningsData(this.refundCases, this.earningsPeriodOptionsKey);
+                    this.setMonthsData(this.refundCases, this.monthsPeriodOptionsKey);
+                }
+                this.spinnerService.hide();
+            }, () => {
+                this.spinnerService.hide();
+            });
         }, () => {
             this.spinnerService.hide();
         });

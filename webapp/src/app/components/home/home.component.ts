@@ -4,6 +4,7 @@ import {Router, NavigationStart} from '@angular/router';
 import {AuthorizationService, MenuService} from '../../services';
 import * as $ from 'jquery';
 import {Title} from '@angular/platform-browser';
+import {forkJoin} from 'rxjs';
 
 @Component({
     selector: 'app-home',
@@ -26,6 +27,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
         private authorizationService: AuthorizationService
     ) {
         this.activeMenuItem = new MenuItem();
+        this.bottomMenuItems = [];
+        this.menuItems = [];
+        this.activeChild = false;
         router.events
             .subscribe((event) => {
                 if (event instanceof NavigationStart) {
@@ -75,10 +79,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-        this.menuItems = this.menuService.getMenuItems();
-        this.bottomMenuItems = this.menuService.getBottomMenuItems();
-        this.setInitialActiveMenuItem();
-        this.brandLink = this.authorizationService.isAuthenticatedAdmin() ? '/admin' : '/';
+        let tasks = [];
+        tasks.push(this.menuService.getMenuItems());
+        tasks.push(this.menuService.getBottomMenuItems());
+        forkJoin(tasks).subscribe(([menuItems, bottomMenuItems]) => {
+            this.menuItems = menuItems;
+            this.bottomMenuItems = bottomMenuItems;
+            this.setInitialActiveMenuItem();
+            this.authorizationService.isAuthenticatedAdmin().subscribe(isAuthenticatedAdmin => {
+                this.brandLink = isAuthenticatedAdmin ? '/admin' : '/';
+            });
+        });
     }
 
     setInitialActiveMenuItem(): void {
