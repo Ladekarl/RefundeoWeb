@@ -34,11 +34,9 @@ export class AuthenticationService {
     };
 
     logout(): Observable<any> {
-        let tasks = [];
-        tasks.push(this.authorizationService.removeCurrentUser());
-        tasks.push(this.refundCasesService.resetRefundCases());
-        tasks.push(this.customerInfoService.resetCustomerInfos());
-        tasks.push(this.merchantInfoService.resetMerchantInfos());
-        return forkJoin(tasks);
+        this.refundCasesService.resetRefundCases();
+        this.customerInfoService.resetCustomerInfos();
+        this.merchantInfoService.resetMerchantInfos();
+        return this.authorizationService.removeCurrentUser();
     }
 }

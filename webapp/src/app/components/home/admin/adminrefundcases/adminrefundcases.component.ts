@@ -108,8 +108,7 @@ export class AdminRefundcasesComponent implements OnInit {
     loadData() {
         this.loading = true;
         this.spinnerService.show();
-        this.refundCasesService.getAll()
-            .subscribe((refundCases: RefundCase[]) => {
+        this.refundCasesService.getAll(true).subscribe((refundCases: RefundCase[]) => {
                 this.refundCases = refundCases.reverse();
                 this.loading = false;
                 this.spinnerService.hide();

@@ -54,7 +54,7 @@ export class ShoppersComponent implements OnInit {
 
     getCustomers() {
         this.loading = true;
-        this.customerInfoService.getAll().subscribe(customers => {
+        this.customerInfoService.getAll(true).subscribe(customers => {
             this.customers = customers;
             this.loading = false;
         }, () => {

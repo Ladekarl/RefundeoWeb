@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
 
     ngOnInit() {
         // reset login status
-        this.authenticationService.logout();
+        this.authenticationService.logout().subscribe();
         this.setTitle('Refundeo - Log In to Retailer Suite');
         // get return url from route parameters or default to '/'
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -55,8 +55,8 @@ export class LoginComponent implements OnInit {
             this.authorizationService.isAuthenticatedAdmin().subscribe(isAdmin => {
                 if (isAdmin) {
                     tasks.push(this.merchantInfoService.getAll());
-                    tasks.push(this.customerInfoSerivce.getAll());
-                    tasks.push(this.refundCasesService.getAll());
+                    tasks.push(this.customerInfoSerivce.getAll(true));
+                    tasks.push(this.refundCasesService.getAll(true));
                     forkJoin(tasks).subscribe(() => {
                     }, () => {
                     }, () => {
@@ -69,8 +69,8 @@ export class LoginComponent implements OnInit {
             this.authorizationService.isAuthenticatedMerchant().subscribe(isMerchant => {
                 if (isMerchant && currentUser) {
                     tasks.push(this.merchantInfoService.getMerchant(currentUser.id));
-                    tasks.push(this.customerInfoSerivce.getAll());
-                    tasks.push(this.refundCasesService.getAll());
+                    tasks.push(this.customerInfoSerivce.getAll(false));
+                    tasks.push(this.refundCasesService.getAll(false));
                     forkJoin(tasks).subscribe(() => {
                         this.spinnerService.hide();
                         this.loading = false;
@@ -100,11 +100,16 @@ export class LoginComponent implements OnInit {
                         this.returnUrl === '/' ? this.returnUrl = 'admin' : this.returnUrl;
                     }
                     this.router.navigate([this.returnUrl]);
+                }, () => {
+                    this.loading = false;
+                    this.spinnerService.hide();
                 });
             }, error => {
                 this.loading = false;
                 this.spinnerService.hide();
-                this.errorText = error.error.message;
+                if (error && error.error) {
+                    this.errorText = error.error.message;
+                }
             });
     }
 }

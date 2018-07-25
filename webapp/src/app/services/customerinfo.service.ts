@@ -1,29 +1,26 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {flatMap, map} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {CustomerInfo} from '../models';
 import {Observable, of} from 'rxjs';
-import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class CustomerInfoService {
 
-    constructor(private http: HttpClient, private authorizationService: AuthorizationService) {
+    constructor(private http: HttpClient) {
     }
 
     customerInfos: CustomerInfo[];
 
-    getAll(): Observable<CustomerInfo[]> {
+    getAll(isAdmin: boolean): Observable<CustomerInfo[]> {
         if (!this.customerInfos || this.customerInfos.length === 0) {
-            return this.authorizationService.isAdmin().pipe(flatMap(isAdmin => {
-                let requestUrl = isAdmin ? '/api/user/account' : '/api/merchant/customerinfo';
-                return this.http.get<CustomerInfo[]>(requestUrl).pipe(map(c => {
-                    this.customerInfos = c;
-                    this.customerInfos.sort((a, b) => {
-                        return ('' + a.username).localeCompare(b.username);
-                    });
-                    return this.customerInfos;
-                }));
+            let requestUrl = isAdmin ? '/api/user/account' : '/api/merchant/customerinfo';
+            return this.http.get<CustomerInfo[]>(requestUrl).pipe(map(c => {
+                this.customerInfos = c;
+                this.customerInfos.sort((a, b) => {
+                    return ('' + a.username).localeCompare(b.username);
+                });
+                return this.customerInfos;
             }));
         }
         else

@@ -44,6 +44,7 @@ import {DropdownModule} from 'primeng/dropdown';
 import {registerLocaleData} from '@angular/common';
 import localeDa from '@angular/common/locales/da';
 import {Ng4LoadingSpinnerModule} from 'ng4-loading-spinner';
+import {LocalStorage} from '@ngx-pwa/local-storage';
 
 registerLocaleData(localeDa, 'da');
 
@@ -87,13 +88,15 @@ registerLocaleData(localeDa, 'da');
         AuthorizationService,
         ConfirmationService,
         SwaggerService,
+        LocalStorage,
         ColorsService,
         CustomerInfoService,
         MerchantInfoService,
         RefundCasesService,
         ChartService,
         MenuService,
-        UserService, {
+        UserService,
+        {
             provide: HTTP_INTERCEPTORS,
             useClass: JwtInterceptor,
             multi: true

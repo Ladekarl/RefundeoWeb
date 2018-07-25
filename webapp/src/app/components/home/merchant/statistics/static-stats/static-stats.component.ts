@@ -36,13 +36,13 @@ export class StaticStatsComponent implements OnInit {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
             let tasks = [];
-            tasks.push(this.refundCasesService.getAll()
+            tasks.push(this.refundCasesService.getAll(false)
                 .pipe(map((refundCases: RefundCase[]) => {
                     this.refundCases = refundCases.filter(r => r.isAccepted);
                 })));
-            tasks.push(this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
+            tasks.push(this.merchantInfoService.getMerchant(currentUser.id).pipe(map(merchantInfo => {
                 this.merchantInfo = merchantInfo;
-            }));
+            })));
 
             forkJoin(tasks).subscribe(() => {
                 if (this.refundCases && this.refundCases.length > 0) {

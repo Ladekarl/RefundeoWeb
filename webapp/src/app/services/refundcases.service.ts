@@ -1,15 +1,13 @@
 import {Injectable} from '@angular/core';
 import {RefundCase} from '../models';
 import {HttpClient} from '@angular/common/http';
-import {map, flatMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {Observable, of} from 'rxjs';
-import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class RefundCasesService {
 
-    constructor(private http: HttpClient,
-                private authorizationService: AuthorizationService) {
+    constructor(private http: HttpClient) {
     }
 
     refundCases: RefundCase[];
@@ -29,27 +27,24 @@ export class RefundCasesService {
         return refundCase;
     }
 
-    getAll(): Observable<RefundCase[]> {
+    getAll(isAdmin: boolean): Observable<RefundCase[]> {
         if (!this.refundCases || this.refundCases.length === 0) {
-            return this.authorizationService.isAdmin().pipe(flatMap(isAdmin => {
-                let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
-                return this.http.get<RefundCase[]>(requestUrl).pipe(map(r => {
-                    this.refundCases = RefundCasesService.mapDates(r);
-                    return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
-                }));
+            let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
+            return this.http.get<RefundCase[]>(requestUrl).pipe(map(r => {
+                this.refundCases = RefundCasesService.mapDates(r);
+                return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
             }));
         }
-        else
-            return of(this.refundCases);
+        return of(this.refundCases);
     }
 
     resetRefundCases() {
         this.refundCases = [];
     }
 
-    getPaginated(sortBy: string, sortDir: string, filterBy: string): Observable<RefundCase[]> {
+    getPaginated(sortBy: string, sortDir: string, filterBy: string, isAdmin: boolean): Observable<RefundCase[]> {
         if (!this.refundCases || this.refundCases.length === 0)
-            return this.getAll().pipe(map(r => {
+            return this.getAll(isAdmin).pipe(map(r => {
                 return this.filterRefundCases(r, sortBy, sortDir, filterBy);
             }));
         else

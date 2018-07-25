@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 import {Router} from '@angular/router';
-import {tap, map, flatMap} from 'rxjs/operators';
+import {tap, flatMap} from 'rxjs/operators';
 
 import {AuthorizationService} from '../services';
 
@@ -12,21 +12,17 @@ export class JwtInterceptor implements HttpInterceptor {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        return this.authorizationService.isAuthenticated().pipe(flatMap(isAuthenticated => {
-            if (isAuthenticated) {
-                return this.authorizationService.getToken().pipe(flatMap(token => {
-                    request = request.clone({
-                        setHeaders: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                    return this.handleAuthenticated(request, next);
-                }));
-            } else {
-                return this.handleAuthenticated(request, next);
+        return this.authorizationService.getToken().pipe(flatMap(token => {
+            if (token) {
+                request = request.clone({
+                    setHeaders: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                });
             }
-        }));
+            return this.handleAuthenticated(request, next);
+        }),);
     }
 
 
