@@ -202,9 +202,9 @@
                         <div></div>
                     </div>
                     <div *ngIf="model.banner" class="banner-container"
-                         [ngStyle]="{'background-image': 'url(data:image/png;base64,' + model.banner + ')'}">
+                         [ngStyle]="{'background-image': 'url(' + model.banner + ')'}">
                         <div *ngIf="model.logo" class="logo-container">
-                            <img class="logo" [src]="'data:image/png;base64,' + model.logo">
+                            <img class="logo" [src]="model.logo">
                         </div>
                     </div>
                     <div class="banner-text-bar-container">
