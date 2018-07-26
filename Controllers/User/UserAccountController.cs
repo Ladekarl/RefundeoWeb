@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -103,6 +104,8 @@ namespace Refundeo.Controllers.User
                 AcceptedTermsOfService = model.AcceptedTermsOfService,
                 PrivacyPolicy = model.PrivacyPolicy,
                 TermsOfService = model.TermsOfService,
+                TermsOfServiceVersion = model.TermsOfServiceVersion,
+                PrivacyPolicyVersion = model.PrivacyPolicyVersion,
                 AccountNumber = model.AccountNumber,
                 Swift = model.Swift,
                 Passport = model.Passport,
@@ -114,7 +117,8 @@ namespace Refundeo.Controllers.User
                     PostalCode = model.AddressPostalCode,
                     StreetName = model.AddressStreetName,
                     StreetNumber = model.AddressStreetNumber
-                }
+                },
+                DateCreated = DateTime.Now
             };
 
             var shouldCreateRefreshToken = model.Scopes != null && model.Scopes.Contains("offline_access");
@@ -175,6 +179,8 @@ namespace Refundeo.Controllers.User
             customerInformation.AcceptedTermsOfService = model.AcceptedTermsOfService;
             customerInformation.PrivacyPolicy = model.PrivacyPolicy;
             customerInformation.TermsOfService = model.TermsOfService;
+            customerInformation.TermsOfServiceVersion = model.TermsOfServiceVersion;
+            customerInformation.PrivacyPolicyVersion = model.PrivacyPolicyVersion;
             customerInformation.Swift = model.Swift;
             customerInformation.AccountNumber = model.AccountNumber;
             customerInformation.Passport = model.Passport;

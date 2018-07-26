@@ -77,8 +77,8 @@ namespace Refundeo.Core.Services
                     Country = info.Country,
                     AcceptedPrivacyPolicy = info.AcceptedPrivacyPolicy,
                     AcceptedTermsOfService = info.AcceptedTermsOfService,
-                    PrivacyPolicy = info.PrivacyPolicy,
-                    TermsOfService = info.TermsOfService,
+                    PrivacyPolicyVersion = info.PrivacyPolicyVersion,
+                    TermsOfServiceVersion = info.TermsOfServiceVersion,
                     IsOauth = info.IsOauth,
                     Email = info.Email,
                     Phone = info.Phone,
@@ -90,7 +90,8 @@ namespace Refundeo.Core.Services
                     AddressPostalCode = info.Address?.PostalCode,
                     AddressStreetNumber = info.Address?.StreetNumber,
                     Passport = info.Passport,
-                    QRCode = await ConvertBlobPathToBase64Async(info.QRCode)
+                    DateCreated = info.DateCreated,
+                    QRCode = await ConvertBlobPathToBase64Async(info.QRCode),
                 };
             }
 
@@ -162,8 +163,8 @@ namespace Refundeo.Core.Services
                         Id = x.Id,
                         Username = x.UserName
                     }).ToList(),
-                Banner = await ConvertBlobPathToBase64Async(info.Banner),
-                Logo = await ConvertBlobPathToBase64Async(info.Logo)
+                Banner = info.Banner,
+                Logo = info.Logo
             };
 
             return dto;

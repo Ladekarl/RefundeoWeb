@@ -1,35 +1,45 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, share} from 'rxjs/operators';
 import {AttachedAccount, ChangePassword, Merchant, MerchantInfo, Tag} from '../models';
-import {AuthorizationService} from './authorization.service';
 
 @Injectable()
 export class MerchantInfoService {
 
     merchantInfos: MerchantInfo[];
     merchantInfo: Map<string, MerchantInfo>;
+    getMerchantObservable: Observable<MerchantInfo>;
+    getAllObservable: Observable<MerchantInfo[]>;
 
     constructor(
-        private http: HttpClient,
-        private authorizationService: AuthorizationService) {
+        private http: HttpClient) {
         this.merchantInfo = new Map<string, MerchantInfo>();
     }
 
     getMerchant(id: string): Observable<MerchantInfo> {
         let merchantInfo = this.merchantInfo.get(id);
-        if (!merchantInfo) {
+        if (merchantInfo) {
+            return of(merchantInfo);
+        } else {
             return this.getMerchantNoCache(id);
         }
-        return of(merchantInfo);
     }
 
     getMerchantNoCache(id: string): Observable<MerchantInfo> {
-        return this.http.get<MerchantInfo>('/api/merchant/account/' + id).pipe(map(m => {
-            this.merchantInfo.set(id, m);
-            return this.merchantInfo.get(id);
-        }));
+        if (this.getMerchantObservable) {
+            return this.getMerchantObservable;
+        } else {
+            this.getMerchantObservable = this.http.get<MerchantInfo>('/api/merchant/account/' + id)
+                .pipe(
+                    map(m => {
+                        this.getMerchantObservable = null;
+                        this.merchantInfo.set(id, m);
+                        return this.merchantInfo.get(id);
+                    }),
+                    share());
+            return this.getMerchantObservable;
+        }
     }
 
     updateMerchant(merchant: MerchantInfo): Observable<any> {
@@ -42,22 +52,30 @@ export class MerchantInfoService {
     }
 
     getAllTags(): Observable<Tag[]> {
-        return this.http.get<Tag[]>('/api/tag');
+        return this.http.get<Tag[]>('/api/tag').pipe(share());
     }
 
     getAll(): Observable<MerchantInfo[]> {
-        if (!this.merchantInfos || this.merchantInfos.length === 0) {
-            let requestUrl = '/api/merchant/account';
-            return this.http.get<MerchantInfo[]>(requestUrl).pipe(map(m => {
-                this.merchantInfos = m;
-                this.merchantInfos.sort((a, b) => {
-                    return ('' + a.companyName).localeCompare(b.companyName);
-                });
-                return this.merchantInfos;
-            }));
-        }
-        else
+        if (this.merchantInfos && this.merchantInfos.length > 0) {
             return of(this.merchantInfos);
+        } else if (this.getAllObservable) {
+            return this.getAllObservable;
+        } else {
+            let requestUrl = '/api/merchant/account';
+            this.getAllObservable = this.http.get<MerchantInfo[]>(requestUrl)
+                .pipe(
+                    map(m => {
+                        this.getAllObservable = null;
+                        this.merchantInfos = m;
+                        this.merchantInfos.sort((a, b) => {
+                            return ('' + a.companyName).localeCompare(b.companyName);
+                        });
+                        return this.merchantInfos;
+                    }),
+                    share());
+            return this.getAllObservable;
+
+        }
     }
 
     create(merchant: MerchantInfo): Observable<Merchant> {

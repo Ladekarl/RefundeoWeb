@@ -13,6 +13,8 @@ namespace Refundeo.Core.Models.Account
         public string TermsOfService { get; set; }
         public bool AcceptedPrivacyPolicy { get; set; }
         public string PrivacyPolicy { get; set; }
+        public int TermsOfServiceVersion { get; set; }
+        public int PrivacyPolicyVersion { get; set; }
         public string AccountNumber { get; set; }
         public string Swift { get; set; }
         public string Passport { get; set; }

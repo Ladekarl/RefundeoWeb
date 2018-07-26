@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {RefundCase} from '../models';
 import {HttpClient} from '@angular/common/http';
-import {map} from 'rxjs/operators';
+import {map, share} from 'rxjs/operators';
 import {Observable, of} from 'rxjs';
 
 @Injectable()
@@ -11,6 +11,8 @@ export class RefundCasesService {
     }
 
     refundCases: RefundCase[];
+    getAllObservable: Observable<RefundCase[]>;
+    getPaginatedObservable: Observable<RefundCase[]>;
 
     private static mapDates(refundCases: RefundCase[]): RefundCase[] {
         if (refundCases) {
@@ -28,14 +30,22 @@ export class RefundCasesService {
     }
 
     getAll(isAdmin: boolean): Observable<RefundCase[]> {
-        if (!this.refundCases || this.refundCases.length === 0) {
+        if (this.refundCases && this.refundCases.length > 0) {
+            return of(this.refundCases);
+        } else if (this.getAllObservable) {
+            return this.getAllObservable;
+        } else {
             let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
-            return this.http.get<RefundCase[]>(requestUrl).pipe(map(r => {
-                this.refundCases = RefundCasesService.mapDates(r);
-                return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
-            }));
+            this.getAllObservable = this.http.get<RefundCase[]>(requestUrl)
+                .pipe(
+                    map(r => {
+                        this.getAllObservable = null;
+                        this.refundCases = RefundCasesService.mapDates(r);
+                        return this.refundCases.sort((a, b) => a.dateCreated.getTime() - b.dateCreated.getTime());
+                    }),
+                    share());
+            return this.getAllObservable;
         }
-        return of(this.refundCases);
     }
 
     resetRefundCases() {
@@ -43,12 +53,20 @@ export class RefundCasesService {
     }
 
     getPaginated(sortBy: string, sortDir: string, filterBy: string, isAdmin: boolean): Observable<RefundCase[]> {
-        if (!this.refundCases || this.refundCases.length === 0)
-            return this.getAll(isAdmin).pipe(map(r => {
-                return this.filterRefundCases(r, sortBy, sortDir, filterBy);
-            }));
-        else
+        if (this.refundCases && this.refundCases.length === 0) {
             return of(this.filterRefundCases(this.refundCases, sortBy, sortDir, filterBy));
+        } else if (this.getPaginatedObservable) {
+            return this.getPaginatedObservable;
+        } else {
+            this.getPaginatedObservable = this.getAll(isAdmin)
+                .pipe(
+                    map(r => {
+                        this.getPaginatedObservable = null;
+                        return this.filterRefundCases(r, sortBy, sortDir, filterBy);
+                    }),
+                    share());
+            return this.getPaginatedObservable;
+        }
     }
 
     private filterRefundCases(refundCases: RefundCase[], sortBy: string, sortDir: string, filterBy: string) {

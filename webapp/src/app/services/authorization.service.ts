@@ -3,7 +3,7 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 import {CurrentUser} from '../models';
 import {LocalStorage, JSONSchema} from '@ngx-pwa/local-storage';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, share} from 'rxjs/operators';
 
 @Injectable()
 export class AuthorizationService {
@@ -31,11 +31,11 @@ export class AuthorizationService {
                 return null;
             }
             return currentUser.token;
-        }));
+        })).pipe(share());
     }
 
     getCurrentUser(): Observable<CurrentUser> {
-        return this.localStorage.getItem<CurrentUser>('currentUser');
+        return this.localStorage.getItem<CurrentUser>('currentUser').pipe(share());
     }
 
     removeCurrentUser(): Observable<boolean> {
@@ -48,7 +48,7 @@ export class AuthorizationService {
                 return false;
             }
             return user.roles.indexOf('Merchant') > -1;
-        }));
+        })).pipe(share());
     }
 
     isAdmin(): Observable<boolean> {
@@ -57,7 +57,7 @@ export class AuthorizationService {
                 return false;
             }
             return user.roles.indexOf('Admin') > -1;
-        }));
+        })).pipe(share());
     }
 
     isAuthenticated(): Observable<boolean> {
@@ -66,7 +66,7 @@ export class AuthorizationService {
                 return false;
             }
             return !this.jwtHelperService.isTokenExpired(token);
-        }));
+        })).pipe(share());
     }
 
     isAuthenticatedMerchant(): Observable<boolean> {
@@ -76,7 +76,7 @@ export class AuthorizationService {
             }
             const token = currentUser.token;
             return token && !this.jwtHelperService.isTokenExpired(token) && currentUser.roles.indexOf('Merchant') > -1;
-        }));
+        })).pipe(share());
     }
 
     isAuthenticatedAdmin(): Observable<boolean> {
@@ -86,7 +86,7 @@ export class AuthorizationService {
             }
             const token = currentUser.token;
             return token && !this.jwtHelperService.isTokenExpired(token) && currentUser.roles.indexOf('Admin') > -1;
-        }));
+        })).pipe(share());
     }
 
     setCurrentUser(currentUser: CurrentUser): Observable<boolean> {

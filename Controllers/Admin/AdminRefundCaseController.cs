@@ -60,12 +60,6 @@ namespace Refundeo.Controllers.Admin
                 refundCase.MerchantSignature = null;
                 refundCase.QRCode = null;
 
-                if (refundCase.MerchantInformation != null)
-                {
-                    refundCase.MerchantInformation.Logo = null;
-                    refundCase.MerchantInformation.Banner = null;
-                }
-
                 if (refundCase.CustomerInformation != null)
                 {
                     refundCase.CustomerInformation.QRCode = null;

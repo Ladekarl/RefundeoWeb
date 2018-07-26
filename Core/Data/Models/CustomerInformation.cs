@@ -20,6 +20,8 @@ namespace Refundeo.Core.Data.Models
         public bool AcceptedTermsOfService { get; set; }
         public string PrivacyPolicy { get; set; }
         public string TermsOfService { get; set; }
+        public int TermsOfServiceVersion { get; set; }
+        public int PrivacyPolicyVersion { get; set; }
         public string QRCode { get; set; }
         public string CustomerId { get; set; }
         public virtual RefundeoUser Customer { get; set; }

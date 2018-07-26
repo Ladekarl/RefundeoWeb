@@ -140,8 +140,8 @@ namespace Refundeo.Core.Services
                 IsOauth = customerInformation.IsOauth,
                 AcceptedTermsOfService = customerInformation.AcceptedTermsOfService,
                 AcceptedPrivacyPolicy = customerInformation.AcceptedPrivacyPolicy,
-                PrivacyPolicy = customerInformation.PrivacyPolicy,
-                TermsOfService = customerInformation.TermsOfService,
+                PrivacyPolicyVersion = customerInformation.PrivacyPolicyVersion,
+                TermsOfServiceVersion = customerInformation.TermsOfServiceVersion,
                 Roles = await _userManager.GetRolesAsync(user),
                 RefreshToken = refreshToken,
                 Email = customerInformation.Email,
@@ -152,6 +152,7 @@ namespace Refundeo.Core.Services
                 AddressStreetName = customerInformation.Address?.StreetName,
                 AddressStreetNumber = customerInformation.Address?.StreetNumber,
                 AddressPostalCode = customerInformation.Address?.PostalCode,
+                DateCreated = customerInformation.DateCreated,
                 QRCode = await _utilityService.ConvertBlobPathToBase64Async(customerInformation.QRCode)
             });
         }
