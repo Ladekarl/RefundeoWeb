@@ -8,9 +8,13 @@ namespace Refundeo.Core.Services.Interfaces
 {
     public interface IRefundCaseService
     {
-        Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases);
-        Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase);
-        Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase);
+        Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases,
+            RefundeoUser callingUser);
+
+        Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase,
+            RefundeoUser callingUser);
+
+        Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase, RefundeoUser callingUser);
         RefundCaseSimpleDto ConvertRefundCaseToDtoSimple(RefundCase refundCase);
         Task DeleteRefundCasesAsync(ICollection<RefundCase> refundCases);
     }

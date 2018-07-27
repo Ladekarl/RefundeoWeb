@@ -42,6 +42,8 @@ namespace Refundeo.Controllers.Merchant
         [HttpGet]
         public async Task<IList<MerchantInformationDto>> GetAllMerchants()
         {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+
             var userModels = new List<MerchantInformationDto>();
             foreach (var u in await _context.MerchantInformations
                 .Include(i => i.Merchants)
@@ -52,7 +54,7 @@ namespace Refundeo.Controllers.Merchant
                 .ThenInclude(i => i.Tag)
                 .ToListAsync())
             {
-                userModels.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(u));
+                userModels.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(u, user));
             }
 
             return userModels;
@@ -62,6 +64,8 @@ namespace Refundeo.Controllers.Merchant
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
+            var user = await _utilityService.GetCallingUserAsync(Request);
+
             var merchantInformation = await _context.MerchantInformations
                 .Include(i => i.Merchants)
                 .Include(i => i.Address)
@@ -77,7 +81,7 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            return Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation));
+            return Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation, user));
         }
 
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]
@@ -140,6 +144,7 @@ namespace Refundeo.Controllers.Merchant
                 Description = model.Description,
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
+                AdminEmail = model.AdminEmail,
                 VATNumber = model.VatNumber,
                 Currency = model.Currency,
                 DateCreated = DateTime.Now,
@@ -282,6 +287,7 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Description = model.Description;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;
+            merchantInformation.AdminEmail = model.AdminEmail;
             merchantInformation.Currency = model.Currency;
 
             _context.MerchantInformations.Update(merchantInformation);
@@ -358,6 +364,7 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;
+            merchantInformation.AdminEmail = model.AdminEmail;
             merchantInformation.Currency = model.Currency;
 
             _context.MerchantInformations.Update(merchantInformation);

@@ -28,20 +28,22 @@ namespace Refundeo.Core.Services
             _context = context;
         }
 
-        public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases)
+        public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases,
+            RefundeoUser callingUser)
         {
             var dtos = new List<RefundCaseDto>();
             foreach (var refundCase in refundCases)
             {
-                dtos.Add(await ConvertRefundCaseToDtoAsync(refundCase));
+                dtos.Add(await ConvertRefundCaseToDtoAsync(refundCase, callingUser));
             }
 
             return new ObjectResult(dtos);
         }
 
-        public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase)
+        public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase,
+            RefundeoUser callingUser)
         {
-            var dto = await ConvertRefundCaseToDtoAsync(refundCase);
+            var dto = await ConvertRefundCaseToDtoAsync(refundCase, callingUser);
             return new ObjectResult(dto);
         }
 
@@ -65,7 +67,7 @@ namespace Refundeo.Core.Services
             };
         }
 
-        public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase)
+        public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase, RefundeoUser callingUser)
         {
             return new RefundCaseDto
             {
@@ -85,7 +87,8 @@ namespace Refundeo.Core.Services
                 DateRequested = refundCase.DateRequested,
                 ReceiptNumber = refundCase.ReceiptNumber,
                 Customer = await _utilityService.ConvertCustomerInformationToDtoAsync(refundCase.CustomerInformation),
-                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation),
+                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation,
+                    callingUser),
                 CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
                 MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature)
             };

@@ -117,7 +117,8 @@ namespace Refundeo.Core.Services
             return dto;
         }
 
-        public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info)
+        public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info,
+            RefundeoUser callingUser)
         {
             RefundeoUser mainMerchant = null;
 
@@ -148,6 +149,10 @@ namespace Refundeo.Core.Services
                 Longitude = info.Location?.Longitude,
                 DateCreated = info.DateCreated,
                 Description = info.Description,
+                AdminEmail = mainMerchant != null && mainMerchant.Id == callingUser.Id ||
+                             await _userManager.IsInRoleAsync(callingUser, RefundeoConstants.RoleAdmin)
+                    ? info.AdminEmail
+                    : null,
                 OpeningHours =
                     info.OpeningHours?.Select(o =>
                         new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),

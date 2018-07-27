@@ -65,7 +65,7 @@ namespace Refundeo.Controllers.Admin
                     refundCase.CustomerInformation.QRCode = null;
                 }
 
-                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase, await _utilityService.GetCallingUserAsync(Request)));
             }
 
             return new ObjectResult(dtos);
@@ -92,7 +92,7 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase, await _utilityService.GetCallingUserAsync(Request));
         }
 
         [HttpPost]
@@ -169,7 +169,7 @@ namespace Refundeo.Controllers.Admin
             _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
                 text.RefundCreatedText);
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity, await _utilityService.GetCallingUserAsync(Request));
         }
 
         [HttpPut("{id}")]

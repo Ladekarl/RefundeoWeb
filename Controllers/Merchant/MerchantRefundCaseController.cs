@@ -126,7 +126,7 @@ namespace Refundeo.Controllers.Merchant
                 refundCase.MerchantSignature = null;
                 refundCase.QRCode = null;
                 refundCase.CustomerInformation = null;
-                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase, user));
             }
 
             return new ObjectResult(new
@@ -166,7 +166,7 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase, user);
         }
 
         [Authorize(Roles = RefundeoConstants.RoleMerchant + "," +
@@ -259,10 +259,10 @@ namespace Refundeo.Controllers.Merchant
                 await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
                 await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
+            _emailService.SendVATMail(ControllerContext, refundCase, customerInformation.Email);
+
             _notificationService.SendNotificationAsync(customerInformation.Customer.Id,
                 refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);
-
-            _emailService.SendVATMail(ControllerContext, refundCase, customerInformation.Email);
 
             return NoContent();
         }

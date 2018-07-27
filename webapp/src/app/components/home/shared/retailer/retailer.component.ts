@@ -158,6 +158,12 @@ export class RetailerComponent implements OnInit {
             alert('invalid format' + file.type);
             return;
         }
+        const fileSize = file.size / 1024 / 1024; // in MB
+        if (fileSize > 1) {
+            alert('File cannot be bigger than 1 MB');
+            return;
+        }
+
         reader.onload = this._handleLogoLoaded.bind(this);
         reader.readAsDataURL(file);
     }
@@ -168,6 +174,11 @@ export class RetailerComponent implements OnInit {
         const reader = new FileReader();
         if (!file.type.match(pattern)) {
             alert('invalid format');
+            return;
+        }
+        const fileSize = file.size / 1024 / 1024; // in MB
+        if (fileSize > 1) {
+            alert('File cannot be bigger than 1 MB');
             return;
         }
         reader.onload = this._handleBannerLoaded.bind(this);

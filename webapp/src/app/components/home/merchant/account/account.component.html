@@ -1,13 +1,31 @@
 <div style="margin-top: 20px;" class="row">
     <div class="col-sm-7">
         <h6>Primary account</h6>
-        <form (ngSubmit)="onChangeAccount()" #changeAccountForm="ngForm">
+        <div class="form-group row">
+            <label for="username" class="col-lg-3 col-form-label">Username</label>
+            <div class="col-lg-9">
+                <input type="text" readonly class="form-control-plaintext" id="username" [value]="account.username">
+            </div>
+        </div>
+        <form (ngSubmit)="onChangeMerchantForm()" #changeMerchantForm="ngForm">
             <div class="form-group row">
-                <label for="username" class="col-lg-3 col-form-label">Username</label>
+                <label class="col-lg-3 col-form-label" for="inputAdminEmail">Email</label>
                 <div class="col-lg-9">
-                    <input type="text" readonly class="form-control-plaintext" id="username" [value]="account.username">
+                    <input type="email" name="changeMerchantAdminEmail" class="form-control"
+                           id="inputAdminEmail" required
+                           [(ngModel)]="merchantInfo.adminEmail"
+                           placeholder="Email" email>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-lg-3 offset-lg-3">
+                    <button type="submit" class="btn btn-primary col-lg-12" [disabled]="!changeMerchantForm.form.valid">
+                        Change email
+                    </button>
+                </div>
+            </div>
+        </form>
+        <form (ngSubmit)="onChangeAccount()" #changeAccountForm="ngForm">
             <div class="form-group row">
                 <label class="col-lg-3 col-form-label">Change password</label>
                 <div class="col-lg-3">
@@ -16,13 +34,11 @@
                            [(ngModel)]="changeAccountModel.oldPassword"
                            placeholder="Current password">
                 </div>
-                <!--<label for="inputNewPassword" class="col-lg-3 col-form-label">New password</label>-->
                 <div class="col-lg-3">
                     <input type="password" name="changeAccountNewPassword" required
                            [(ngModel)]="changeAccountModel.newPassword" class="form-control"
                            id="inputNewPassword" placeholder="New password">
                 </div>
-                <!--<label for="inputConfirmPassword" class="col-lg-3 col-form-label">Confirm password</label>-->
                 <div class="col-lg-3">
                     <input type="password" name="changeAccountConfirmPassword"
                            [(ngModel)]="changeAccountModel.passwordConfirmation" class="form-control"
@@ -32,14 +48,15 @@
             </div>
             <div class="form-group row">
                 <div class="col-lg-9 offset-lg-3">
-                    <button type="submit" class="btn btn-primary col-lg-12" [disabled]="!changeAccountForm.form.valid">
+                    <button type="submit" class="btn btn-primary col-lg-12"
+                            [disabled]="!changeAccountForm.form.valid">
                         Change password
                     </button>
                 </div>
             </div>
         </form>
     </div>
-    <div class="col-sm-4 offset-sm-1">
+    <div class="col-sm-4 offset-sm-1 align-self-end">
         <h6>Create app account</h6>
         <form (ngSubmit)="onSubmitAttachedAccount()" #attachedAccountForm="ngForm">
             <div class="form-group row">
@@ -73,25 +90,29 @@
         <div class="form-group row">
             <label for="merchantFee" class="col-lg-3 col-form-label">Retailer fee</label>
             <div class="col-lg-9">
-                <input type="text" readonly class="form-control-plaintext" id="merchantFee" [value]="(merchantInfo.merchantFee || '') + ' %'">
+                <input type="text" *ngIf="merchantInfo.merchantFee" readonly class="form-control-plaintext"
+                       id="merchantFee" [value]="merchantInfo.merchantFee + ' %'">
             </div>
         </div>
         <div class="form-group row">
             <label for="adminFee" class="col-lg-3 col-form-label">Admin fee</label>
             <div class="col-lg-9">
-                <input type="text" readonly class="form-control-plaintext" id="adminFee" [value]="(merchantInfo.adminFee || '') + ' %'">
+                <input type="text" *ngIf="merchantInfo.adminFee" readonly class="form-control-plaintext" id="adminFee"
+                       [value]="merchantInfo.adminFee + ' %'">
             </div>
         </div>
         <div class="form-group row">
             <label for="vatRate" class="col-lg-3 col-form-label">VAT rate</label>
             <div class="col-lg-9">
-                <input type="text" readonly class="form-control-plaintext" id="vatRate" [value]="(merchantInfo.vatRate || '') + ' %'">
+                <input type="text" *ngIf="merchantInfo.vatRate" readonly class="form-control-plaintext" id="vatRate"
+                       [value]="merchantInfo.vatRate + ' %'">
             </div>
         </div>
         <div class="form-group row">
             <label for="refundPercentage" class="col-lg-3 col-form-label">Customer refund percentage</label>
             <div class="col-lg-9">
-                <input type="text" readonly class="form-control-plaintext" id="refundPercentage" [value]="(merchantInfo.refundPercentage || '') + ' %'">
+                <input type="text" *ngIf="merchantInfo.refundPercentage" readonly class="form-control-plaintext"
+                       id="refundPercentage" [value]="merchantInfo.refundPercentage + ' %'">
             </div>
         </div>
     </div>

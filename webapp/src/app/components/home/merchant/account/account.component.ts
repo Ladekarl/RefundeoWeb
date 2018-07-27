@@ -83,6 +83,23 @@ export class AccountComponent implements OnInit {
         });
     }
 
+    onChangeMerchantForm() {
+        this.spinnerService.show();
+        this.merchantInfoService.updateMerchant(this.merchantInfo).subscribe(() => {
+            this.spinnerService.hide();
+            alert('Successfully changed email');
+        }, (e) => {
+            this.spinnerService.hide();
+            let errorString = 'Could not change email\n';
+            if (e.error && e.error.errors) {
+                e.error.errors.forEach(e => {
+                    errorString = errorString + e + '\n';
+                });
+            }
+            alert(errorString);
+        });
+    }
+
     onSubmitAttachedAccount() {
         this.spinnerService.show();
         this.merchantInfoService.createAttachedAccount(this.attachedAccountModel).subscribe(() => {

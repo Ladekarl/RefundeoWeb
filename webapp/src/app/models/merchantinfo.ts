@@ -23,6 +23,7 @@ export class MerchantInfo {
     vatNumber: string;
     contactEmail: string;
     contactPhone: string;
+    adminEmail: string;
     currency: string;
     openingHours: OpeningHours[];
     attachedAccounts: AttachedAccount[];

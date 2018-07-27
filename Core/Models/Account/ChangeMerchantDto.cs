@@ -22,6 +22,7 @@ namespace Refundeo.Core.Models.Account
         public string VatNumber { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
+        public string AdminEmail { get; set; }
         public string Currency { get; set; }
         public ICollection<AttachedAccountDto> AttachedAccounts { get; set; }
         public IList<OpeningHoursDto> OpeningHours { get; set; }

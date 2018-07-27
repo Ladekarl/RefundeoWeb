@@ -18,6 +18,7 @@ namespace Refundeo.Core.Data.Models
         public string Logo { get; set; }
         public string VATNumber { get; set; }
         public string ContactEmail { get; set; }
+        public string AdminEmail { get; set; }
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
         public DateTime DateCreated { get; set; }

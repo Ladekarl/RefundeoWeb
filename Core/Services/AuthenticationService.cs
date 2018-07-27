@@ -110,7 +110,8 @@ namespace Refundeo.Core.Services
             });
         }
 
-        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(SecurityToken token, RefundeoUser user, string refreshToken)
+        private async Task<ObjectResult> GenerateMerchantObjectResultAsync(SecurityToken token, RefundeoUser user,
+            string refreshToken)
         {
             return new ObjectResult(new MerchantDto
             {
@@ -317,20 +318,30 @@ namespace Refundeo.Core.Services
 
         public async Task<IdentityResult> DeleteUserAsync(RefundeoUser user)
         {
-            var customerInformation = await _context.CustomerInformations
-                .Where(x => x.Customer.Id == user.Id)
-                .Include(x => x.Address)
-                .Include(x => x.RefundCases)
-                .SingleOrDefaultAsync();
+            CustomerInformation customerInformation = null;
+            MerchantInformation merchantInformation = null;
 
-            var merchantInformation = await _context.MerchantInformations
-                .Where(x => x.Merchants.Any(m => m.Id == user.Id))
-                .Include(x => x.Address)
-                .Include(x => x.Location)
-                .Include(x => x.MerchantInformationTags)
-                .Include(x => x.OpeningHours)
-                .Include(x => x.RefundCases)
-                .SingleOrDefaultAsync();
+            if (await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleUser))
+            {
+                customerInformation = await _context.CustomerInformations
+                    .Where(x => x.Customer.Id == user.Id)
+                    .Include(x => x.Address)
+                    .Include(x => x.RefundCases)
+                    .SingleOrDefaultAsync();
+            }
+
+            if (await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleMerchant))
+            {
+                merchantInformation = await _context.MerchantInformations
+                    .Where(x => x.Merchants.Any(m => m.Id == user.Id))
+                    .Include(x => x.Address)
+                    .Include(x => x.Merchants)
+                    .Include(x => x.Location)
+                    .Include(x => x.MerchantInformationTags)
+                    .Include(x => x.OpeningHours)
+                    .Include(x => x.RefundCases)
+                    .SingleOrDefaultAsync();
+            }
 
             if (customerInformation != null)
             {
@@ -339,12 +350,16 @@ namespace Refundeo.Core.Services
 
             if (merchantInformation != null)
             {
-                foreach (var attachedMerchant in merchantInformation.Merchants)
+                var merchantsToDelete = merchantInformation.Merchants
+                    .Where(m => m.Id != user.Id)
+                    .ToList();
+
+                foreach (var attachedMerchant in merchantsToDelete)
                 {
-                    merchantInformation.Merchants.Remove(attachedMerchant);
-                    await _context.SaveChangesAsync();
                     await _userManager.DeleteAsync(attachedMerchant);
                 }
+
+                await _context.SaveChangesAsync();
 
                 await DeleteMerchantAsync(merchantInformation);
             }

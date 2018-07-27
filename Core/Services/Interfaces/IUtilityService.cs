@@ -15,7 +15,10 @@ namespace Refundeo.Core.Services.Interfaces
         Task<UserDto> ConvertRefundeoUserToUserDtoAsync(RefundeoUser refundeoUser);
         Task<CustomerInformationDto> ConvertCustomerInformationToDtoAsync(CustomerInformation info);
         CustomerInformationSimpleDto ConvertCustomerInformationToSimpleDto(CustomerInformation info);
-        Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info);
+
+        Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info,
+            RefundeoUser callingUser);
+
         ObjectResult GenerateBadRequestObjectResult(params string[] errors);
         ObjectResult GenerateBadRequestObjectResult(IEnumerable errors);
         string ConvertByteArrayToBase64(byte[] ba);

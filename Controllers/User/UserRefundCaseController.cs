@@ -78,7 +78,7 @@ namespace Refundeo.Controllers.User
                     refundCase.ReceiptImage = null;
                     refundCase.VATFormImage = null;
                 }
-                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase));
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase, user));
             }
 
             return new ObjectResult(dtos);
@@ -113,7 +113,7 @@ namespace Refundeo.Controllers.User
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase);
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase, user);
         }
 
         [HttpPost("{id}/doc")]
