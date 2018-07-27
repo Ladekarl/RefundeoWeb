@@ -10,11 +10,11 @@ export class SwaggerService {
     }
 
     getSwagger(domNode: any) {
-        this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            if (currentUser) {
+        this.authorizationService.getToken().subscribe(token => {
+            if (token) {
                 swaggerUIBundle({
                     urls: [{
-                        url: `${environment.apiBaseUrl}/swagger/v1/swagger.json`, name: 'Refundeo API v1'
+                        url: `/swagger/v1/swagger.json`, name: 'Refundeo API v1'
                     }],
                     domNode: domNode,
                     deepLinking: true,
@@ -23,7 +23,7 @@ export class SwaggerService {
                         swaggerUIStandalonePreset
                     ],
                     requestInterceptor: (request) => {
-                        request.headers.Authorization = `Bearer ${currentUser.token}`;
+                        request.headers.Authorization = `Bearer ${token}`;
                     },
                     layout: 'StandaloneLayout'
                 });
