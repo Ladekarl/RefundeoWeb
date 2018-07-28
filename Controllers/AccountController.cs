@@ -24,14 +24,16 @@ namespace Refundeo.Controllers
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly IUtilityService _utilityService;
         private readonly RefundeoDbContext _context;
+        private readonly IEmailService _emailService;
 
         public AccountController(UserManager<RefundeoUser> userManager, IAuthenticationService authenticationService,
-            IUtilityService utilityService, RefundeoDbContext context)
+            IUtilityService utilityService, RefundeoDbContext context, IEmailService emailService)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
             _utilityService = utilityService;
             _context = context;
+            _emailService = emailService;
         }
 
         [AllowAnonymous]
@@ -218,10 +220,30 @@ namespace Refundeo.Controllers
 
             if (!changePasswordResult.Succeeded)
             {
-                return _utilityService.GenerateBadRequestObjectResult(changePasswordResult.Errors.Select(x => x.Description));
+                return _utilityService.GenerateBadRequestObjectResult(
+                    changePasswordResult.Errors.Select(x => x.Description));
             }
 
             return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var email = await _emailService.SendPasswordRecoveryMailAsync(model.Username);
+
+            if (email == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(email);
         }
 
         private static async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)

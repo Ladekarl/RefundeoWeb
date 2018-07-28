@@ -54,7 +54,7 @@ namespace Refundeo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthorization();
-            services.AddMvc();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors();
             services.AddNodeServices();
 

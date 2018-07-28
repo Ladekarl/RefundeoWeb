@@ -20,14 +20,16 @@ namespace Refundeo.Controllers.User
         private readonly IAuthenticationService _authenticationService;
         private readonly UserManager<RefundeoUser> _userManager;
         private readonly IUtilityService _utilityService;
+        private readonly IEmailService _emailService;
         private readonly RefundeoDbContext _context;
 
         public UserAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
-            IAuthenticationService authenticationService, IUtilityService utilityService)
+            IAuthenticationService authenticationService, IUtilityService utilityService, IEmailService emailService)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
             _utilityService = utilityService;
+            _emailService = emailService;
             _context = context;
         }
 

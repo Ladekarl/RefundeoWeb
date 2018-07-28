@@ -96,6 +96,7 @@ export class LoginComponent implements OnInit {
             .subscribe(() => {
                 this.getInitialData();
                 this.authorizationService.isAuthenticatedAdmin().subscribe(isAuthenticatedAdmin => {
+                    this.errorText = null;
                     if (isAuthenticatedAdmin) {
                         this.returnUrl === '/' ? this.returnUrl = 'admin' : this.returnUrl;
                     }
@@ -111,5 +112,20 @@ export class LoginComponent implements OnInit {
                     this.errorText = error.error.message;
                 }
             });
+    }
+
+    onForgotPassword() {
+        if (!this.model.username) {
+            this.errorText = 'Please provide a username';
+            return;
+        }
+        this.errorText = null;
+        this.spinnerService.show();
+        this.authenticationService.resetPassword(this.model.username).subscribe((email) => {
+            alert('A password reset link was sent to ' + email);
+            this.spinnerService.hide();
+        }, () => {
+            this.spinnerService.hide();
+        });
     }
 }

@@ -8,7 +8,9 @@ namespace Refundeo.Core.Services.Interfaces
     public interface IEmailService
     {
         Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
-            Attachment attachment);
+            Attachment attachment = null);
+
+        Task<string> SendPasswordRecoveryMailAsync(string username);
         void SendVATMail(ControllerContext controllerContext, RefundCase refundCase, string receiverEmail);
         Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase, string receiverEmail);
     }

@@ -120,9 +120,9 @@ namespace Refundeo.Core.Services
         public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info,
             RefundeoUser callingUser)
         {
-            RefundeoUser mainMerchant = null;
-
             if (info == null) return null;
+
+            RefundeoUser mainMerchant = null;
 
             foreach (var merchant in info.Merchants)
             {

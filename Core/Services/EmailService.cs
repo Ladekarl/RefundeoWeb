@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -6,12 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
@@ -26,16 +30,19 @@ namespace Refundeo.Core.Services
         private readonly IBlobStorageService _blobStorageService;
         private readonly IConverter _converter;
         private readonly IUtilityService _utilityService;
-
-
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
+        private readonly RefundeoDbContext _context;
+        private readonly UserManager<RefundeoUser> _userManager;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
-            IOptions<StorageAccountOptions> storageAccountOptionsAccessor,
-            IBlobStorageService blobStorageService, IConverter converter, IUtilityService utilityService)
+            IOptions<StorageAccountOptions> storageAccountOptionsAccessor, RefundeoDbContext context,
+            UserManager<RefundeoUser> userManager, IBlobStorageService blobStorageService,
+            IConverter converter, IUtilityService utilityService)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
+            _context = context;
+            _userManager = userManager;
             _blobStorageService = blobStorageService;
             _converter = converter;
             _utilityService = utilityService;
@@ -51,19 +58,74 @@ namespace Refundeo.Core.Services
             };
         }
 
-        public async Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
-            Attachment attachment)
+        public async Task<string> SendPasswordRecoveryMailAsync(string username)
         {
-            using (var message = new MailMessage(_emailAccountOptionsAccessor.Value.Email, receiverEmail)
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (user == null) return null;
+
+            var isMerchant = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleMerchant);
+
+            string email;
+
+            if (isMerchant)
             {
-                Subject = subject,
-                Body = body,
-                From = new MailAddress(_emailAccountOptionsAccessor.Value.Email, "Refundeo"),
-                IsBodyHtml = isHtml,
-                Attachments = {attachment}
-            })
+                email = await _context.MerchantInformations
+                    .Include(m => m.Merchants)
+                    .Where(m => m.Merchants.Any(x => x.Id == user.Id))
+                    .Select(m => m.AdminEmail)
+                    .FirstOrDefaultAsync();
+            }
+            else
             {
-                await _smtpClient.SendMailAsync(message);
+                email = await _context.CustomerInformations.Where(c => c.CustomerId == user.Id)
+                    .Select(c => c.Email)
+                    .FirstOrDefaultAsync();
+            }
+
+            if (string.IsNullOrEmpty(email)) return null;
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            if (string.IsNullOrEmpty(token)) return null;
+
+            var body =
+                $"Hello {user.UserName}<br/><br/>Please follow this link to reset your password: <a href=\"https://www.app.refundeo.com/resetpassword/{token}\">reset password</a><br/><br/>Best Regards<br/>Refundeo";
+
+            await SendMailAsync("Reset your password", body, email, true);
+
+            return email;
+        }
+
+        public async Task SendMailAsync(string subject, string body, string receiverEmail, bool isHtml,
+            Attachment attachment = null)
+        {
+            if (attachment != null)
+            {
+                using (var message = new MailMessage(_emailAccountOptionsAccessor.Value.Email, receiverEmail)
+                {
+                    Subject = subject,
+                    Body = body,
+                    From = new MailAddress(_emailAccountOptionsAccessor.Value.Email, "Refundeo"),
+                    IsBodyHtml = isHtml,
+                    Attachments = {attachment}
+                })
+                {
+                    await _smtpClient.SendMailAsync(message);
+                }
+            }
+            else
+            {
+                using (var message = new MailMessage(_emailAccountOptionsAccessor.Value.Email, receiverEmail)
+                {
+                    Subject = subject,
+                    Body = body,
+                    From = new MailAddress(_emailAccountOptionsAccessor.Value.Email, "Refundeo"),
+                    IsBodyHtml = isHtml
+                })
+                {
+                    await _smtpClient.SendMailAsync(message);
+                }
             }
         }
 

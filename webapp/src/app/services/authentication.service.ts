@@ -39,4 +39,8 @@ export class AuthenticationService {
         this.merchantInfoService.resetMerchantInfos();
         return this.authorizationService.removeCurrentUser();
     }
+
+    resetPassword(username): Observable<string> {
+        return this.http.post<string>('/api/account/ResetPassword', {username});
+    }
 }

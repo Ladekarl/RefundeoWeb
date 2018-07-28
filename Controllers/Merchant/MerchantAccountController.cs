@@ -23,12 +23,14 @@ namespace Refundeo.Controllers.Merchant
         private readonly IUtilityService _utilityService;
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
+        private readonly IEmailService _emailService;
 
         private readonly IAuthenticationService _authenticationService;
 
         public MerchantAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
             IUtilityService utilityService, IAuthenticationService authenticationService,
-            IOptions<StorageAccountOptions> optionsAccessor, IBlobStorageService blobStorageService)
+            IOptions<StorageAccountOptions> optionsAccessor, IBlobStorageService blobStorageService,
+            IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
@@ -36,6 +38,7 @@ namespace Refundeo.Controllers.Merchant
             _authenticationService = authenticationService;
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
+            _emailService = emailService;
         }
 
         [Authorize]
