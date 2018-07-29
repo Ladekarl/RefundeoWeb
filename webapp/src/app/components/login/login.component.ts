@@ -98,7 +98,7 @@ export class LoginComponent implements OnInit {
                 this.getInitialData();
                 this.authorizationService.isAuthenticatedAdmin().subscribe(isAuthenticatedAdmin => {
                     if (isAuthenticatedAdmin) {
-                        this.returnUrl = this.returnUrl !== '/' ? 'admin/' + this.returnUrl : this.returnUrl;
+                        this.returnUrl = this.returnUrl === '/' ? '/admin' : this.returnUrl;
                     }
                     this.router.navigate([this.returnUrl]);
                 }, () => {
