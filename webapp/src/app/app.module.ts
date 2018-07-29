@@ -29,6 +29,7 @@ import {
     RetailerComponent,
     StatisticsComponent,
     LoginComponent,
+    ResetPasswordComponent,
     SettingsComponent,
     StaticStatsComponent,
     AccountComponent,
@@ -64,7 +65,8 @@ registerLocaleData(localeDa, 'da');
         AccountComponent,
         StatisticsComponent,
         PurchaseChartComponent,
-        StaticStatsComponent
+        StaticStatsComponent,
+        ResetPasswordComponent
     ],
     imports: [
         BrowserModule,

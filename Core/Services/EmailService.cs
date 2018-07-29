@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -89,8 +89,11 @@ namespace Refundeo.Core.Services
 
             if (string.IsNullOrEmpty(token)) return null;
 
+            var urlEncodedToken = WebUtility.UrlEncode(token);
+            var urlEncodedId = WebUtility.UrlEncode(user.Id);
+
             var body =
-                $"Hello {user.UserName}<br/><br/>Please follow this link to reset your password: <a href=\"https://www.app.refundeo.com/resetpassword/{token}\">reset password</a><br/><br/>Best Regards<br/>Refundeo";
+                $"Hello {user.UserName}<br/><br/>Please follow this link to reset your password: <a href=\"https://www.app.refundeo.com/resetpassword?id={urlEncodedId}&token={urlEncodedToken}\">reset password</a><br/><br/>Best Regards<br/>Refundeo";
 
             await SendMailAsync("Reset your password", body, email, true);
 

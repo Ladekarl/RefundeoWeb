@@ -31,7 +31,7 @@ export class AuthenticationService {
                     }));
                 }
             }));
-    };
+    }
 
     logout(): Observable<any> {
         this.refundCasesService.resetRefundCases();
@@ -40,7 +40,11 @@ export class AuthenticationService {
         return this.authorizationService.removeCurrentUser();
     }
 
-    resetPassword(username): Observable<string> {
-        return this.http.post<string>('/api/account/ResetPassword', {username});
+    requestResetPassword(username: string): Observable<any> {
+        return this.http.post<any>('/api/account/RequestResetPassword', {username});
+    }
+
+    resetPassword(userId: string, token: string, password: string, passwordConfirmation: string): Observable<any> {
+        return this.http.post<any>('/api/account/ResetPassword', {userId, token, password, passwordConfirmation});
     }
 }

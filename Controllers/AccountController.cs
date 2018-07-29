@@ -228,8 +228,8 @@ namespace Refundeo.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+        [HttpPost("RequestResetPassword")]
+        public async Task<IActionResult> RequestResetPassword([FromBody] RequestResetPasswordDto model)
         {
             if (!ModelState.IsValid)
             {
@@ -243,7 +243,39 @@ namespace Refundeo.Controllers
                 return BadRequest();
             }
 
-            return Ok(email);
+            return Ok(new {email});
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> RequestResetPassword([FromBody] ResetPasswordDto model)
+        {
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.PasswordConfirmation))
+            {
+                return BadRequest();
+            }
+
+            var user = await _userManager.FindByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (model.Password != model.PasswordConfirmation)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(
+                    "Password and password confirmation does not match");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+            if (!result.Succeeded)
+            {
+                return _utilityService.GenerateBadRequestObjectResult(result.Errors);
+            }
+
+            return NoContent();
         }
 
         private static async Task<FacebookUserViewModel> VerifyFacebookAccessToken(string accessToken)

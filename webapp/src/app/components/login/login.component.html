@@ -23,7 +23,7 @@
                            #password="ngModel" required>
                 </div>
                 <div class="form-group row">
-                    <button class="col-sm-4 btn btn-link" (click)="onForgotPassword()" [disabled]="loading">
+                    <button  type="button" class="col-sm-4 btn btn-link" (click)="onForgotPassword()" [disabled]="loading">
                         Forgot password
                     </button>
                     <button type="submit" class="form-control col-sm-4 offset-sm-4" [disabled]="loading || !f.form.valid">

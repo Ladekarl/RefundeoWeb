@@ -13,5 +13,6 @@ export * from './home/merchant/statistics/purchase-chart/purchase-chart.componen
 export * from './home/merchant/statistics/static-stats/static-stats.component';
 
 export * from './login/login.component';
+export * from './reset-password/reset-password.component';
 
 export * from './app.component';

@@ -12,6 +12,7 @@ import {
     ShoppersComponent,
     RetailerComponent,
     AccountComponent,
+    ResetPasswordComponent,
     StatisticsComponent
 } from './components';
 
@@ -86,6 +87,7 @@ const appRoutes: Routes = [
         ]
     },
     {path: 'login', component: LoginComponent},
+    {path: 'resetpassword', component: ResetPasswordComponent},
     {path: '**', redirectTo: ''}
 ];
 

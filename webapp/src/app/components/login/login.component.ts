@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
 
     getInitialData() {
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            let tasks = [];
+            const tasks = [];
             this.authorizationService.isAuthenticatedAdmin().subscribe(isAdmin => {
                 if (isAdmin) {
                     tasks.push(this.merchantInfoService.getAll());
@@ -94,11 +94,11 @@ export class LoginComponent implements OnInit {
         this.spinnerService.show();
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(() => {
+                this.errorText = null;
                 this.getInitialData();
                 this.authorizationService.isAuthenticatedAdmin().subscribe(isAuthenticatedAdmin => {
-                    this.errorText = null;
                     if (isAuthenticatedAdmin) {
-                        this.returnUrl === '/' ? this.returnUrl = 'admin' : this.returnUrl;
+                        this.returnUrl = this.returnUrl !== '/' ? 'admin/' + this.returnUrl : this.returnUrl;
                     }
                     this.router.navigate([this.returnUrl]);
                 }, () => {
@@ -121,10 +121,11 @@ export class LoginComponent implements OnInit {
         }
         this.errorText = null;
         this.spinnerService.show();
-        this.authenticationService.resetPassword(this.model.username).subscribe((email) => {
-            alert('A password reset link was sent to ' + email);
+        this.authenticationService.requestResetPassword(this.model.username).subscribe((response) => {
+            alert('A password reset link was sent to ' + response.email);
             this.spinnerService.hide();
         }, () => {
+            this.errorText = 'Could not reset password';
             this.spinnerService.hide();
         });
     }
