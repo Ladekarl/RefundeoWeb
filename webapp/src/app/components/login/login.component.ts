@@ -58,12 +58,16 @@ export class LoginComponent implements OnInit {
                     tasks.push(this.customerInfoSerivce.getAll(true));
                     tasks.push(this.refundCasesService.getAll(true));
                     forkJoin(tasks).subscribe(() => {
-                    }, () => {
+                        this.spinnerService.hide();
+                        this.loading = false;
                     }, () => {
                         this.spinnerService.hide();
                         this.loading = false;
                     });
                 }
+            }, () => {
+                this.spinnerService.hide();
+                this.loading = false;
             });
 
             this.authorizationService.isAuthenticatedMerchant().subscribe(isMerchant => {
@@ -95,12 +99,16 @@ export class LoginComponent implements OnInit {
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(() => {
                 this.errorText = null;
-                this.getInitialData();
                 this.authorizationService.isAuthenticatedAdmin().subscribe(isAuthenticatedAdmin => {
                     if (isAuthenticatedAdmin) {
-                        this.returnUrl = this.returnUrl === '/' ? '/admin' : this.returnUrl;
+                        this.returnUrl = this.returnUrl === '/' ? '/admin' : '/admin/' + this.returnUrl;
                     }
-                    this.router.navigate([this.returnUrl]);
+                    this.router.navigate([this.returnUrl]).then(() => {
+                        this.getInitialData();
+                    }).catch(() => {
+                        this.spinnerService.hide();
+                        this.loading = false;  
+                    });
                 }, () => {
                     this.loading = false;
                     this.spinnerService.hide();

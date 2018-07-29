@@ -12,9 +12,11 @@ export class SwaggerService {
     getSwagger(domNode: any) {
         this.authorizationService.getToken().subscribe(token => {
             if (token) {
+                const url = window.location.href;
+                const host = url.split("/")[0];
                 swaggerUIBundle({
                     urls: [{
-                        url: `/swagger/v1/swagger.json`, name: 'Refundeo API v1'
+                        url: `${host}/swagger/v1/swagger.json`, name: 'Refundeo API v1'
                     }],
                     domNode: domNode,
                     deepLinking: true,
