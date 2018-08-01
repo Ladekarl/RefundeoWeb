@@ -12,6 +12,7 @@ export class ResetPasswordComponent implements OnInit {
     bannerImageUrl = require('../../../assets/images/refundeo_banner_small_border.png');
     loading = false;
     errorText: string;
+    passwordChangedSuccess = false;
 
     token: string;
     userId: string;
@@ -42,8 +43,7 @@ export class ResetPasswordComponent implements OnInit {
         this.authenticationService.resetPassword(this.userId, this.token, this.password, this.passwordConfirmation).subscribe(() => {
             this.spinnerService.hide();
             this.loading = false;
-            alert('Successfully changed password');
-            this.router.navigate(['/login']);
+            this.passwordChangedSuccess = true;
         }, (e) => {
             this.loading = false;
             this.spinnerService.hide();

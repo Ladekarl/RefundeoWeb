@@ -93,7 +93,7 @@ namespace Refundeo.Core.Services
             var urlEncodedId = WebUtility.UrlEncode(user.Id);
 
             var body =
-                $"Hello {user.UserName}<br/><br/>Please follow this link to reset your password: <a href=\"https://www.app.refundeo.com/resetpassword?id={urlEncodedId}&token={urlEncodedToken}\">reset password</a><br/><br/>Best Regards<br/>Refundeo";
+                $"Hello {user.UserName}<br/><br/>Please follow this link to reset your password: <a href=\"https://app.refundeo.com/resetpassword?id={urlEncodedId}&token={urlEncodedToken}\">reset password</a><br/><br/>Best Regards<br/>Refundeo";
 
             await SendMailAsync("Reset your password", body, email, true);
 
