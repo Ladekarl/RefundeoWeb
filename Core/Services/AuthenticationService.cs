@@ -80,34 +80,24 @@ namespace Refundeo.Core.Services
         {
             var token = await GenerateTokenAsync(user);
 
-            var merchantInformation = await _context.MerchantInformations
-                .Where(m => m.Merchants.Any(x => x.Id == user.Id))
-                .FirstOrDefaultAsync();
-            var customerInformation = await _context.CustomerInformations
-                .Include(c => c.Address)
-                .Include(c => c.Customer)
-                .Where(c => c.Customer.Id == user.Id)
-                .FirstOrDefaultAsync();
+            var isUser = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleUser);
 
-            if (merchantInformation != null)
+            if (isUser)
             {
-                return await GenerateMerchantObjectResultAsync(token, user, refreshToken);
+                var customerInformation = await _context.CustomerInformations
+                    .Include(c => c.Address)
+                    .Include(c => c.Customer)
+                    .Where(c => c.Customer.Id == user.Id)
+                    .FirstOrDefaultAsync();
+
+
+                if (customerInformation != null)
+                {
+                    return await GenerateCustomerObjectResultAsync(token, user, customerInformation, refreshToken);
+                }
             }
 
-            if (customerInformation != null)
-            {
-                return await GenerateCustomerObjectResultAsync(token, user, customerInformation, refreshToken);
-            }
-
-            return new ObjectResult(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo,
-                id = user.Id,
-                username = user.UserName,
-                refreshToken,
-                roles = await _userManager.GetRolesAsync(user)
-            });
+            return await GenerateMerchantObjectResultAsync(token, user, refreshToken);
         }
 
         private async Task<ObjectResult> GenerateMerchantObjectResultAsync(SecurityToken token, RefundeoUser user,

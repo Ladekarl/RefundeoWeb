@@ -43,7 +43,7 @@ namespace Refundeo.Controllers
         {
             if (string.IsNullOrEmpty(model.AccessToken))
             {
-                return BadRequest("Invalid OAuth access token");
+                return BadRequest("OAuth access token not provided");
             }
 
             var fbUser = await VerifyFacebookAccessToken(model.AccessToken);
