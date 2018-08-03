@@ -43,24 +43,49 @@ namespace Refundeo.Controllers.Merchant
 
         [Authorize]
         [HttpGet]
-        public async Task<IList<MerchantInformationDto>> GetAllMerchants()
+        public async Task<IActionResult> GetAllMerchants()
         {
             var user = await _utilityService.GetCallingUserAsync(Request);
 
-            var userModels = new List<MerchantInformationDto>();
-            foreach (var u in await _context.MerchantInformations
-                .Include(i => i.Merchants)
-                .Include(i => i.Address)
-                .Include(i => i.Location)
-                .Include(i => i.OpeningHours)
-                .Include(i => i.MerchantInformationTags)
-                .ThenInclude(i => i.Tag)
-                .ToListAsync())
+            if (user == null)
             {
-                userModels.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(u, user));
+                return BadRequest();
             }
 
-            return userModels;
+            var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
+
+            if (isAdmin)
+            {
+                var merchantInformations = await _context.MerchantInformations
+                    .Include(i => i.Merchants)
+                    .Include(i => i.Address)
+                    .Include(i => i.Location)
+                    .Include(i => i.OpeningHours)
+                    .Include(i => i.MerchantInformationTags)
+                    .ThenInclude(i => i.Tag)
+                    .ToListAsync();
+
+                var dtos = new List<MerchantInformationDto>();
+
+                foreach (var merchantInformation in merchantInformations)
+                {
+                    dtos.Add(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation));
+                }
+
+                return Ok(dtos);
+            }
+            else
+            {
+                return Ok(await _context.MerchantInformations
+                    .Include(i => i.Merchants)
+                    .Include(i => i.Address)
+                    .Include(i => i.Location)
+                    .Include(i => i.OpeningHours)
+                    .Include(i => i.MerchantInformationTags)
+                    .ThenInclude(i => i.Tag)
+                    .Select(i => _utilityService.ConvertMerchantInformationToSimpleDto(i))
+                    .ToListAsync());
+            }
         }
 
         [Authorize]
@@ -84,7 +109,9 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            return Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation, user));
+            return await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin) ?
+                Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation)) :
+                Ok(_utilityService.ConvertMerchantInformationToSimpleDto(merchantInformation));
         }
 
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]
@@ -305,7 +332,7 @@ namespace Refundeo.Controllers.Merchant
         {
             if (!ModelState.IsValid)
             {
-                return new BadRequestResult();
+                return BadRequest(ModelState.Keys);
             }
 
             var merchantInformation = await _context.MerchantInformations

@@ -1,29 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
-using Refundeo.Core.Models.QRCode;
+using Refundeo.Core.Helpers;
 using Refundeo.Core.Models.RefundCase;
 using Refundeo.Core.Services.Interfaces;
-using ZXing;
-using ZXing.QrCode;
 
 namespace Refundeo.Core.Services
 {
     public class RefundCaseService : IRefundCaseService
     {
         private readonly IUtilityService _utilityService;
+        private readonly UserManager<RefundeoUser> _userManager;
         private readonly IBlobStorageService _blobStorageService;
         private readonly RefundeoDbContext _context;
 
-        public RefundCaseService(IUtilityService utilityService, IBlobStorageService blobStorageService,
+        public RefundCaseService(
+            IUtilityService utilityService,
+            UserManager<RefundeoUser> userManager,
+            IBlobStorageService blobStorageService,
             RefundeoDbContext context)
         {
             _utilityService = utilityService;
+            _userManager = userManager;
             _blobStorageService = blobStorageService;
             _context = context;
         }
@@ -31,20 +33,41 @@ namespace Refundeo.Core.Services
         public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(IEnumerable<RefundCase> refundCases,
             RefundeoUser callingUser)
         {
-            var dtos = new List<RefundCaseDto>();
-            foreach (var refundCase in refundCases)
+            if (await _userManager.IsInRoleAsync(callingUser, RefundeoConstants.RoleAdmin))
             {
-                dtos.Add(await ConvertRefundCaseToDtoAsync(refundCase, callingUser));
-            }
+                var dtos = new List<RefundCaseAdminDto>();
+                foreach (var refundCase in refundCases)
+                {
+                    dtos.Add(await ConvertRefundCaseToAdminDtoAsync(refundCase));
+                }
 
-            return new ObjectResult(dtos);
+                return new ObjectResult(dtos);
+            }
+            else
+            {
+                var dtos = new List<RefundCaseDto>();
+                foreach (var refundCase in refundCases)
+                {
+                    dtos.Add(await ConvertRefundCaseToDtoAsync(refundCase));
+                }
+
+                return new ObjectResult(dtos);
+            }
         }
 
         public async Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase,
             RefundeoUser callingUser)
         {
-            var dto = await ConvertRefundCaseToDtoAsync(refundCase, callingUser);
-            return new ObjectResult(dto);
+            if (await _userManager.IsInRoleAsync(callingUser, RefundeoConstants.RoleAdmin))
+            {
+                var dto = await ConvertRefundCaseToAdminDtoAsync(refundCase);
+                return new ObjectResult(dto);
+            }
+            else
+            {
+                var dto = await ConvertRefundCaseToDtoAsync(refundCase);
+                return new ObjectResult(dto);
+            }
         }
 
         public RefundCaseSimpleDto ConvertRefundCaseToDtoSimple(RefundCase refundCase)
@@ -67,11 +90,33 @@ namespace Refundeo.Core.Services
             };
         }
 
-        public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase, RefundeoUser callingUser)
+        public async Task<RefundCaseAdminDto> ConvertRefundCaseToAdminDtoAsync(RefundCase refundCase)
+        {
+            return new RefundCaseAdminDto
+            {
+                Id = refundCase.Id,
+                Amount = refundCase.Amount,
+                RefundAmount = refundCase.RefundAmount,
+                VatAmount = refundCase.VATAmount,
+                MerchantAmount = refundCase.MerchantAmount,
+                AdminAmount = refundCase.AdminAmount,
+                IsRequested = refundCase.IsRequested,
+                IsAccepted = refundCase.IsAccepted,
+                IsRejected = refundCase.IsRejected,
+                VatFormImage = await _utilityService.ConvertBlobPathToBase64Async(refundCase.VATFormImage),
+                ReceiptImage = await _utilityService.ConvertBlobPathToBase64Async(refundCase.ReceiptImage),
+                DateCreated = refundCase.DateCreated,
+                DateRequested = refundCase.DateRequested,
+                ReceiptNumber = refundCase.ReceiptNumber,
+                Customer = await _utilityService.ConvertCustomerInformationToDtoAsync(refundCase.CustomerInformation),
+                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation),
+            };
+        }
+
+        public async Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase)
         {
             return new RefundCaseDto
             {
-                Id = refundCase.Id,
                 Amount = refundCase.Amount,
                 RefundAmount = refundCase.RefundAmount,
                 VatAmount = refundCase.VATAmount,
@@ -86,11 +131,7 @@ namespace Refundeo.Core.Services
                 DateCreated = refundCase.DateCreated,
                 DateRequested = refundCase.DateRequested,
                 ReceiptNumber = refundCase.ReceiptNumber,
-                Customer = await _utilityService.ConvertCustomerInformationToDtoAsync(refundCase.CustomerInformation),
-                Merchant = await _utilityService.ConvertMerchantInformationToDtoAsync(refundCase.MerchantInformation,
-                    callingUser),
-                CustomerSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.CustomerSignature),
-                MerchantSignature = await _utilityService.ConvertBlobPathToBase64Async(refundCase.MerchantSignature)
+                Merchant = _utilityService.ConvertMerchantInformationToSimpleDto(refundCase.MerchantInformation),
             };
         }
 

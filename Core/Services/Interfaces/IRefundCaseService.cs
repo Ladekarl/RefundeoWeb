@@ -14,7 +14,9 @@ namespace Refundeo.Core.Services.Interfaces
         Task<ObjectResult> GenerateRefundCaseDtoResponseAsync(RefundCase refundCase,
             RefundeoUser callingUser);
 
-        Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase, RefundeoUser callingUser);
+        Task<RefundCaseAdminDto> ConvertRefundCaseToAdminDtoAsync(RefundCase refundCase);
+
+        Task<RefundCaseDto> ConvertRefundCaseToDtoAsync(RefundCase refundCase);
         RefundCaseSimpleDto ConvertRefundCaseToDtoSimple(RefundCase refundCase);
         Task DeleteRefundCasesAsync(ICollection<RefundCase> refundCases);
     }

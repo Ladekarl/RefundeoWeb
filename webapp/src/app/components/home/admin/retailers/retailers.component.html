@@ -62,7 +62,7 @@
         <ng-template let-merchant pTemplate="listItem">
             <div class="ui-g table-row">
                 <div class="ui-g-2 table-col">
-                    <button type="button" class="btn btn-link">
+                    <button type="button" class="btn btn-link" (click)="onMerchantClick(merchant)" >
                         {{merchant.companyName}}
                     </button>
                 </div>

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Refundeo.Core.Models.Account
 {
-    public class MerchantInformationDto
+    public class MerchantInformationSimpleDto
     {
-        public string Id { get; set; }
-        public string Username { get; set; }
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
         public double RefundPercentage { get; set; }
@@ -26,10 +24,8 @@ namespace Refundeo.Core.Models.Account
         public string VatNumber { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
-        public string AdminEmail { get; set; }
         public string Currency { get; set; }
         public DateTime DateCreated { get; set; }
-        public ICollection<AttachedAccountDto> AttachedAccounts { get; set; }
         public ICollection<OpeningHoursDto> OpeningHours { get; set; }
         public ICollection<int> Tags { get; set; }
     }

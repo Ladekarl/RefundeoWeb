@@ -38,6 +38,11 @@ const appRoutes: Routes = [
                 canActivate: [AdminAuthGuard]
             },
             {
+                path: 'editretailer',
+                component: RetailerComponent,
+                canActivate: [AdminAuthGuard]
+            },
+            {
                 path: 'shoppers',
                 component: ShoppersComponent,
                 canActivate: [AdminAuthGuard]

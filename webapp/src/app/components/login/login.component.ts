@@ -57,6 +57,7 @@ export class LoginComponent implements OnInit {
                     tasks.push(this.merchantInfoService.getAll());
                     tasks.push(this.customerInfoSerivce.getAll(true));
                     tasks.push(this.refundCasesService.getAll(true));
+                    tasks.push(this.merchantInfoService.getAllTags());
                     forkJoin(tasks).subscribe(() => {
                         this.spinnerService.hide();
                         this.loading = false;

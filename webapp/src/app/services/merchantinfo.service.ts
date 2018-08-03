@@ -9,8 +9,10 @@ export class MerchantInfoService {
 
     merchantInfos: MerchantInfo[];
     merchantInfo: Map<string, MerchantInfo>;
+    tags: Tag[];
     getMerchantObservable: Observable<MerchantInfo>;
     getAllObservable: Observable<MerchantInfo[]>;
+    getAllTagsObservable: Observable<Tag[]>;
 
     constructor(
         private http: HttpClient) {
@@ -43,16 +45,31 @@ export class MerchantInfoService {
     }
 
     updateMerchant(merchant: MerchantInfo): Observable<any> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json'
-            })
-        };
-        return this.http.put('/api/merchant/account', merchant, httpOptions);
+        return this.http.put('/api/merchant/account', merchant);
+    }
+
+    updateMerchantById(merchant: MerchantInfo): Observable<any> {
+        const id = encodeURIComponent(merchant.id);
+        return this.http.put(`/api/merchant/account/${id}`, merchant);
     }
 
     getAllTags(): Observable<Tag[]> {
-        return this.http.get<Tag[]>('/api/tag').pipe(share());
+        if (this.tags && this.tags.length > 0) {
+            return of(this.tags);
+        } else if (this.getAllTagsObservable) {
+            return this.getAllTagsObservable;
+        } else {
+            let requestUrl = '/api/tag';
+            this.getAllTagsObservable = this.http.get<Tag[]>(requestUrl)
+                .pipe(
+                    map(tags => {
+                        this.getAllTagsObservable = null;
+                        this.tags = tags;
+                        return this.tags;
+                    }),
+                    share());
+            return this.getAllTagsObservable;
+        }
     }
 
     getAll(): Observable<MerchantInfo[]> {

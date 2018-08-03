@@ -1,8 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {Merchant, MerchantInfo, Tag} from '../../../../models';
+import {MerchantInfo, Tag} from '../../../../models';
+import {ActivatedRoute} from '@angular/router';
 import {AuthorizationService, MerchantInfoService} from '../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {ConfirmationService} from 'primeng/api';
+import {combineLatest, forkJoin} from 'rxjs';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'app-retailer',
@@ -17,30 +20,43 @@ export class RetailerComponent implements OnInit {
     isMerchant: boolean;
     isAdmin: boolean;
     normalizedDay: number;
+    isEdit = false;
     openingHours = [];
 
     constructor(
         private confirmationService: ConfirmationService,
         private merchantInfoService: MerchantInfoService,
         private authorizationService: AuthorizationService,
+        private activatedRoute: ActivatedRoute,
         private spinnerService: Ng4LoadingSpinnerService) {
     }
 
     ngOnInit() {
+        this.spinnerService.show();
         this.authorizationService.isAuthenticatedMerchant().subscribe(isMerchant => {
             this.isMerchant = isMerchant;
             if (this.isMerchant) {
                 this.getMerchant();
-            }
-        });
-        this.authorizationService.isAuthenticatedAdmin().subscribe(isAdmin => {
-            this.isAdmin = isAdmin;
-            if (this.isAdmin) {
-                this.merchantInfoService.getAllTags().subscribe(tags => {
-                    this.tags = tags;
+            } else {
+                let tasks = [];
+                tasks.push(this.authorizationService.isAuthenticatedAdmin());
+                tasks.push(this.activatedRoute.queryParams);
+                combineLatest(tasks).subscribe(([isAdmin, params]) => {
+                    this.isAdmin = isAdmin;
+                    if (this.isAdmin) {
+                        let merchantId = params['id'];
+                        this.getMerchantAndTags(merchantId);
+                    } else {
+                        this.spinnerService.hide();
+                    }
+                }, () => {
+                    this.spinnerService.hide();
                 });
             }
+        }, () => {
+            this.spinnerService.hide();
         });
+
         this.model = new MerchantInfo();
         this.model.openingHours = [
             {day: 0, close: '', open: ''},
@@ -66,6 +82,24 @@ export class RetailerComponent implements OnInit {
         this.normalizedDay = day === 0 ? 6 : day - 1;
     }
 
+    getMerchantAndTags(merchantId: string) {
+        let tasks = [];
+        tasks.push(this.merchantInfoService.getAllTags());
+        if(merchantId) {
+            tasks.push(this.merchantInfoService.getMerchant(merchantId));
+            this.isEdit = true;
+        }
+        forkJoin(tasks).subscribe(([tags, merchantInfo]) => {
+            this.tags = tags;
+            if(merchantInfo) {
+                this.model = merchantInfo;
+            }
+            this.spinnerService.hide();
+        }, () => {
+            this.spinnerService.hide();
+        });
+    }
+
     getMerchant() {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
@@ -78,36 +112,48 @@ export class RetailerComponent implements OnInit {
         });
     }
 
-    getMerchantNoCache() {
+    getMerchantNoCache(id: string) {
         this.spinnerService.show();
-        this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            this.merchantInfoService.getMerchantNoCache(currentUser.id).subscribe(merchantInfo => {
-                this.model = merchantInfo;
-                this.spinnerService.hide();
-            }, () => {
-                this.spinnerService.hide();
-            });
+        this.merchantInfoService.getMerchantNoCache(id).subscribe(merchantInfo => {
+            this.model = merchantInfo;
+            this.spinnerService.hide();
+        }, () => {
+            this.spinnerService.hide();
         });
     }
 
     onSubmit() {
-        if (this.isAdmin) {
-            this.createMerchant();
-        } else if (this.isMerchant) {
+        if (this.isMerchant || this.isEdit) {
             this.updateMerchant();
+        } else if (this.isAdmin) {
+            this.createMerchant();
         }
     }
 
     updateMerchant() {
         this.confirmationService.confirm({
-            message: `Are you sure you want to update your information?`,
+            message: `Are you sure you want to update the information?`,
             accept: () => {
                 this.spinnerService.show();
-                this.merchantInfoService.updateMerchant(this.model).subscribe(() => {
-                    this.getMerchantNoCache();
+                let updateMerchantObservable: Observable<any> = null;
+                if(this.isAdmin) {
+                    updateMerchantObservable = this.merchantInfoService.updateMerchantById(this.model);
+                } else {
+                    updateMerchantObservable = this.merchantInfoService.updateMerchant(this.model);
+                }
+                updateMerchantObservable.subscribe(() => {
+                    if(this.isMerchant) {
+                        this.authorizationService.getCurrentUser().subscribe(currentUser => {
+                            this.getMerchantNoCache(currentUser.id);
+                        }, () => {
+                            this.spinnerService.hide();
+                        });
+                    } else if(this.isAdmin) {
+                        this.getMerchantNoCache(this.model.id);
+                    }
                 }, (e) => {
                     this.spinnerService.hide();
-                    let errorString = 'Could not update your information\n';
+                    let errorString = 'Could not update the information\n';
                     if (e.error && e.error.errors) {
                         e.error.errors.forEach(e => {
                             errorString = errorString + e.description + '\n';

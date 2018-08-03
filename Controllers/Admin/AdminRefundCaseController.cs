@@ -53,19 +53,10 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            var dtos = new List<RefundCaseDto>();
+            var dtos = new List<RefundCaseAdminDto>();
             foreach (var refundCase in refundCases)
             {
-                refundCase.CustomerSignature = null;
-                refundCase.MerchantSignature = null;
-                refundCase.QRCode = null;
-
-                if (refundCase.CustomerInformation != null)
-                {
-                    refundCase.CustomerInformation.QRCode = null;
-                }
-
-                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase, await _utilityService.GetCallingUserAsync(Request)));
+                dtos.Add(await _refundCaseService.ConvertRefundCaseToAdminDtoAsync(refundCase));
             }
 
             return new ObjectResult(dtos);

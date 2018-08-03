@@ -117,23 +117,12 @@ namespace Refundeo.Core.Services
             return dto;
         }
 
-        public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info,
-            RefundeoUser callingUser)
+         public MerchantInformationSimpleDto ConvertMerchantInformationToSimpleDto(MerchantInformation info)
         {
             if (info == null) return null;
 
-            RefundeoUser mainMerchant = null;
-
-            foreach (var merchant in info.Merchants)
+            var dto = new MerchantInformationSimpleDto
             {
-                if (!await _userManager.IsInRoleAsync(merchant, RefundeoConstants.RoleMerchant)) continue;
-                mainMerchant = merchant;
-                break;
-            }
-
-            var dto = new MerchantInformationDto
-            {
-                Id = info.Id,
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
                 RefundPercentage = info.RefundPercentage,
@@ -149,10 +138,54 @@ namespace Refundeo.Core.Services
                 Longitude = info.Location?.Longitude,
                 DateCreated = info.DateCreated,
                 Description = info.Description,
-                AdminEmail = mainMerchant != null && mainMerchant.Id == callingUser.Id ||
-                             await _userManager.IsInRoleAsync(callingUser, RefundeoConstants.RoleAdmin)
-                    ? info.AdminEmail
-                    : null,
+                OpeningHours =
+                    info.OpeningHours?.Select(o =>
+                        new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),
+                Tags = info.MerchantInformationTags?.Select(m => m.Tag.Key).ToList(),
+                VatNumber = info.VATNumber,
+                ContactEmail = info.ContactEmail,
+                ContactPhone = info.ContactPhone,
+                Currency = info.Currency,
+                Banner = info.Banner,
+                Logo = info.Logo
+            };
+
+            return dto;
+        }
+
+        public async Task<MerchantInformationDto> ConvertMerchantInformationToDtoAsync(MerchantInformation info)
+        {
+            if (info == null) return null;
+
+            RefundeoUser mainMerchant = null;
+
+            foreach (var merchant in info.Merchants)
+            {
+                if (!await _userManager.IsInRoleAsync(merchant, RefundeoConstants.RoleMerchant)) continue;
+                mainMerchant = merchant;
+                break;
+            }
+
+            var dto = new MerchantInformationDto
+            {
+                Id = mainMerchant?.Id,
+                Username = mainMerchant?.UserName,
+                CompanyName = info.CompanyName,
+                CvrNumber = info.CVRNumber,
+                RefundPercentage = info.RefundPercentage,
+                VatRate = info.VATRate,
+                MerchantFee = info.MerchantFee,
+                AdminFee = info.AdminFee,
+                AddressCity = info.Address?.City,
+                AddressCountry = info.Address?.Country,
+                AddressStreetName = info.Address?.StreetName,
+                AddressStreetNumber = info.Address?.StreetNumber,
+                AddressPostalCode = info.Address?.PostalCode,
+                Latitude = info.Location?.Latitude,
+                Longitude = info.Location?.Longitude,
+                DateCreated = info.DateCreated,
+                Description = info.Description,
+                AdminEmail = info.AdminEmail,
                 OpeningHours =
                     info.OpeningHours?.Select(o =>
                         new OpeningHoursDto {Open = o.Open, Close = o.Close, Day = o.Day}).ToList(),

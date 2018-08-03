@@ -4,10 +4,10 @@
             <h6 *ngIf="isAdmin">Account Information</h6>
             <div *ngIf="isAdmin" class="form-group">
                 <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" placeholder="Username" required
+                <input type="text" [readonly]="isEdit" class="form-control" [class.form-control-plaintext]="isEdit" id="username" placeholder="Username" required
                        [(ngModel)]="model.username" name="username"/>
             </div>
-            <div *ngIf="isAdmin" class="form-group">
+            <div *ngIf="isAdmin && !isEdit" class="form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" placeholder="Password" required
                        [(ngModel)]="model.password" name="password"/>
@@ -186,11 +186,11 @@
                 </div>
             </div>
             <div class="form-group">
-                <button *ngIf="!isMerchant" type="submit" [disabled]="!retailerForm.form.valid"
+                <button *ngIf="isAdmin && !isEdit" type="submit" [disabled]="!retailerForm.form.valid"
                         class="btn btn-primary col-sm-12">
                     Add retailer
                 </button>
-                <button *ngIf="isMerchant" type="submit" [disabled]="!retailerForm.form.valid"
+                <button *ngIf="isMerchant || isEdit" type="submit" [disabled]="!retailerForm.form.valid"
                         class="btn btn-primary col-sm-12">
                     Save changes
                 </button>
@@ -207,9 +207,9 @@
                         <div></div>
                     </div>
                     <div *ngIf="model.banner" class="banner-container"
-                         [ngStyle]="{'background-image': 'url(' + (isAdmin ? 'data:image/png;base64,' + model.banner : model.banner) + ')'}">
+                         [ngStyle]="{'background-image': 'url(' + (isAdmin && !isEdit ? 'data:image/png;base64,' + model.banner : model.banner) + ')'}">
                         <div *ngIf="model.logo" class="logo-container">
-                            <img class="logo" [src]="isAdmin ? 'data:image/png;base64,' + model.banner : model.banner">
+                            <img class="logo" [src]="isAdmin && !isEdit ? 'data:image/png;base64,' + model.banner : model.banner">
                         </div>
                     </div>
                     <div class="banner-text-bar-container">

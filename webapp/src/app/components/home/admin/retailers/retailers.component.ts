@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {MerchantInfoService} from '../../../../services';
 import {SelectItem} from 'primeng/api';
 import {MerchantInfo} from '../../../../models';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-retailers',
@@ -42,7 +43,9 @@ export class RetailersComponent implements OnInit {
     searchField: 'merchant.companyName';
     sortOrderKey = 1;
 
-    constructor(private merchantInfoService: MerchantInfoService) {
+    constructor(
+        private router: Router,
+        private merchantInfoService: MerchantInfoService) {
     }
 
     ngOnInit() {
@@ -65,6 +68,10 @@ export class RetailersComponent implements OnInit {
 
     onSortOrderChange(event) {
         this.sortOrder = event.value;
+    }
+
+    onMerchantClick(merchant: MerchantInfo) {
+        this.router.navigate(['/admin/editretailer'], {queryParams: {id: merchant.id}});
     }
 
 }

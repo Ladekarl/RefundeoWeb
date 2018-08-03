@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -119,14 +120,14 @@ namespace Refundeo.Controllers.Merchant
                 return NotFound();
             }
 
-            var dtos = new List<RefundCaseDto>();
+            var dtos = new List<RefundCaseSimpleDto>();
             foreach (var refundCase in refundCases)
             {
                 refundCase.CustomerSignature = null;
                 refundCase.MerchantSignature = null;
                 refundCase.QRCode = null;
                 refundCase.CustomerInformation = null;
-                dtos.Add(await _refundCaseService.ConvertRefundCaseToDtoAsync(refundCase, user));
+                dtos.Add(_refundCaseService.ConvertRefundCaseToDtoSimple(refundCase));
             }
 
             return new ObjectResult(new
