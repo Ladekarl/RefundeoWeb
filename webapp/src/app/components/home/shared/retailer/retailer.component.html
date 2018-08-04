@@ -156,13 +156,13 @@
             <h6 class="row">Opening Hours (HH:MM)</h6>
             <div *ngFor="let openingHour of model.openingHours">
                 <div class="form-group row align-items-center">
-                    <label *ngIf="openingHour.day === 0" class="col-sm-2 center-text">Monday</label>
-                    <label *ngIf="openingHour.day === 1" class="col-sm-2 center-text">Tuesday</label>
-                    <label *ngIf="openingHour.day === 2" class="col-sm-2 center-text">Wednesday</label>
-                    <label *ngIf="openingHour.day === 3" class="col-sm-2 center-text">Thursday</label>
-                    <label *ngIf="openingHour.day === 4" class="col-sm-2 center-text">Friday</label>
-                    <label *ngIf="openingHour.day === 5" class="col-sm-2 center-text">Saturday</label>
-                    <label *ngIf="openingHour.day === 6" class="col-sm-2 center-text">Sunday</label>
+                    <label *ngIf="openingHour.day === 1" class="col-sm-2 center-text">Monday</label>
+                    <label *ngIf="openingHour.day === 2" class="col-sm-2 center-text">Tuesday</label>
+                    <label *ngIf="openingHour.day === 3" class="col-sm-2 center-text">Wednesday</label>
+                    <label *ngIf="openingHour.day === 4" class="col-sm-2 center-text">Thursday</label>
+                    <label *ngIf="openingHour.day === 5" class="col-sm-2 center-text">Friday</label>
+                    <label *ngIf="openingHour.day === 6" class="col-sm-2 center-text">Saturday</label>
+                    <label *ngIf="openingHour.day === 0" class="col-sm-2 center-text">Sunday</label>
                     <div class="col-lg-5 col-sm-12">
                         <input type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" class="form-control"
                                placeholder="Open"
@@ -207,9 +207,9 @@
                         <div></div>
                     </div>
                     <div *ngIf="model.banner" class="banner-container"
-                         [ngStyle]="{'background-image': 'url(' + (isAdmin && !isEdit ? 'data:image/png;base64,' + model.banner : model.banner) + ')'}">
+                         [ngStyle]="{'background-image': 'url(' + model.banner + ')'}">
                         <div *ngIf="model.logo" class="logo-container">
-                            <img class="logo" [src]="isAdmin && !isEdit ? 'data:image/png;base64,' + model.banner : model.banner">
+                            <img class="logo" [src]="model.logo">
                         </div>
                     </div>
                     <div class="banner-text-bar-container">

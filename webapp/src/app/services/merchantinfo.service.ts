@@ -144,4 +144,10 @@ export class MerchantInfoService {
         };
         return this.http.put('/api/merchant/attachedaccount/ChangePassword/' + id, changePassword, httpOptions);
     }
+
+    deleteMerchant(merchant: MerchantInfo): Observable<any> {
+        return this.http.delete('/api/account' + merchant.id).pipe(map(() => {
+            this.merchantInfos.splice(this.merchantInfos.indexOf(merchant), 1);
+        }));
+    }
 }

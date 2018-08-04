@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {MerchantInfoService} from '../../../../services';
-import {SelectItem} from 'primeng/api';
+import {SelectItem, ConfirmationService} from 'primeng/api';
 import {MerchantInfo} from '../../../../models';
 import {Router} from '@angular/router';
+import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 
 @Component({
     selector: 'app-retailers',
@@ -44,12 +45,18 @@ export class RetailersComponent implements OnInit {
     sortOrderKey = 1;
 
     constructor(
+        private confirmationService: ConfirmationService,
         private router: Router,
+        private spinnerService: Ng4LoadingSpinnerService,
         private merchantInfoService: MerchantInfoService) {
     }
 
     ngOnInit() {
         this.loading = true;
+        this.getMerchants();
+    }
+
+    getMerchants() {
         this.merchantInfoService.getAll().subscribe(merchants => {
             this.merchants = merchants;
             this.loading = false;
@@ -72,6 +79,27 @@ export class RetailersComponent implements OnInit {
 
     onMerchantClick(merchant: MerchantInfo) {
         this.router.navigate(['/admin/editretailer'], {queryParams: {id: merchant.id}});
+    }
+
+    onDeleteMerchant(merchant: MerchantInfo) {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${merchant.companyName}?`,
+            accept: () => {
+                this.spinnerService.show();
+                this.merchantInfoService.deleteMerchant(merchant).subscribe(() => {
+                    this.getMerchants();
+                }, (e) => {
+                    this.spinnerService.hide();
+                    let errorString = `Could not delete ${merchant.companyName}\n`;
+                    if (e.error && e.errors) {
+                        e.error.errors.forEach(e => {
+                            errorString = errorString + e.description + '\n';
+                        });
+                    }
+                    alert(errorString);
+                });
+            }
+        });
     }
 
 }

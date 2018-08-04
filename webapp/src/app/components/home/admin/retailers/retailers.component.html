@@ -32,13 +32,13 @@
             </div>
             <div class="ui-helper-clearfix">
                 <div class="ui-g">
+                    <div class="ui-g-1 header-col">
+                        <span>Username</span>
+                    </div>
                     <div class="ui-g-2 header-col">
                         <span>Company Name</span>
                     </div>
                     <div class="ui-g-1 header-col">
-                        <span>CVR no.</span>
-                    </div>
-                    <div class="ui-g-2 header-col">
                         <span>VAT no.</span>
                     </div>
                     <div class="ui-g-1 header-col">
@@ -56,20 +56,23 @@
                     <div class="ui-g-1 header-col">
                         <span>Refund (%)</span>
                     </div>
+                    <div class="ui-g-1 header-col">
+                        <span>Delete</span>
+                    </div>
                 </div>
             </div>
         </p-header>
         <ng-template let-merchant pTemplate="listItem">
             <div class="ui-g table-row">
+                <div class="ui-g-1 table-col">
+                    {{merchant.username}}
+                </div>
                 <div class="ui-g-2 table-col">
                     <button type="button" class="btn btn-link" (click)="onMerchantClick(merchant)" >
                         {{merchant.companyName}}
                     </button>
                 </div>
                 <div class="ui-g-1 table-col">
-                    {{merchant.cvrNumber}}
-                </div>
-                <div class="ui-g-2 table-col">
                     {{merchant.vatNumber}}
                 </div>
                 <div class="ui-g-1 table-col">
@@ -88,6 +91,12 @@
                 </div>
                 <div class="ui-g-1 table-col">
                     {{merchant.refundPercentage | number : '1.2-2'}}
+                </div>
+                <div class="ui-g-1 table-col">
+                    <span class="table-text">
+                        <i class="btn btn-outline-danger fa fa-times"
+                           (click)="onDeleteMerchant(merchant)"></i>
+                    </span>
                 </div>
             </div>
         </ng-template>

@@ -13,13 +13,12 @@ import {Observable} from 'rxjs';
     styleUrls: ['./retailer.component.scss']
 })
 export class RetailerComponent implements OnInit {
-
+    imageUpdate: number;
     model: MerchantInfo;
     tags: Tag[];
     date: Date;
     isMerchant: boolean;
     isAdmin: boolean;
-    normalizedDay: number;
     isEdit = false;
     openingHours = [];
 
@@ -78,8 +77,6 @@ export class RetailerComponent implements OnInit {
         ];
         this.model.tags = [];
         this.date = new Date();
-        let day = this.date.getDay();
-        this.normalizedDay = day === 0 ? 6 : day - 1;
     }
 
     getMerchantAndTags(merchantId: string) {
@@ -104,6 +101,7 @@ export class RetailerComponent implements OnInit {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
             this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
+                this.imageUpdate = (new Date()).getTime();
                 this.model = merchantInfo;
                 this.spinnerService.hide();
             }, () => {
@@ -130,11 +128,29 @@ export class RetailerComponent implements OnInit {
         }
     }
 
+    isBase64(str) {
+        try {
+            atob(str.split(',')[1]);
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+
     updateMerchant() {
         this.confirmationService.confirm({
             message: `Are you sure you want to update the information?`,
             accept: () => {
                 this.spinnerService.show();
+
+                if(!this.isBase64(this.model.logo)) {
+                    this.model.logo = null;
+                }
+
+                if(!this.isBase64(this.model.banner)) {
+                    this.model.banner = null;
+                }
+
                 let updateMerchantObservable: Observable<any> = null;
                 if(this.isAdmin) {
                     updateMerchantObservable = this.merchantInfoService.updateMerchantById(this.model);
@@ -233,12 +249,12 @@ export class RetailerComponent implements OnInit {
 
     _handleLogoLoaded(e) {
         const reader = e.target;
-        this.model.logo = reader.result.replace('data:image/png;base64,', '');
+        this.model.logo = reader.result;
     }
 
     _handleBannerLoaded(e) {
         const reader = e.target;
-        this.model.banner = reader.result.replace('data:image/png;base64,', '');
+        this.model.banner = reader.result;
     }
 
 
