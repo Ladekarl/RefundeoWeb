@@ -13,15 +13,14 @@ import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
     styleUrls: ['./purchase-chart.component.scss']
 })
 export class PurchaseChartComponent implements OnInit {
+    
     height: number;
-
     periodOptions: SelectItem[];
-
+    growls: Message[];
     purchasePeriodOptionsKey = 30;
     purchaseOptions: any;
     purchaseData: any;
     refundCases: RefundCase[];
-    growls: Message[];
     purchasesDateAmountMap: Map<number, number>;
     merchantInfo: MerchantInfo;
 

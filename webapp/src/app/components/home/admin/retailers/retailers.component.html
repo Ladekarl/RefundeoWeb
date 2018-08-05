@@ -64,13 +64,13 @@
         </p-header>
         <ng-template let-merchant pTemplate="listItem">
             <div class="ui-g table-row">
-                <div class="ui-g-1 table-col">
-                    {{merchant.username}}
-                </div>
-                <div class="ui-g-2 table-col">
                     <button type="button" class="btn btn-link" (click)="onMerchantClick(merchant)" >
-                        {{merchant.companyName}}
+                        {{merchant.username}}
                     </button>
+                <div class="ui-g-2 table-col">
+                    <div class="ui-g-1 table-col">
+                        {{merchant.companyName}}
+                    </div>
                 </div>
                 <div class="ui-g-1 table-col">
                     {{merchant.vatNumber}}

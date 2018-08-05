@@ -30,14 +30,12 @@ export class AccountComponent implements OnInit {
 
     ngOnInit() {
         this.getMerchantInfo();
-        this.authorizationService.getCurrentUser().subscribe(account => {
-            this.account = account;
-        });
     }
 
     getMerchantInfo() {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
+            this.account = currentUser;
             this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
                 this.setMerchantInfo(merchantInfo);
                 this.spinnerService.hide();
@@ -61,8 +59,10 @@ export class AccountComponent implements OnInit {
 
     setMerchantInfo(merchantInfo: MerchantInfo) {
         this.merchantInfo = merchantInfo;
-        for (let i = 0; i < this.merchantInfo.attachedAccounts.length; i++) {
-            this.changeAttachedAccountModels[i] = new ChangePassword();
+        if(this.merchantInfo.attachedAccounts) {
+            for (let i = 0; i < this.merchantInfo.attachedAccounts.length; i++) {
+                this.changeAttachedAccountModels[i] = new ChangePassword();
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {AuthorizationService, ChartService, ColorsService, MerchantInfoService, RefundCasesService} from '../../../../../services';
+import {AuthorizationService, ChartService, MerchantInfoService, RefundCasesService} from '../../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {MerchantInfo, RefundCase} from '../../../../../models';
 import {forkJoin} from 'rxjs';
@@ -25,7 +25,6 @@ export class StaticStatsComponent implements OnInit {
     constructor(private merchantInfoService: MerchantInfoService,
                 private authorizationService: AuthorizationService,
                 private spinnerService: Ng4LoadingSpinnerService,
-                private colorsService: ColorsService,
                 private chartService: ChartService,
                 private refundCasesService: RefundCasesService) {
         this.merchantInfo = new MerchantInfo();
