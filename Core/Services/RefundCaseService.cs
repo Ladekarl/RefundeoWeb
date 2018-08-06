@@ -117,6 +117,7 @@ namespace Refundeo.Core.Services
         {
             return new RefundCaseDto
             {
+                Id = refundCase.Id,
                 Amount = refundCase.Amount,
                 RefundAmount = refundCase.RefundAmount,
                 VatAmount = refundCase.VATAmount,

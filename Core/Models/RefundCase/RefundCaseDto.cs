@@ -5,6 +5,7 @@ namespace Refundeo.Core.Models.RefundCase
 {
     public class RefundCaseDto
     {
+        public long Id { get; set; }
         public double Amount { get; set; }
         public double RefundAmount { get; set; }
         public double AdminAmount { get; set; }
