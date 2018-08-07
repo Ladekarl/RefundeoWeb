@@ -8,9 +8,7 @@ namespace Refundeo.Core.Models.Account
         public string Password { get; set; }
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
-        public double AdminFee { get; set; }
         public double VatRate { get; set; }
-        public double MerchantFee { get; set; }
         public string AddressStreetName { get; set; }
         public string AddressStreetNumber { get; set; }
         public string AddressCity { get; set; }
@@ -26,6 +24,7 @@ namespace Refundeo.Core.Models.Account
         public string ContactPhone { get; set; }
         public string AdminEmail { get; set; }
         public string Currency { get; set; }
+        public IList<ChangeFeePointDto> FeePoints { get; set; }
         public IList<OpeningHoursDto> OpeningHours { get; set; }
         public IList<int> Tags { get; set; }
     }

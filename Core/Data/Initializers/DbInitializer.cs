@@ -10,6 +10,7 @@ using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
+using Refundeo.Core.Models.Account;
 using Refundeo.Core.Models.QRCode;
 using ZXing;
 using ZXing.QrCode;
@@ -100,6 +101,7 @@ namespace Refundeo.Core.Data.Initializers
             }
 
             if (prod) return;
+
             foreach (var merchant in DbInitializeData.MerchantsToCreate)
             {
                 if (!userManager.Users.Any(u => u.UserName == merchant.Username))
@@ -118,15 +120,10 @@ namespace Refundeo.Core.Data.Initializers
                         StreetNumber = merchant.AddressStreetNumber
                     };
 
-                    var vatPercentage = 100 - 100 / (1 + merchant.VatRate / 100);
-                    var adminPercentage = vatPercentage * (merchant.AdminFee / 100);
-                    var merchantPercantage = vatPercentage * (merchant.MerchantFee / 100);
-
                     var merchantInformation = new MerchantInformation
                     {
                         CompanyName = merchant.CompanyName,
                         CVRNumber = merchant.CvrNumber,
-                        RefundPercentage = vatPercentage - adminPercentage - merchantPercantage,
                         Description = merchant.Description,
                         VATNumber = merchant.VatNumber,
                         ContactEmail = merchant.ContactEmail,
@@ -141,8 +138,20 @@ namespace Refundeo.Core.Data.Initializers
                     var openingHours = merchant.OpeningHours
                         .Select(o => new OpeningHours {Day = o.Day, Close = o.Close, Open = o.Open}).ToList();
 
+                    var vatPercentage = 100 - 100 / (1 + merchantInformation.VATRate / 100);
+                    var feePoints = merchant.FeePoints.Select(f => new FeePoint
+                    {
+                        AdminFee = f.AdminFee,
+                        MerchantFee = f.MerchantFee,
+                        End = f.End,
+                        Start = f.Start,
+                        RefundPercentage = vatPercentage -
+                                           vatPercentage * (f.AdminFee / 100) -
+                                           vatPercentage * (f.MerchantFee / 100)
+                    }).ToList();
+
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchantInformation, address, location, openingHours, tags);
+                        merchantInformation, address, location, openingHours, tags, feePoints);
                 }
             }
         }
@@ -251,7 +260,7 @@ namespace Refundeo.Core.Data.Initializers
 
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
             string merchantUsername, string merchantPassword, MerchantInformation merchantInformation, Address address,
-            Location location, IList<OpeningHours> openingHours, IEnumerable<Tag> tags)
+            Location location, IList<OpeningHours> openingHours, IEnumerable<Tag> tags, IList<FeePoint> feePoints)
         {
             var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword,
                 RefundeoConstants.RoleMerchant);
@@ -260,6 +269,7 @@ namespace Refundeo.Core.Data.Initializers
                 await context.Locations.AddAsync(location);
                 await context.Addresses.AddAsync(address);
                 await context.OpeningHours.AddRangeAsync(openingHours);
+                await context.FeePoints.AddRangeAsync(feePoints);
 
                 await context.SaveChangesAsync();
 
@@ -285,6 +295,16 @@ namespace Refundeo.Core.Data.Initializers
                 foreach (var oHours in openingHours)
                 {
                     merchantInformation.OpeningHours.Add(oHours);
+                }
+
+                if (context.Entry(merchantInformation).Collection(x => x.FeePoints).IsLoaded == false)
+                {
+                    await context.Entry(merchantInformation).Collection(x => x.FeePoints).LoadAsync();
+                }
+
+                foreach (var feePoint in feePoints)
+                {
+                    merchantInformation.FeePoints.Add(feePoint);
                 }
 
                 foreach (var tag in tags)

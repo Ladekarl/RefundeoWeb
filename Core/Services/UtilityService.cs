@@ -117,7 +117,7 @@ namespace Refundeo.Core.Services
             return dto;
         }
 
-         public MerchantInformationSimpleDto ConvertMerchantInformationToSimpleDto(MerchantInformation info)
+        public MerchantInformationSimpleDto ConvertMerchantInformationToSimpleDto(MerchantInformation info)
         {
             if (info == null) return null;
 
@@ -125,10 +125,59 @@ namespace Refundeo.Core.Services
             {
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
-                RefundPercentage = info.RefundPercentage,
                 VatRate = info.VATRate,
-                MerchantFee = info.MerchantFee,
-                AdminFee = info.AdminFee,
+                FeePoints = info.FeePoints?.Select(f => new FeePointDto
+                {
+                    AdminFee = f.AdminFee,
+                    MerchantFee = f.MerchantFee,
+                    End = f.End,
+                    Start = f.Start,
+                    RefundPercentage = f.RefundPercentage
+                }).ToList(),
+                AddressCity = info.Address?.City,
+                AddressCountry = info.Address?.Country,
+                AddressStreetName = info.Address?.StreetName,
+                AddressStreetNumber = info.Address?.StreetNumber,
+                AddressPostalCode = info.Address?.PostalCode,
+                Latitude = info.Location?.Latitude,
+                Longitude = info.Location?.Longitude,
+                DateCreated = info.DateCreated,
+                Description = info.Description,
+                OpeningHours =
+                    info.OpeningHours?.Select(o =>
+                        new OpeningHoursDto
+                        {
+                            Open = o.Open,
+                            Close = o.Close,
+                            Day = o.Day
+                        }).ToList(),
+                Tags = info.MerchantInformationTags?.Select(m => m.Tag.Key).ToList(),
+                VatNumber = info.VATNumber,
+                ContactEmail = info.ContactEmail,
+                ContactPhone = info.ContactPhone,
+                Currency = info.Currency,
+                Banner = info.Banner,
+                Logo = info.Logo
+            };
+
+            return dto;
+        }
+
+        public MerchantInformationRestrictedDto ConvertMerchantInformationToRestrictedDto(MerchantInformation info)
+        {
+            if (info == null) return null;
+
+            var dto = new MerchantInformationRestrictedDto
+            {
+                CompanyName = info.CompanyName,
+                CvrNumber = info.CVRNumber,
+                FeePoints = info.FeePoints?.Select(f => new FeePointRestrictedDto
+                {
+                    End = f.End,
+                    Start = f.Start,
+                    RefundPercentage = f.RefundPercentage
+                }).ToList(),
+                VatRate = info.VATRate,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
                 AddressStreetName = info.Address?.StreetName,
@@ -172,10 +221,16 @@ namespace Refundeo.Core.Services
                 Username = mainMerchant?.UserName,
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
-                RefundPercentage = info.RefundPercentage,
+                FeePoints = info.FeePoints?.Select(f => new FeePointDto
+                {
+                    End = f.End,
+                    Start = f.Start,
+                    RefundPercentage = f.RefundPercentage,
+                    AdminFee = f.AdminFee,
+                    MerchantFee = f.MerchantFee
+
+                }).ToList(),
                 VatRate = info.VATRate,
-                MerchantFee = info.MerchantFee,
-                AdminFee = info.AdminFee,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
                 AddressStreetName = info.Address?.StreetName,

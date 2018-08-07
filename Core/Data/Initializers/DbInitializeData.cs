@@ -145,6 +145,30 @@ namespace Refundeo.Core.Data.Initializers
             }
         };
 
+        private static readonly List<ChangeFeePointDto> FeePointDtos = new List<ChangeFeePointDto>
+        {
+            new ChangeFeePointDto
+            {
+                Start = 0,
+                End = 10000,
+                MerchantFee = 25,
+                AdminFee = 10
+            },
+            new ChangeFeePointDto
+            {
+                Start = 10000,
+                End = 20000,
+                MerchantFee = 10,
+                AdminFee = 5
+            },
+            new ChangeFeePointDto
+            {
+                Start = 20000,
+                MerchantFee = 5,
+                AdminFee = 2
+            }
+        };
+
         public static readonly List<MerchantRegisterDto> MerchantsToCreate = new List<MerchantRegisterDto>
         {
             new MerchantRegisterDto
@@ -154,8 +178,7 @@ namespace Refundeo.Core.Data.Initializers
                 CompanyName = "Louis Vuitton",
                 CvrNumber = "11935893",
                 VatRate = 25,
-                MerchantFee = 23,
-                AdminFee = 10,
+                FeePoints = FeePointDtos,
                 AddressCity = "København K",
                 AddressCountry = "Danmark",
                 AddressPostalCode = "1160",
@@ -181,8 +204,7 @@ namespace Refundeo.Core.Data.Initializers
                 CompanyName = "Klarlund",
                 CvrNumber = "75636717",
                 VatRate = 25,
-                MerchantFee = 25,
-                AdminFee = 10,
+                FeePoints = FeePointDtos,
                 AddressCity = "København V",
                 Currency = "DKK",
                 AddressCountry = "Danmark",
@@ -208,8 +230,7 @@ namespace Refundeo.Core.Data.Initializers
                 CompanyName = "Neye",
                 CvrNumber = "36447125",
                 VatRate = 25,
-                MerchantFee = 19,
-                AdminFee = 10,
+                FeePoints = FeePointDtos,
                 AddressCity = "København K",
                 AddressCountry = "Danmark",
                 Tags = new List<int> {3},
@@ -236,8 +257,7 @@ namespace Refundeo.Core.Data.Initializers
                 Currency = "DKK",
                 CvrNumber = "58191213",
                 VatRate = 25,
-                MerchantFee = 20,
-                AdminFee = 10,
+                FeePoints = FeePointDtos,
                 AddressCity = "København K",
                 Tags = new List<int> {8},
                 AddressCountry = "Danmark",
@@ -263,8 +283,7 @@ namespace Refundeo.Core.Data.Initializers
                 CvrNumber = "17490486",
                 Currency = "DKK",
                 VatRate = 25,
-                MerchantFee = 15,
-                AdminFee = 10,
+                FeePoints = FeePointDtos,
                 Tags = new List<int> {0, 1, 2},
                 AddressCity = "København",
                 AddressCountry = "Danmark",
@@ -289,8 +308,7 @@ namespace Refundeo.Core.Data.Initializers
                 CompanyName = "GANNI",
                 CvrNumber = "21664731",
                 VatRate = 25,
-                MerchantFee = 10,
-                AdminFee = 10,
+                FeePoints = FeePointDtos,
                 Currency = "DKK",
                 AddressCity = "København K",
                 AddressCountry = "Danmark",

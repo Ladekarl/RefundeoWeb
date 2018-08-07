@@ -190,6 +190,7 @@ namespace Refundeo.Controllers.Merchant
             var merchantInformation = await _context.MerchantInformations
                 .Include(m => m.Address)
                 .Include(m => m.Merchants)
+                .Include(m => m.FeePoints)
                 .Where(c => c.Merchants.Any(m => m.Id == user.Id))
                 .FirstOrDefaultAsync();
 
@@ -210,10 +211,20 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest("Customer not found");
             }
 
-            var refundAmount = model.Amount * (merchantInformation.RefundPercentage / 100);
+            var feePoint = merchantInformation.FeePoints.FirstOrDefault(f =>
+                               f.Start <= model.Amount && f.End.HasValue && f.End.Value > model.Amount) ??
+                           merchantInformation.FeePoints.FirstOrDefault(f =>
+                               f.Start <= model.Amount && !f.End.HasValue);
+
+            if (feePoint == null)
+            {
+                return BadRequest("No feepoint found");
+            }
+
+            var refundAmount = model.Amount * (feePoint.RefundPercentage / 100);
             var vatAmount = model.Amount - model.Amount / (1 + merchantInformation.VATRate / 100);
-            var adminAmount = vatAmount * (merchantInformation.AdminFee / 100);
-            var merchantAmount = vatAmount * (merchantInformation.MerchantFee / 100);
+            var adminAmount = vatAmount * (feePoint.AdminFee / 100);
+            var merchantAmount = vatAmount * (feePoint.MerchantFee / 100);
 
             var refundCase = new RefundCase
             {

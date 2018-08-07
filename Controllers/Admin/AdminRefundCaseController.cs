@@ -83,7 +83,8 @@ namespace Refundeo.Controllers.Admin
                 return NotFound();
             }
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase, await _utilityService.GetCallingUserAsync(Request));
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCase,
+                await _utilityService.GetCallingUserAsync(Request));
         }
 
         [HttpPost]
@@ -96,6 +97,7 @@ namespace Refundeo.Controllers.Admin
 
             var merchantInformation = await _context.MerchantInformations
                 .Include(i => i.Merchants)
+                .Include(i => i.FeePoints)
                 .Where(i => i.Merchants.Any(m => m.Id == model.MerchantId))
                 .FirstOrDefaultAsync();
 
@@ -117,10 +119,20 @@ namespace Refundeo.Controllers.Admin
                 }
             }
 
-            var refundAmount = model.Amount * (merchantInformation.RefundPercentage / 100);
+            var feePoint = merchantInformation.FeePoints.FirstOrDefault(f =>
+                               f.Start <= model.Amount && f.End.HasValue && f.End.Value > model.Amount) ??
+                           merchantInformation.FeePoints.FirstOrDefault(f =>
+                               f.Start <= model.Amount && !f.End.HasValue);
+
+            if (feePoint == null)
+            {
+                return BadRequest("No feepoint found");
+            }
+
+            var refundAmount = model.Amount * (feePoint.RefundPercentage / 100);
             var vatAmount = model.Amount - model.Amount / (1 + merchantInformation.VATRate / 100);
-            var adminAmount = vatAmount * (merchantInformation.AdminFee / 100);
-            var merchantAmount = vatAmount * (merchantInformation.MerchantFee / 100);
+            var adminAmount = vatAmount * (feePoint.AdminFee / 100);
+            var merchantAmount = vatAmount * (feePoint.MerchantFee / 100);
 
             var refundCase = new RefundCase
             {
@@ -160,7 +172,8 @@ namespace Refundeo.Controllers.Admin
             _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
                 text.RefundCreatedText);
 
-            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity, await _utilityService.GetCallingUserAsync(Request));
+            return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity,
+                await _utilityService.GetCallingUserAsync(Request));
         }
 
         [HttpPut("{id}")]

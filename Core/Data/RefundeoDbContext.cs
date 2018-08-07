@@ -48,5 +48,6 @@ namespace Refundeo.Core.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<OpeningHours> OpeningHours { get; set; }
         public DbSet<Language> Languages { get; set; }
+        public DbSet<FeePoint> FeePoints { get; set; }
     }
 }

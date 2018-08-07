@@ -23,14 +23,12 @@ namespace Refundeo.Controllers.Merchant
         private readonly IUtilityService _utilityService;
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
-        private readonly IEmailService _emailService;
 
         private readonly IAuthenticationService _authenticationService;
 
         public MerchantAccountController(RefundeoDbContext context, UserManager<RefundeoUser> userManager,
             IUtilityService utilityService, IAuthenticationService authenticationService,
-            IOptions<StorageAccountOptions> optionsAccessor, IBlobStorageService blobStorageService,
-            IEmailService emailService)
+            IOptions<StorageAccountOptions> optionsAccessor, IBlobStorageService blobStorageService)
         {
             _context = context;
             _userManager = userManager;
@@ -38,7 +36,6 @@ namespace Refundeo.Controllers.Merchant
             _authenticationService = authenticationService;
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
-            _emailService = emailService;
         }
 
         [Authorize]
@@ -52,15 +49,16 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            var isAdmin = await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin);
+            var roles = await _userManager.GetRolesAsync(user);
 
-            if (isAdmin)
+            if (roles.Contains(RefundeoConstants.RoleAdmin))
             {
                 var merchantInformations = await _context.MerchantInformations
                     .Include(i => i.Merchants)
                     .Include(i => i.Address)
                     .Include(i => i.Location)
                     .Include(i => i.OpeningHours)
+                    .Include(i => i.FeePoints)
                     .Include(i => i.MerchantInformationTags)
                     .ThenInclude(i => i.Tag)
                     .ToListAsync();
@@ -74,21 +72,34 @@ namespace Refundeo.Controllers.Merchant
 
                 return Ok(dtos);
             }
-            else
+
+            if (roles.Contains(RefundeoConstants.RoleMerchant))
             {
                 return Ok(await _context.MerchantInformations
                     .Include(i => i.Merchants)
                     .Include(i => i.Address)
                     .Include(i => i.Location)
                     .Include(i => i.OpeningHours)
+                    .Include(i => i.FeePoints)
                     .Include(i => i.MerchantInformationTags)
                     .ThenInclude(i => i.Tag)
                     .Select(i => _utilityService.ConvertMerchantInformationToSimpleDto(i))
                     .ToListAsync());
             }
+
+            return Ok(await _context.MerchantInformations
+                .Include(i => i.Merchants)
+                .Include(i => i.Address)
+                .Include(i => i.Location)
+                .Include(i => i.OpeningHours)
+                .Include(i => i.FeePoints)
+                .Include(i => i.MerchantInformationTags)
+                .ThenInclude(i => i.Tag)
+                .Select(i => _utilityService.ConvertMerchantInformationToRestrictedDto(i))
+                .ToListAsync());
         }
 
-        [Authorize]
+        [Authorize(Roles = RefundeoConstants.RoleMerchant + "," + RefundeoConstants.RoleAdmin)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
@@ -99,6 +110,7 @@ namespace Refundeo.Controllers.Merchant
                 .Include(i => i.Address)
                 .Include(i => i.Location)
                 .Include(i => i.OpeningHours)
+                .Include(i => i.FeePoints)
                 .Include(i => i.MerchantInformationTags)
                 .ThenInclude(i => i.Tag)
                 .Where(i => i.Merchants.Any(x => x.Id == id))
@@ -109,9 +121,9 @@ namespace Refundeo.Controllers.Merchant
                 return BadRequest();
             }
 
-            return await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin) ?
-                Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation)) :
-                Ok(_utilityService.ConvertMerchantInformationToSimpleDto(merchantInformation));
+            return await _userManager.IsInRoleAsync(user, RefundeoConstants.RoleAdmin)
+                ? Ok(await _utilityService.ConvertMerchantInformationToDtoAsync(merchantInformation))
+                : Ok(_utilityService.ConvertMerchantInformationToSimpleDto(merchantInformation));
         }
 
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]
@@ -157,20 +169,13 @@ namespace Refundeo.Controllers.Merchant
 
             await _context.Locations.AddAsync(location);
 
-            var vatPercentage = 100 - 100 / (1 + model.VatRate / 100);
-            var adminPercentage = vatPercentage * (model.AdminFee / 100);
-            var merchantPercantage = vatPercentage * (model.MerchantFee / 100);
-
             var merchantInformation = new MerchantInformation
             {
                 CompanyName = model.CompanyName,
                 CVRNumber = model.CvrNumber,
-                RefundPercentage = vatPercentage - adminPercentage - merchantPercantage,
                 Location = location,
                 Address = address,
                 VATRate = model.VatRate,
-                AdminFee = model.AdminFee,
-                MerchantFee = model.MerchantFee,
                 Description = model.Description,
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
@@ -183,6 +188,32 @@ namespace Refundeo.Controllers.Merchant
             await _context.MerchantInformations.AddAsync(merchantInformation);
 
             await _context.SaveChangesAsync();
+
+            if (_context.Entry(merchantInformation).Collection(x => x.FeePoints).IsLoaded == false)
+            {
+                await _context.Entry(merchantInformation).Collection(x => x.FeePoints).LoadAsync();
+            }
+
+            var vatPercentage = 100 - 100 / (1 + model.VatRate / 100);
+
+            foreach (var feePointModel in model.FeePoints)
+            {
+                var adminPercentage = vatPercentage * (feePointModel.AdminFee / 100);
+                var merchantPercantage = vatPercentage * (feePointModel.MerchantFee / 100);
+
+                var feePoint = new FeePoint
+                {
+                    AdminFee = feePointModel.AdminFee,
+                    End = feePointModel.End,
+                    MerchantFee = feePointModel.MerchantFee,
+                    Start = feePointModel.Start,
+                    RefundPercentage = vatPercentage - adminPercentage - merchantPercantage
+                };
+
+                await _context.FeePoints.AddAsync(feePoint);
+
+                merchantInformation.FeePoints.Add(feePoint);
+            }
 
             if (_context.Entry(merchantInformation).Collection(x => x.Merchants).IsLoaded == false)
             {
@@ -273,6 +304,7 @@ namespace Refundeo.Controllers.Merchant
                 .Include(m => m.Address)
                 .Include(m => m.Location)
                 .Include(m => m.OpeningHours)
+                .Include(m => m.FeePoints)
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == user.Id));
@@ -304,6 +336,30 @@ namespace Refundeo.Controllers.Merchant
                     existingOpeningHours.Open = openingHoursModel.Open;
                     _context.OpeningHours.Update(existingOpeningHours);
                 }
+            }
+
+            var vatPercentage = 100 - 100 / (1 + merchantInformation.VATRate / 100);
+
+            foreach (var feePointModel in model.FeePoints)
+            {
+                var feePoint =
+                    merchantInformation
+                        .FeePoints
+                        .FirstOrDefault(f => Math.Abs(f.Start - feePointModel.Start) < 0.1);
+
+                if (feePoint == null)
+                {
+                    return BadRequest($"No feepoint with start: {feePointModel.Start} was found.");
+                }
+
+                var adminPercentage = vatPercentage * (feePoint.AdminFee / 100);
+                var merchantPercantage = vatPercentage * (feePointModel.MerchantFee / 100);
+
+                // TODO RESTRICT MERCHANTS TO ONLY ALLOW FEES IN A CERTAIN INTERVAL EX. 0 % to 25 %
+                feePoint.MerchantFee = feePointModel.MerchantFee;
+                feePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
+
+                _context.FeePoints.Update(feePoint);
             }
 
             merchantInformation.CompanyName = model.CompanyName;
@@ -340,6 +396,7 @@ namespace Refundeo.Controllers.Merchant
                 .Include(m => m.Address)
                 .Include(m => m.Location)
                 .Include(m => m.OpeningHours)
+                .Include(m => m.FeePoints)
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == id));
@@ -374,8 +431,66 @@ namespace Refundeo.Controllers.Merchant
             }
 
             var vatPercentage = 100 - 100 / (1 + model.VatRate / 100);
-            var adminPercentage = vatPercentage * (model.AdminFee / 100);
-            var merchantPercantage = vatPercentage * (model.MerchantFee / 100);
+
+            foreach (var feePointModel in model.FeePoints)
+            {
+                var existingFeePoint =
+                    merchantInformation
+                        .FeePoints
+                        .FirstOrDefault(o => Math.Abs(o.Start - feePointModel.Start) < 0.1);
+
+                var adminPercentage = vatPercentage * (feePointModel.AdminFee / 100);
+                var merchantPercantage = vatPercentage * (feePointModel.MerchantFee / 100);
+
+                if (existingFeePoint == null)
+                {
+                    var feePoint = new FeePoint
+                    {
+                        Start = feePointModel.Start,
+                        End = feePointModel.End,
+                        AdminFee = feePointModel.AdminFee,
+                        MerchantFee = feePointModel.MerchantFee,
+                        RefundPercentage = vatPercentage - adminPercentage - merchantPercantage
+                    };
+
+                    // TODO RESTRICT MERCHANTS TO ONLY ALLOW FEES IN A CERTAIN INTERVAL EX. 0 % to 25 %
+
+                    _context.FeePoints.Add(feePoint);
+
+                    merchantInformation.FeePoints.Add(feePoint);
+
+                }
+                else
+                {
+                    existingFeePoint.Start = feePointModel.Start;
+                    existingFeePoint.End = feePointModel.End;
+                    existingFeePoint.AdminFee = feePointModel.AdminFee;
+                    existingFeePoint.MerchantFee = feePointModel.MerchantFee;
+
+                    // TODO RESTRICT MERCHANTS TO ONLY ALLOW FEES IN A CERTAIN INTERVAL EX. 0 % to 25 %
+                    existingFeePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
+
+                    _context.FeePoints.Update(existingFeePoint);
+                }
+            }
+
+            var feePointsToDelete = merchantInformation.FeePoints
+                .Where(f => model.FeePoints.All(mf => Math.Abs(mf.Start - f.Start) > 0.1)).ToList();
+
+            if (Math.Abs(model.VatRate - merchantInformation.VATRate) > 0.1)
+            {
+                foreach (var feePoint in merchantInformation.FeePoints)
+                {
+                    var adminPercentage = vatPercentage * (feePoint.AdminFee / 100);
+                    var merchantPercantage = vatPercentage * (feePoint.MerchantFee / 100);
+
+                    feePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
+
+                    _context.FeePoints.Update(feePoint);
+                }
+            }
+
+            _context.RemoveRange(feePointsToDelete);
 
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CvrNumber;
@@ -388,9 +503,6 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
             merchantInformation.VATRate = model.VatRate;
-            merchantInformation.AdminFee = model.AdminFee;
-            merchantInformation.MerchantFee = model.MerchantFee;
-            merchantInformation.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
             merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;

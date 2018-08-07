@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Refundeo.Core.Models.Account
 {
-    public class MerchantInformationSimpleDto
+    public class MerchantInformationRestrictedDto
     {
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
@@ -19,12 +19,12 @@ namespace Refundeo.Core.Models.Account
         public string Banner { get; set; }
         public string Logo { get; set; }
         public string VatNumber { get; set; }
-        public string ContactEmail { get; set; }    
+        public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
         public DateTime DateCreated { get; set; }
         public ICollection<OpeningHoursDto> OpeningHours { get; set; }
         public ICollection<int> Tags { get; set; }
-        public ICollection<FeePointDto> FeePoints { get; set; }
+        public ICollection<FeePointRestrictedDto> FeePoints { get; set; }
     }
 }
