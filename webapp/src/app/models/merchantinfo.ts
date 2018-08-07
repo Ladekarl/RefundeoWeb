@@ -6,10 +6,7 @@ export class MerchantInfo {
     password: string;
     companyName: string;
     cvrNumber: string;
-    refundPercentage: number;
     vatRate: number;
-    adminFee: number;
-    merchantFee: number;
     addressStreetName: string;
     addressStreetNumber: string;
     addressPostalCode: string;
@@ -28,12 +25,21 @@ export class MerchantInfo {
     openingHours: OpeningHours[];
     attachedAccounts: AttachedAccount[];
     tags: number[];
+    feePoints: FeePoint[];
 }
 
 export class OpeningHours {
     day: number;
     open: string;
     close: string;
+}
+
+export class FeePoint {
+    end?: number;
+    start: number;
+    merchantFee: number;
+    adminFee: number;
+    refundPercentage: number;
 }
 
 

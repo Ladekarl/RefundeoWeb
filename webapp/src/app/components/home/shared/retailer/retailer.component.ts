@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MerchantInfo, Tag} from '../../../../models';
+import {MerchantInfo, Tag, FeePoint, OpeningHours} from '../../../../models';
 import {ActivatedRoute} from '@angular/router';
 import {AuthorizationService, MerchantInfoService} from '../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
@@ -20,7 +20,9 @@ export class RetailerComponent implements OnInit {
     isMerchant: boolean;
     isAdmin: boolean;
     isEdit = false;
-    openingHours = [];
+    openingHours: OpeningHours[];
+    newFeePoint: FeePoint;
+    feePoints: FeePoint[];
 
     constructor(
         private confirmationService: ConfirmationService,
@@ -28,6 +30,9 @@ export class RetailerComponent implements OnInit {
         private authorizationService: AuthorizationService,
         private activatedRoute: ActivatedRoute,
         private spinnerService: Ng4LoadingSpinnerService) {
+            this.newFeePoint = new FeePoint();
+            this.openingHours = [];
+            this.feePoints = [];
     }
 
     ngOnInit() {
@@ -37,13 +42,13 @@ export class RetailerComponent implements OnInit {
             if (this.isMerchant) {
                 this.getMerchant();
             } else {
-                let tasks = [];
+                const tasks = [];
                 tasks.push(this.authorizationService.isAuthenticatedAdmin());
                 tasks.push(this.activatedRoute.queryParams);
                 combineLatest(tasks).subscribe(([isAdmin, params]) => {
                     this.isAdmin = isAdmin;
                     if (this.isAdmin) {
-                        let merchantId = params['id'];
+                        const merchantId = params['id'];
                         this.getMerchantAndTags(merchantId);
                     } else {
                         this.spinnerService.hide();
@@ -80,16 +85,18 @@ export class RetailerComponent implements OnInit {
     }
 
     getMerchantAndTags(merchantId: string) {
-        let tasks = [];
+        const tasks = [];
         tasks.push(this.merchantInfoService.getAllTags());
-        if(merchantId) {
+        if (merchantId) {
             tasks.push(this.merchantInfoService.getMerchant(merchantId));
             this.isEdit = true;
         }
         forkJoin(tasks).subscribe(([tags, merchantInfo]) => {
             this.tags = tags;
-            if(merchantInfo) {
+            if (merchantInfo) {
+                this.imageUpdate = (new Date()).getTime();
                 this.model = merchantInfo;
+                this.feePoints = this.model.feePoints;
             }
             this.spinnerService.hide();
         }, () => {
@@ -103,6 +110,7 @@ export class RetailerComponent implements OnInit {
             this.merchantInfoService.getMerchant(currentUser.id).subscribe(merchantInfo => {
                 this.imageUpdate = (new Date()).getTime();
                 this.model = merchantInfo;
+                this.feePoints = this.model.feePoints;
                 this.spinnerService.hide();
             }, () => {
                 this.spinnerService.hide();
@@ -113,7 +121,9 @@ export class RetailerComponent implements OnInit {
     getMerchantNoCache(id: string) {
         this.spinnerService.show();
         this.merchantInfoService.getMerchantNoCache(id).subscribe(merchantInfo => {
+            this.imageUpdate = (new Date()).getTime();
             this.model = merchantInfo;
+            this.feePoints = this.model.feePoints;
             this.spinnerService.hide();
         }, () => {
             this.spinnerService.hide();
@@ -121,6 +131,7 @@ export class RetailerComponent implements OnInit {
     }
 
     onSubmit() {
+        this.model.feePoints = this.feePoints;
         if (this.isMerchant || this.isEdit) {
             this.updateMerchant();
         } else if (this.isAdmin) {
@@ -143,36 +154,36 @@ export class RetailerComponent implements OnInit {
             accept: () => {
                 this.spinnerService.show();
 
-                if(!this.isBase64(this.model.logo)) {
+                if (!this.isBase64(this.model.logo)) {
                     this.model.logo = null;
                 }
 
-                if(!this.isBase64(this.model.banner)) {
+                if (!this.isBase64(this.model.banner)) {
                     this.model.banner = null;
                 }
 
                 let updateMerchantObservable: Observable<any> = null;
-                if(this.isAdmin) {
+                if (this.isAdmin) {
                     updateMerchantObservable = this.merchantInfoService.updateMerchantById(this.model);
                 } else {
                     updateMerchantObservable = this.merchantInfoService.updateMerchant(this.model);
                 }
                 updateMerchantObservable.subscribe(() => {
-                    if(this.isMerchant) {
+                    if (this.isMerchant) {
                         this.authorizationService.getCurrentUser().subscribe(currentUser => {
                             this.getMerchantNoCache(currentUser.id);
                         }, () => {
                             this.spinnerService.hide();
                         });
-                    } else if(this.isAdmin) {
+                    } else if (this.isAdmin) {
                         this.getMerchantNoCache(this.model.id);
                     }
                 }, (e) => {
                     this.spinnerService.hide();
                     let errorString = 'Could not update the information\n';
                     if (e.error && e.error.errors) {
-                        e.error.errors.forEach(e => {
-                            errorString = errorString + e.description + '\n';
+                        e.error.errors.forEach(err => {
+                            errorString = errorString + err.description + '\n';
                         });
                     }
                     alert(errorString);
@@ -193,8 +204,8 @@ export class RetailerComponent implements OnInit {
                     this.spinnerService.hide();
                     let errorString = 'Could not create retailer\n';
                     if (e.error && e.error.errors) {
-                        e.error.errors.forEach(e => {
-                            errorString = errorString + e.description + '\n';
+                        e.error.errors.forEach(err => {
+                            errorString = errorString + err.description + '\n';
                         });
                     }
                     alert(errorString);
@@ -245,6 +256,19 @@ export class RetailerComponent implements OnInit {
         }
         reader.onload = this._handleBannerLoaded.bind(this);
         reader.readAsDataURL(file);
+    }
+
+    onAddFeePoint() {
+        if (this.newFeePoint.adminFee !== undefined && this.newFeePoint.adminFee >= 0 &&
+            this.newFeePoint.merchantFee !== undefined && this.newFeePoint.merchantFee >= 0 &&
+            this.newFeePoint.start !== undefined && this.newFeePoint.start >= 0) {
+                this.feePoints.push(this.newFeePoint);
+                this.newFeePoint = new FeePoint();
+        }
+    }
+
+    onRemoveFee(index: number) {
+        this.feePoints.splice(index, 1);
     }
 
     _handleLogoLoaded(e) {

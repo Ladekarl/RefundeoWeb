@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Input} from '@angular/core';
 import {Message, SelectItem} from 'primeng/api';
 import {MerchantInfo, RefundCase} from '../../../../../models';
 import {forkJoin} from 'rxjs';
@@ -9,12 +9,10 @@ import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 @Component({
     selector: 'app-purchase-chart',
     templateUrl: './purchase-chart.component.html',
-    inputs: ['height'],
     styleUrls: ['./purchase-chart.component.scss']
 })
 export class PurchaseChartComponent implements OnInit {
-    
-    height: number;
+    @Input('height') height: number;
     periodOptions: SelectItem[];
     growls: Message[];
     purchasePeriodOptionsKey = 30;
@@ -37,7 +35,7 @@ export class PurchaseChartComponent implements OnInit {
     ngOnInit() {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            let tasks = [];
+            const tasks = [];
             tasks.push(this.refundCasesService.getAll(false)
                 .pipe(map((refundCases: RefundCase[]) => {
                     this.refundCases = refundCases.filter(r => r.isAccepted);
@@ -66,9 +64,9 @@ export class PurchaseChartComponent implements OnInit {
     }
 
     selectPurchaseData(event) {
-        let keys = Array.from(this.purchasesDateAmountMap.keys());
-        let time = keys[event.element._index];
-        let amount = this.purchasesDateAmountMap.get(time);
+        const keys = Array.from(this.purchasesDateAmountMap.keys());
+        const time = keys[event.element._index];
+        const amount = this.purchasesDateAmountMap.get(time);
 
         this.growls = [];
 

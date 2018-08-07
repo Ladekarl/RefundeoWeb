@@ -20,7 +20,7 @@ export class MerchantInfoService {
     }
 
     getMerchant(id: string): Observable<MerchantInfo> {
-        let merchantInfo = this.merchantInfo.get(id);
+        const merchantInfo = this.merchantInfo.get(id);
         if (merchantInfo) {
             return of(merchantInfo);
         } else {
@@ -59,7 +59,7 @@ export class MerchantInfoService {
         } else if (this.getAllTagsObservable) {
             return this.getAllTagsObservable;
         } else {
-            let requestUrl = '/api/tag';
+            const requestUrl = '/api/tag';
             this.getAllTagsObservable = this.http.get<Tag[]>(requestUrl)
                 .pipe(
                     map(tags => {
@@ -78,7 +78,7 @@ export class MerchantInfoService {
         } else if (this.getAllObservable) {
             return this.getAllObservable;
         } else {
-            let requestUrl = '/api/merchant/account';
+            const requestUrl = '/api/merchant/account';
             this.getAllObservable = this.http.get<MerchantInfo[]>(requestUrl)
                 .pipe(
                     map(m => {

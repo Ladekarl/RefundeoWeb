@@ -64,9 +64,11 @@
         </p-header>
         <ng-template let-merchant pTemplate="listItem">
             <div class="ui-g table-row">
+                <div class="ui-g-1 table-col">
                     <button type="button" class="btn btn-link" (click)="onMerchantClick(merchant)" >
                         {{merchant.username}}
                     </button>
+                </div>
                 <div class="ui-g-2 table-col">
                     <div class="ui-g-1 table-col">
                         {{merchant.companyName}}
@@ -89,8 +91,12 @@
                     {{merchant.addressPostalCode}} {{merchant.addressCity}} <br/>
                     {{merchant.addressCountry}}
                 </div>
-                <div class="ui-g-1 table-col">
-                    {{merchant.refundPercentage | number : '1.2-2'}}
+                <div *ngIf="merchant.feePoints" class="ui-g-1 table-col">
+                    <div *ngFor="let feePoint of merchant.feePoints">
+                        {{feePoint.refundPercentage | number : '1.2-2'}}
+                    </div>
+                </div>
+                <div *ngIf="!merchant.feePoints" class="ui-g-1 table-col">
                 </div>
                 <div class="ui-g-1 table-col">
                     <span class="table-text">

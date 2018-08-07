@@ -74,24 +74,11 @@
                               [(ngModel)]="model.description" name="description"></textarea>
                 </div>
             </div>
-            <h6 *ngIf="isAdmin" class="row">Fees</h6>
-            <div *ngIf="isAdmin" class="form-group row">
-                <div class="col-lg-6 col-sm-12">
-                    <label for="merchantFee">Merchant fee (%)</label>
-                    <input type="number" class="form-control" id="merchantFee" placeholder="Merchant fee %" required
-                           [(ngModel)]="model.merchantFee" name="merchantFee"/>
-                </div>
-                <div class="col-lg-6 col-sm-12">
-                    <label for="adminFee">Admin fee (%)</label>
-                    <input type="number" class="form-control" id="adminFee" placeholder="Admin fee %" required
-                           [(ngModel)]="model.adminFee" name="adminFee"/>
-                </div>
-            </div>
-            <div *ngIf="isAdmin" class="form-group row">
-                <div class="col-lg-6 col-sm-12">
+            <div *ngIf="isAdmin"  class="form-group row">
+                <div class="col-sm-12">
                     <label for="vatRate">VAT Rate (%)</label>
                     <input type="number" class="form-control" id="vatRate" placeholder="VAT rate %" required
-                           [(ngModel)]="model.vatRate" name="vatRate"/>
+                            [(ngModel)]="model.vatRate" name="vatRate"/>
                 </div>
             </div>
             <h6 class="row">Address</h6>
@@ -174,14 +161,80 @@
                     </div>
                 </div>
             </div>
+            <h6 *ngIf="isAdmin" class="row">Fees</h6>
+            <div *ngIf="isAdmin" class="form-group row">
+                <div class="col-sm-3">
+                    <label>From price ({{model.currency}})</label>
+                </div>
+                <div class="col-sm-3">
+                    <label>To price ({{model.currency}})</label>
+                </div>
+                <div class="col-sm-3">
+                    <label>Merchant fee (%)</label>
+                </div>
+                <div class="col-sm-2">
+                    <label>Admin fee (%)</label>
+                </div>
+                <div class="col-sm-1">
+                </div>
+            </div>
+            <div *ngIf="isAdmin">
+                <div *ngFor="let feePoint of feePoints; let i = index">
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="{{i}}startFee" placeholder="From price ({{model.currency}})" required
+                                [(ngModel)]="feePoint.start" name="{{i}}startFee"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="{{i}}endFee" placeholder="To price ({{model.currency}})"
+                                [(ngModel)]="feePoint.end" name="{{i}}endFee"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="{{i}}merchantFee" placeholder="Merchant fee %" required
+                                [(ngModel)]="feePoint.merchantFee" name="{{i}}merchantFee"/>
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="number" class="form-control" id="{{i}}adminFee" placeholder="Admin fee %" required
+                                [(ngModel)]="feePoint.adminFee" name="{{i}}adminFee"/>
+                        </div>
+                        <div class="col-sm-1 align-self-center">
+                            <i class="btn btn-outline-danger fa fa-times" (click)="onRemoveFee(i)"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="isAdmin" class="form-group row">
+                <div class="col-sm-3">
+                    <input type="number" class="form-control" id="newStartFee" placeholder="From price"
+                           [(ngModel)]="newFeePoint.start" name="newStartFee"/>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" class="form-control" id="newEndFee" placeholder="Leave empty if undefined"
+                           [(ngModel)]="newFeePoint.end" name="newEndFee"/>
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" class="form-control" id="newMerchantFee" placeholder="25"
+                           [(ngModel)]="newFeePoint.merchantFee" name="newMerchantFee"/>
+                </div>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" id="newAdminFee" placeholder="10"
+                           [(ngModel)]="newFeePoint.adminFee" name="newAdminFee"/>
+                </div>
+                <div class="col-sm-1 align-self-center">
+                    <i id="addFeePoint" class="btn btn-outline-primary fa fa-plus" (click)="onAddFeePoint()"></i>
+                </div>
+            </div>
+            <h6 class="row" *ngIf="isAdmin">Tags</h6>
             <div *ngIf="isAdmin" class="form-group">
-                <h6>Tags</h6>
                 <div class="form-group row">
                     <div class="col-xl-6" *ngFor="let tag of tags">
-                        <input type="checkbox" id="tag{{tag.key}}"
-                               (change)="onCheckTag(tag)" [ngModel]="model.tags.indexOf(tag.key) > -1"
-                               name="{{tag.value}}"/>
-                        <label for="tag{{tag.key}}">{{tag.value}}</label>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" id="tag{{tag.key}}"
+                                    class="form-check-input"
+                                    (change)="onCheckTag(tag)" [ngModel]="model.tags.indexOf(tag.key) > -1"
+                                    name="{{tag.value}}"/>
+                            <label class="form-check-label" for="tag{{tag.key}}">{{tag.value}}</label>
+                        </div>
                     </div>
                 </div>
             </div>

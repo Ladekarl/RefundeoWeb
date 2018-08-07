@@ -150,17 +150,18 @@ export class StatisticsComponent implements OnInit {
 
     getDateFormatted(date: Date, daysToShow: number) {
         let dateFormatted: Date = null;
-        if (daysToShow > 0 && daysToShow <= 7)
+        if (daysToShow > 0 && daysToShow <= 7) {
             dateFormatted = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        else if (daysToShow > 7 && daysToShow < 365)
+        } else if (daysToShow > 7 && daysToShow < 365) {
             dateFormatted = this.getMonday(date);
-        else if (daysToShow >= 365 || daysToShow === 0)
+        } else if (daysToShow >= 365 || daysToShow === 0) {
             dateFormatted = new Date(date.getFullYear(), date.getMonth());
+        }
         return dateFormatted;
     }
 
     setMonthsData(refundCases: RefundCase[], daysToShow: number) {
-        let monthsDateAmountMap = new Map<number, number>();
+        const monthsDateAmountMap = new Map<number, number>();
 
         refundCases = this.chartService.filterDays(daysToShow, refundCases);
 

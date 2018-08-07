@@ -30,35 +30,8 @@
         </div>
         <div class="col-sm-6">
             <h6>Rates</h6>
-            <div class="form-group row">
-                <label for="merchantFee" class="col-lg-3 col-form-label">Retailer fee</label>
-                <div class="col-lg-9">
-                    <input type="text" *ngIf="merchantInfo.merchantFee" readonly class="form-control-plaintext"
-                           id="merchantFee" [value]="merchantInfo.merchantFee + ' %'">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="adminFee" class="col-lg-3 col-form-label">Admin fee</label>
-                <div class="col-lg-9">
-                    <input type="text" *ngIf="merchantInfo.adminFee" readonly class="form-control-plaintext"
-                           id="adminFee"
-                           [value]="merchantInfo.adminFee + ' %'">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="vatRate" class="col-lg-3 col-form-label">VAT rate</label>
-                <div class="col-lg-9">
-                    <input type="text" *ngIf="merchantInfo.vatRate" readonly class="form-control-plaintext" id="vatRate"
-                           [value]="merchantInfo.vatRate + ' %'">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="refundPercentage" class="col-lg-3 col-form-label">Customer refund percentage</label>
-                <div class="col-lg-9">
-                    <input type="text" *ngIf="merchantInfo.refundPercentage" readonly class="form-control-plaintext"
-                           id="refundPercentage" [value]="merchantInfo.refundPercentage + ' %'">
-                </div>
-            </div>
+            <p-chart #chartInstance type="bar" [options]="ratesOptions"
+                     [data]="ratesData"></p-chart>
         </div>
     </div>
     <div class="row">
