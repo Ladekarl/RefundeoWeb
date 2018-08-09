@@ -267,12 +267,12 @@
                     </div>
                     <div class="banner-text-bar-container">
                         <div class="banner-column-container">
-                            <span class="left-text">Opening hours</span>
-                            <span class="left-text">Refund percentage</span>
+                            <span class="left-text">Opening Hours</span>
+                            <span class="left-text">Min. Refund</span>
                         </div>
                         <div class="banner-column-container">
                             <span class="content-text">{{model.openingHours[date.getDay() - 1]?.open}} - {{model.openingHours[date.getDay() - 1]?.close}}</span>
-                            <span class="content-text">{{model.refundPercentage}}</span>
+                            <span class="content-text">{{getMinimumRefundPercentage()}} %</span>
                         </div>
                     </div>
                     <div class="content-container">

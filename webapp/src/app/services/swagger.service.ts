@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {swaggerUIBundle, swaggerUIStandalonePreset} from '../../polyfills';
-import {environment} from '../../environments/environment';
 import {AuthorizationService} from './authorization.service';
 
 @Injectable()

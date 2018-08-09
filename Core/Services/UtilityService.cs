@@ -134,6 +134,7 @@ namespace Refundeo.Core.Services
                     Start = f.Start,
                     RefundPercentage = f.RefundPercentage
                 }).ToList(),
+                AdminEmail = info.AdminEmail,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
                 AddressStreetName = info.Address?.StreetName,

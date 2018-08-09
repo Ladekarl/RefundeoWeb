@@ -6,6 +6,7 @@ import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AdminAuthGuard, AuthGuard} from './guards';
 import {routing} from './app.routing';
 import {JwtInterceptor} from './helpers';
+import {Ng5SliderModule} from 'ng5-slider';
 import {
     AuthenticationService,
     UserService,
@@ -78,6 +79,7 @@ registerLocaleData(localeDa, 'da');
         DropdownModule,
         HttpClientModule,
         ChartModule,
+        Ng5SliderModule,
         routing,
         Ng4LoadingSpinnerModule.forRoot()
     ],

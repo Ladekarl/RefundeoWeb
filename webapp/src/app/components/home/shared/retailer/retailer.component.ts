@@ -267,6 +267,19 @@ export class RetailerComponent implements OnInit {
         }
     }
 
+    getMinimumRefundPercentage() {
+        if (this.model.feePoints) {
+            let lowestFeePoint: FeePoint;
+            this.model.feePoints.forEach(f => {
+                if (!lowestFeePoint || lowestFeePoint.refundPercentage > f.refundPercentage) {
+                    lowestFeePoint = f;
+                }
+            });
+            return lowestFeePoint.refundPercentage;
+        }
+        return null;
+    }
+
     onRemoveFee(index: number) {
         this.feePoints.splice(index, 1);
     }
