@@ -22,9 +22,9 @@ namespace Refundeo.Core.Models.Account
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
         public string Currency { get; set; }
+        public double MinRefundPercentage { get; set; }
         public DateTime DateCreated { get; set; }
         public ICollection<OpeningHoursDto> OpeningHours { get; set; }
         public ICollection<int> Tags { get; set; }
-        public ICollection<FeePointRestrictedDto> FeePoints { get; set; }
     }
 }

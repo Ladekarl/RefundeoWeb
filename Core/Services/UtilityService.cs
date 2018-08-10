@@ -172,12 +172,7 @@ namespace Refundeo.Core.Services
             {
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
-                FeePoints = info.FeePoints?.Select(f => new FeePointRestrictedDto
-                {
-                    End = f.End,
-                    Start = f.Start,
-                    RefundPercentage = f.RefundPercentage
-                }).ToList(),
+                MinRefundPercentage = info.FeePoints.Select(feePoint => feePoint.RefundPercentage).Concat(new double[] {100}).Min(),
                 VatRate = info.VATRate,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
