@@ -290,7 +290,12 @@ namespace Refundeo.Controllers.Merchant
         {
             if (!ModelState.IsValid)
             {
-                return new BadRequestResult();
+                return BadRequest(ModelState.Keys);
+            }
+
+            if (model.FeePoints.Any(f => f.MerchantFee > 50))
+            {
+                return BadRequest("No feepoints can be above 50 %");
             }
 
             var user = await _utilityService.GetCallingUserAsync(Request);
