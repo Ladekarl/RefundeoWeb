@@ -1,6 +1,6 @@
 <div style="margin-top: 20px;">
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <h6>Primary account</h6>
             <div class="form-group row">
                 <label for="username" class="col-lg-3 col-form-label">Username</label>
@@ -11,7 +11,7 @@
             <form (ngSubmit)="onChangeMerchantForm()" #changeMerchantForm="ngForm">
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label" for="inputAdminEmail">Email</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <input type="email" name="changeMerchantAdminEmail" class="form-control"
                                id="inputAdminEmail" required
                                [(ngModel)]="merchantInfo.adminEmail"
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-lg-6 offset-lg-3">
+                    <div class="col-lg-9 offset-lg-3">
                         <button type="submit" class="btn btn-primary col-lg-12"
                                 [disabled]="!changeMerchantForm.form.valid">
                             Change email
@@ -31,7 +31,7 @@
             <form (ngSubmit)="onChangeAccount()" #changeAccountForm="ngForm">
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label" for="inputCurrentPassword">Current password</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <input type="password" name="changeAccountCurrentPassword" class="form-control"
                                id="inputCurrentPassword" required
                                [(ngModel)]="changeAccountModel.oldPassword"
@@ -40,7 +40,7 @@
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label" for="inputNewPassword">New password</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <input type="password" name="changeAccountNewPassword" required
                                [(ngModel)]="changeAccountModel.newPassword" class="form-control"
                                id="inputNewPassword" placeholder="New password">
@@ -48,7 +48,7 @@
                 </div>
                 <div class="form-group row">
                     <label class="col-lg-3 col-form-label" for="inputConfirmPassword">Confirm password</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <input type="password" name="changeAccountConfirmPassword"
                                [(ngModel)]="changeAccountModel.passwordConfirmation" class="form-control"
                                id="inputConfirmPassword" required
@@ -56,7 +56,7 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-lg-6 offset-lg-3">
+                    <div class="col-lg-9 offset-lg-3">
                         <button type="submit" class="btn btn-primary col-lg-12"
                                 [disabled]="!changeAccountForm.form.valid">
                             Change password
@@ -68,7 +68,7 @@
             <form (ngSubmit)="onSubmitAttachedAccount()" #attachedAccountForm="ngForm">
                 <div class="form-group row">
                     <label for="createUsername" class="col-lg-3 col-form-label">Username</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <input type="text" class="form-control" id="createUsername"
                                name="createAttachedAccountUsername"
                                [(ngModel)]="attachedAccountModel.username" placeholder="Username" required>
@@ -76,7 +76,7 @@
                 </div>
                 <div class="form-group row">
                     <label for="inputCreatePassword" class="col-lg-3 col-form-label">Password</label>
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <input type="password" class="form-control" id="inputCreatePassword"
                                name="createAttachedAccountPassword"
                                placeholder="Password" required
@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-lg-6 offset-lg-3">
+                    <div class="col-lg-9 offset-lg-3">
                         <button type="submit" class="btn btn-primary col-lg-12"
                                 [disabled]="!attachedAccountForm.form.valid">Create app account
                         </button>
@@ -92,7 +92,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-6 card-view">
+        <div class="col-lg-7 card-view">
             <h6 class="col-12">Rates</h6>
             <span class="row col-12" style="margin-left: 10px">Adjust your administration fee for the different price points.</span>
             <span class="row col-12" style="margin-left: 10px">This is your kickback of the total VAT refunded from a purchase at the given price point.</span>
