@@ -168,11 +168,12 @@ namespace Refundeo.Core.Services
         {
             if (info == null) return null;
 
+            var refundPercentages = info.FeePoints.Select(feePoint => feePoint.RefundPercentage).ToList();
+
             var dto = new MerchantInformationRestrictedDto
             {
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
-                RefundPercentage = info.FeePoints.Select(feePoint => feePoint.RefundPercentage).Concat(new double[] {100}).Min(),
                 VatRate = info.VATRate,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
@@ -194,6 +195,11 @@ namespace Refundeo.Core.Services
                 Banner = info.Banner,
                 Logo = info.Logo
             };
+
+            if (refundPercentages.Any())
+            {
+                dto.RefundPercentage = refundPercentages.Min();
+            }
 
             return dto;
         }
