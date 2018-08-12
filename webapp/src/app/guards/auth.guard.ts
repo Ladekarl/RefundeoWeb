@@ -11,7 +11,7 @@ export class AuthGuard implements CanActivate {
     }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-        let tasks = [];
+        const tasks = [];
         tasks.push(this.authorizationService.isAuthenticated());
         tasks.push(this.authorizationService.isAdmin());
         tasks.push(this.authorizationService.isMerchant());

@@ -12,7 +12,7 @@ export class SwaggerService {
         this.authorizationService.getToken().subscribe(token => {
             if (token) {
                 const url = window.location.href;
-                const host = url.split("/")[0];
+                const host = url.split('/')[0];
                 swaggerUIBundle({
                     urls: [{
                         url: `${host}/swagger/v1/swagger.json`, name: 'Refundeo API v1'

@@ -37,7 +37,7 @@ export class DashboardComponent implements OnInit {
         this.loading = true;
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            let tasks = [];
+            const tasks = [];
             tasks.push(this.refundCasesService.getAll(false)
                 .pipe(map((refundCases: RefundCase[]) => {
                     this.refundCases = refundCases.reverse().slice(0, 5);

@@ -108,7 +108,7 @@ export class LoginComponent implements OnInit {
                         this.getInitialData();
                     }).catch(() => {
                         this.spinnerService.hide();
-                        this.loading = false;  
+                        this.loading = false;
                     });
                 }, () => {
                     this.loading = false;

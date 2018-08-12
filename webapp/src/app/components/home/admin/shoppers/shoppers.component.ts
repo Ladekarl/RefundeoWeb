@@ -85,8 +85,8 @@ export class ShoppersComponent implements OnInit {
                     this.spinnerService.hide();
                     let errorString = `Could not delete ${customer.username}\n`;
                     if (e.error && e.errors) {
-                        e.error.errors.forEach(e => {
-                            errorString = errorString + e.description + '\n';
+                        e.error.errors.forEach(err => {
+                            errorString = errorString + err.description + '\n';
                         });
                     }
                     alert(errorString);

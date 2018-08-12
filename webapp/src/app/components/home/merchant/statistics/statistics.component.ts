@@ -49,7 +49,7 @@ export class StatisticsComponent implements OnInit {
     ngOnInit(): void {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            let tasks = [];
+            const tasks = [];
             tasks.push(this.refundCasesService.getAll(false)
                 .pipe(map((refundCases: RefundCase[]) => {
                     this.refundCases = refundCases.filter(r => r.isAccepted);
@@ -74,9 +74,9 @@ export class StatisticsComponent implements OnInit {
     }
 
     selectEarningsData(event) {
-        let keys = Array.from(this.earningsDateAmountMap.keys());
-        let time = keys[event.element._index];
-        let amount = this.earningsDateAmountMap.get(time);
+        const keys = Array.from(this.earningsDateAmountMap.keys());
+        const time = keys[event.element._index];
+        const amount = this.earningsDateAmountMap.get(time);
 
         this.growls = [];
 
@@ -142,9 +142,10 @@ export class StatisticsComponent implements OnInit {
 
     getMonday(date) {
         date = new Date(date.getTime());
-        let day = date.getDay() || 7;
-        if (day !== 1)
+        const day = date.getDay() || 7;
+        if (day !== 1) {
             date.setHours(-24 * (day - 1));
+        }
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
 

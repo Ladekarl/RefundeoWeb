@@ -16,7 +16,7 @@ export class ChartService {
     ];
 
     constructor() {
-        let months = [];
+        const months = [];
         months[0] = 'January';
         months[1] = 'February';
         months[2] = 'March';
@@ -31,7 +31,7 @@ export class ChartService {
         months[11] = 'December';
         this.months = months;
 
-        let days = [];
+        const days = [];
         days[0] = 'Sunday';
         days[1] = 'Monday';
         days[2] = 'Tuesday';
@@ -57,13 +57,13 @@ export class ChartService {
     getWeekNumber(d: Date): number {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-        let yearStart: Date = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const yearStart: Date = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
         return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
     }
 
     filterDays(daysToShow: number, refundCases: RefundCase[]): RefundCase[] {
         if (daysToShow !== 0) {
-            let stopDate = new Date();
+            const stopDate = new Date();
             stopDate.setTime(stopDate.getTime() - 1000 * 60 * 60 * 24 * daysToShow);
             refundCases = refundCases.filter(x => x.dateCreated >= stopDate);
         }
@@ -71,19 +71,19 @@ export class ChartService {
     }
 
     getChartLabels(daysToShow: number, keys: number[], pushIfExists: boolean = true): string[] {
-        let chartLabels: string[] = [];
+        const chartLabels: string[] = [];
         if (daysToShow > 0 && daysToShow <= 7) {
-            for (let time of keys) {
+            for (const time of keys) {
                 const date = new Date(time);
                 chartLabels.push(date.toLocaleDateString());
             }
         }
 
         if (daysToShow > 7 && daysToShow < 365) {
-            for (let time of keys) {
+            for (const time of keys) {
                 const date = new Date(time);
-                let week = this.getWeekNumber(date);
-                let weekString = 'Week ' + week;
+                const week = this.getWeekNumber(date);
+                const weekString = 'Week ' + week;
                 if (chartLabels.indexOf(weekString) > -1 && pushIfExists) {
                     chartLabels.push('');
                 } else {
@@ -93,9 +93,9 @@ export class ChartService {
         }
 
         if (daysToShow >= 365 || daysToShow === 0) {
-            for (let time of keys) {
+            for (const time of keys) {
                 const date = new Date(time);
-                let month = this.months[date.getMonth()];
+                const month = this.months[date.getMonth()];
                 if (chartLabels.indexOf(month) > -1 && pushIfExists) {
                     chartLabels.push('');
                 } else {

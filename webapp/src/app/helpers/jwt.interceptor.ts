@@ -22,7 +22,7 @@ export class JwtInterceptor implements HttpInterceptor {
                 });
             }
             return this.handleAuthenticated(request, next);
-        }),);
+        }));
     }
 
 

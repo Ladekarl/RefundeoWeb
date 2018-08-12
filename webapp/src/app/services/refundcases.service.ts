@@ -35,7 +35,7 @@ export class RefundCasesService {
         } else if (this.getAllObservable) {
             return this.getAllObservable;
         } else {
-            let requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
+            const requestUrl = isAdmin ? '/api/admin/refundcase' : '/api/merchant/refundcase';
             this.getAllObservable = this.http.get<RefundCase[]>(requestUrl)
                 .pipe(
                     map(r => {
@@ -71,8 +71,9 @@ export class RefundCasesService {
 
     private filterRefundCases(refundCases: RefundCase[], sortBy: string, sortDir: string, filterBy: string) {
         let filteredRefundCases = refundCases;
-        if (filterBy !== 'none')
+        if (filterBy !== 'none') {
             filteredRefundCases = refundCases.filter(r => r[filterBy]);
+        }
 
         filteredRefundCases = filteredRefundCases.sort((a, b) => {
             switch (sortBy) {

@@ -34,7 +34,7 @@ export class StaticStatsComponent implements OnInit {
     ngOnInit() {
         this.spinnerService.show();
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
-            let tasks = [];
+            const tasks = [];
             tasks.push(this.refundCasesService.getAll(false)
                 .pipe(map((refundCases: RefundCase[]) => {
                     this.refundCases = refundCases.filter(r => r.isAccepted);
@@ -65,18 +65,17 @@ export class StaticStatsComponent implements OnInit {
     calculateStatistics(refundCases: RefundCase[], daysToShow: number) {
         refundCases = this.chartService.filterDays(daysToShow, refundCases);
 
-        let times = refundCases.map(x => x.dateCreated.getHours());
+        const times = refundCases.map(x => x.dateCreated.getHours());
 
         times.sort((a, b) => a - b);
 
         this.meanPurchaseTime = ('0' + times[Math.floor(times.length / 2)].toString()).slice(-2) + ':00';
 
-        let monthsDateAmountMap = new Map<string, number>();
-        let daysDateAmountMap = new Map<string, number>();
-
+        const monthsDateAmountMap = new Map<string, number>();
+        const daysDateAmountMap = new Map<string, number>();
+        const months = this.chartService.getMonths();
+        const days = this.chartService.getDays();
         let totalSpent = 0;
-        let months = this.chartService.getMonths();
-        let days = this.chartService.getDays();
 
         refundCases
             .sort((a: RefundCase, b: RefundCase) => a.dateCreated.getTime() - b.dateCreated.getTime())

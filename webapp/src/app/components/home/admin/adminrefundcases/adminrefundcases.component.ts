@@ -76,7 +76,9 @@ export class AdminRefundcasesComponent implements OnInit {
     }
 
     onFilterChange(event) {
-        if (!this.refundCases) return;
+        if (!this.refundCases) {
+            return;
+        }
 
         let filterField = event.value;
         let isNegated = false;
@@ -86,13 +88,14 @@ export class AdminRefundcasesComponent implements OnInit {
             isNegated = true;
         }
 
-        if (filterField === 'none')
+        if (filterField === 'none') {
             this.filteredRefundCases = this.refundCases;
-        else {
-            if (isNegated)
+        } else {
+            if (isNegated) {
                 this.filteredRefundCases = this.refundCases.filter(r => !r[filterField]);
-            else
+            } else {
                 this.filteredRefundCases = this.refundCases.filter(r => r[filterField]);
+            }
         }
     }
 
@@ -119,13 +122,15 @@ export class AdminRefundcasesComponent implements OnInit {
     }
 
     downloadCheckedPressed() {
-        if (!this.refundCases) return;
-        let zip = new JSZip();
+        if (!this.refundCases) {
+            return;
+        }
+        const zip = new JSZip();
         let shouldMakeZip = false;
         this.loading = true;
         this.refundCases.forEach(r => {
             if (r.checked) {
-                let folder = zip.folder(r.dateCreated.toLocaleDateString().replace(new RegExp('/', 'g'), '_'));
+                const folder = zip.folder(r.dateCreated.toLocaleDateString().replace(new RegExp('/', 'g'), '_'));
                 if (r.receiptImage) {
                     shouldMakeZip = true;
                     folder.file(r.receiptNumber + '_receipt.png', r.receiptImage, {base64: true});
@@ -149,7 +154,7 @@ export class AdminRefundcasesComponent implements OnInit {
     }
 
     downloadPressed(refundCase) {
-        let zip = new JSZip();
+        const zip = new JSZip();
         let shouldMakeZip = false;
         if (refundCase.receiptImage) {
             shouldMakeZip = true;
@@ -157,7 +162,7 @@ export class AdminRefundcasesComponent implements OnInit {
         }
         if (refundCase.vatFormImage) {
             shouldMakeZip = true;
-            zip.file(refundCase.receiptNumber + '_vatform.png', refundCase.vatFormImage, {base64: true,});
+            zip.file(refundCase.receiptNumber + '_vatform.png', refundCase.vatFormImage, {base64: true});
         }
         if (shouldMakeZip) {
             zip.generateAsync({type: 'blob'}).then((blob) => {

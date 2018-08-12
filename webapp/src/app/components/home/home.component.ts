@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         router.events
             .subscribe((event) => {
                 if (event instanceof NavigationStart) {
-                    let menuItem = this.menuItems.find(m => m.routerLink === event.url);
+                    const menuItem = this.menuItems.find(m => m.routerLink === event.url);
                     if (menuItem) {
                         this.setActiveMenuItem(menuItem, false);
                     }
@@ -43,8 +43,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
         $('.item-collapse').on('click', () => {
-            if ($(window).width() <= 768)
-                $('.toggle-btn').click(); //bootstrap 3.x by Richard
+            if ($(window).width() <= 768) {
+                $('.toggle-btn').click();
+            }
         });
         $('#menu').resizable({
             maxWidth: 300,

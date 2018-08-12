@@ -19,7 +19,7 @@ export class CustomerInfoService {
         } else if (this.getAllObservable) {
             return this.getAllObservable;
         } else {
-            let requestUrl = isAdmin ? '/api/user/account' : '/api/merchant/customerinfo';
+            const requestUrl = isAdmin ? '/api/user/account' : '/api/merchant/customerinfo';
             this.getAllObservable = this.http.get<CustomerInfo[]>(requestUrl)
                 .pipe(
                     map(c => {
