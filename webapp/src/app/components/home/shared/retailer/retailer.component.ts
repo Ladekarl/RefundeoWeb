@@ -267,7 +267,7 @@ export class RetailerComponent implements OnInit {
         }
     }
 
-    getMinimumRefundPercentage() {
+    getMinimumRefundPercentage(): number {
         if (this.model.feePoints) {
             let lowestFeePoint: FeePoint;
             this.model.feePoints.forEach(f => {
@@ -275,7 +275,9 @@ export class RetailerComponent implements OnInit {
                     lowestFeePoint = f;
                 }
             });
-            return lowestFeePoint.refundPercentage;
+            if (lowestFeePoint) {
+                return lowestFeePoint.refundPercentage;
+            }
         }
         return null;
     }
