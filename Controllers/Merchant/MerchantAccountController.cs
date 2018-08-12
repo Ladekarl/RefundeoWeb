@@ -360,7 +360,6 @@ namespace Refundeo.Controllers.Merchant
                 var adminPercentage = vatPercentage * (feePoint.AdminFee / 100);
                 var merchantPercantage = vatPercentage * (feePointModel.MerchantFee / 100);
 
-                // TODO RESTRICT MERCHANTS TO ONLY ALLOW FEES IN A CERTAIN INTERVAL EX. 0 % to 25 %
                 feePoint.MerchantFee = feePointModel.MerchantFee;
                 feePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
 
@@ -458,8 +457,6 @@ namespace Refundeo.Controllers.Merchant
                         RefundPercentage = vatPercentage - adminPercentage - merchantPercantage
                     };
 
-                    // TODO RESTRICT MERCHANTS TO ONLY ALLOW FEES IN A CERTAIN INTERVAL EX. 0 % to 25 %
-
                     _context.FeePoints.Add(feePoint);
 
                     merchantInformation.FeePoints.Add(feePoint);
@@ -471,8 +468,6 @@ namespace Refundeo.Controllers.Merchant
                     existingFeePoint.End = feePointModel.End;
                     existingFeePoint.AdminFee = feePointModel.AdminFee;
                     existingFeePoint.MerchantFee = feePointModel.MerchantFee;
-
-                    // TODO RESTRICT MERCHANTS TO ONLY ALLOW FEES IN A CERTAIN INTERVAL EX. 0 % to 25 %
                     existingFeePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
 
                     _context.FeePoints.Update(existingFeePoint);

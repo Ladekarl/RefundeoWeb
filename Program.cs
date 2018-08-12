@@ -32,8 +32,7 @@ namespace Refundeo
                     }
                     else
                     {
-                        // TODO: UNCOMMENT THIS WHEN NEXT APP RELEASES
-                        //DbInitializer.InitializeProductionAsync(userManager, roleManager, context).Wait();
+                        DbInitializer.InitializeProductionAsync(userManager, roleManager, context).Wait();
                     }
                 }
                 catch (Exception ex)
