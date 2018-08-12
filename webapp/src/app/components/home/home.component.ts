@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-        let tasks = [];
+        const tasks = [];
         tasks.push(this.menuService.getMenuItems());
         tasks.push(this.menuService.getBottomMenuItems());
         forkJoin(tasks).subscribe(([menuItems, bottomMenuItems]) => {
