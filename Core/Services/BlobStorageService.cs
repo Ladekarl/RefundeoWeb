@@ -48,7 +48,7 @@ namespace Refundeo.Core.Services
         {
             var blockBlob = await GetBlockBlobAsync(containerName, blobName);
 
-            var imageBytes = Convert.FromBase64String(base64.Replace("data:image/png;base64,", string.Empty));
+            var imageBytes = Convert.FromBase64String(base64.Replace($"data:{imageType};base64,", string.Empty));
             blockBlob.Properties.ContentType = imageType;
 
             await blockBlob.UploadFromByteArrayAsync(imageBytes, 0, imageBytes.Length);

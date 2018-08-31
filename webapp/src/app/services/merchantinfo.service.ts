@@ -146,7 +146,7 @@ export class MerchantInfoService {
     }
 
     deleteMerchant(merchant: MerchantInfo): Observable<any> {
-        return this.http.delete('/api/account' + merchant.id).pipe(map(() => {
+        return this.http.delete('/api/account/' + merchant.id).pipe(map(() => {
             this.merchantInfos.splice(this.merchantInfos.indexOf(merchant), 1);
         }));
     }

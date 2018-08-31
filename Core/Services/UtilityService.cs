@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
+using Refundeo.Core.Models;
 using Refundeo.Core.Models.Account;
 using Refundeo.Core.Models.QRCode;
 using Refundeo.Core.Services.Interfaces;
@@ -161,6 +162,16 @@ namespace Refundeo.Core.Services
                 Logo = info.Logo
             };
 
+            if (info.City != null)
+            {
+                dto.City = new CityDto
+                {
+                    GooglePlaceId = info.City.GooglePlaceId,
+                    Image = info.City.Image,
+                    Name = info.City.Name
+                };
+            }
+
             return dto;
         }
 
@@ -195,6 +206,16 @@ namespace Refundeo.Core.Services
                 Banner = info.Banner,
                 Logo = info.Logo
             };
+
+            if (info.City != null)
+            {
+                dto.City = new CityDto
+                {
+                    GooglePlaceId = info.City.GooglePlaceId,
+                    Image = info.City.Image,
+                    Name = info.City.Name
+                };
+            }
 
             if (refundPercentages.Any())
             {
@@ -261,6 +282,16 @@ namespace Refundeo.Core.Services
                 Banner = info.Banner,
                 Logo = info.Logo
             };
+
+            if (info.City != null)
+            {
+                dto.City = new CityDto
+                {
+                    GooglePlaceId = info.City.GooglePlaceId,
+                    Image = info.City.Image,
+                    Name = info.City.Name
+                };
+            }
 
             return dto;
         }

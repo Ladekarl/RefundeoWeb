@@ -130,9 +130,16 @@ namespace Refundeo.Controllers.Merchant
         [HttpPost]
         public async Task<IActionResult> RegisterMerchant([FromBody] MerchantRegisterDto model)
         {
-            if (!ModelState.IsValid || model.Username == null || model.Password == null)
+            if (!ModelState.IsValid || model.Username == null || model.Password == null || model.City == null)
             {
                 return BadRequest();
+            }
+
+            var city = await _context.Cities.FirstOrDefaultAsync(c => c.GooglePlaceId == model.City.GooglePlaceId);
+
+            if (city == null)
+            {
+                return NotFound($"Could not find city with id = {model.City.GooglePlaceId}");
             }
 
             var user = new RefundeoUser {UserName = model.Username};
@@ -183,6 +190,7 @@ namespace Refundeo.Controllers.Merchant
                 VATNumber = model.VatNumber,
                 Currency = model.Currency,
                 DateCreated = DateTime.Now,
+                City = city
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
@@ -314,9 +322,17 @@ namespace Refundeo.Controllers.Merchant
                 .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == user.Id));
 
-            if (merchantInformation == null)
+            var city = await _context.Cities
+                .FirstOrDefaultAsync(c => c.GooglePlaceId == model.City.GooglePlaceId);
+
+            if (merchantInformation == null || city == null)
             {
                 return NotFound();
+            }
+
+            if (merchantInformation.City == null || merchantInformation.City.Id != city.Id)
+            {
+                merchantInformation.City = city;
             }
 
             foreach (var openingHoursModel in model.OpeningHours)
@@ -401,13 +417,22 @@ namespace Refundeo.Controllers.Merchant
                 .Include(m => m.Location)
                 .Include(m => m.OpeningHours)
                 .Include(m => m.FeePoints)
+                .Include(m => m.City)
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == id));
 
-            if (merchantInformation == null)
+            var city = await _context.Cities
+                .FirstOrDefaultAsync(c => c.GooglePlaceId == model.City.GooglePlaceId);
+
+            if (merchantInformation == null || city == null)
             {
                 return NotFound();
+            }
+
+            if (merchantInformation.City == null || merchantInformation.City.Id != city.Id)
+            {
+                merchantInformation.City = city;
             }
 
             foreach (var openingHoursModel in model.OpeningHours)
@@ -444,7 +469,7 @@ namespace Refundeo.Controllers.Merchant
                         .FirstOrDefault(o => Math.Abs(o.Start - feePointModel.Start) < 0.1);
 
                 var adminPercentage = vatPercentage * (feePointModel.AdminFee / 100);
-                var merchantPercantage = vatPercentage * (feePointModel.MerchantFee / 100);
+                var merchantPercentage = vatPercentage * (feePointModel.MerchantFee / 100);
 
                 if (existingFeePoint == null)
                 {
@@ -454,13 +479,12 @@ namespace Refundeo.Controllers.Merchant
                         End = feePointModel.End,
                         AdminFee = feePointModel.AdminFee,
                         MerchantFee = feePointModel.MerchantFee,
-                        RefundPercentage = vatPercentage - adminPercentage - merchantPercantage
+                        RefundPercentage = vatPercentage - adminPercentage - merchantPercentage
                     };
 
                     _context.FeePoints.Add(feePoint);
 
                     merchantInformation.FeePoints.Add(feePoint);
-
                 }
                 else
                 {
@@ -468,7 +492,7 @@ namespace Refundeo.Controllers.Merchant
                     existingFeePoint.End = feePointModel.End;
                     existingFeePoint.AdminFee = feePointModel.AdminFee;
                     existingFeePoint.MerchantFee = feePointModel.MerchantFee;
-                    existingFeePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercantage;
+                    existingFeePoint.RefundPercentage = vatPercentage - adminPercentage - merchantPercentage;
 
                     _context.FeePoints.Update(existingFeePoint);
                 }

@@ -330,6 +330,7 @@ namespace Refundeo.Core.Services
                     .Include(x => x.MerchantInformationTags)
                     .Include(x => x.OpeningHours)
                     .Include(x => x.RefundCases)
+                    .Include(x => x.FeePoints)
                     .SingleOrDefaultAsync();
             }
 
@@ -338,7 +339,7 @@ namespace Refundeo.Core.Services
                 await DeleteCustomerAsync(customerInformation);
             }
 
-            if (merchantInformation != null)
+            if (merchantInformation == null) return await _userManager.DeleteAsync(user);
             {
                 var merchantsToDelete = merchantInformation.Merchants
                     .Where(m => m.Id != user.Id)
@@ -384,9 +385,14 @@ namespace Refundeo.Core.Services
             if (merchantInformation.Location != null)
                 _context.Remove(merchantInformation.Location);
 
-            _context.MerchantInformationTags.RemoveRange(merchantInformation.MerchantInformationTags);
+            if (merchantInformation.MerchantInformationTags != null)
+                _context.MerchantInformationTags.RemoveRange(merchantInformation.MerchantInformationTags);
 
-            _context.OpeningHours.RemoveRange(merchantInformation.OpeningHours);
+            if (merchantInformation.OpeningHours != null)
+                _context.OpeningHours.RemoveRange(merchantInformation.OpeningHours);
+
+            if (merchantInformation.FeePoints != null)
+                _context.FeePoints.RemoveRange(merchantInformation.FeePoints);
 
             await _refundCaseService.DeleteRefundCasesAsync(merchantInformation.RefundCases);
 

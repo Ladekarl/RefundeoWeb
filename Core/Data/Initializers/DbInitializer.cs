@@ -1,19 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.WindowsAzure.Storage.Shared.Protocol;
-using Newtonsoft.Json;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
-using Refundeo.Core.Models.Account;
-using Refundeo.Core.Models.QRCode;
-using ZXing;
-using ZXing.QrCode;
 
 namespace Refundeo.Core.Data.Initializers
 {
@@ -23,6 +15,7 @@ namespace Refundeo.Core.Data.Initializers
             RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
             await InitializeTags(context);
+            await InitializeCities(context);
             await InitializeRolesAsync(roleManager);
             await InitializeUsersAsync(userManager, context, false);
             await InitializeRefundCasesAsync(context);
@@ -32,8 +25,26 @@ namespace Refundeo.Core.Data.Initializers
             RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
             await InitializeTags(context);
+            await InitializeCities(context);
             await InitializeRolesAsync(roleManager);
             await InitializeUsersAsync(userManager, context, true);
+        }
+
+        private static async Task InitializeCities(RefundeoDbContext context)
+        {
+            foreach (var city in DbInitializeData.CitiesToCreate)
+            {
+                if (await context.Cities.Where(c => c.GooglePlaceId == city.GooglePlaceId).AnyAsync()) continue;
+
+                context.Cities.Add(new City
+                {
+                    GooglePlaceId = city.GooglePlaceId,
+                    Image = city.Image,
+                    Name = city.Name
+                });
+            }
+
+            await context.SaveChangesAsync();
         }
 
         private static async Task InitializeTags(RefundeoDbContext context)
@@ -83,7 +94,7 @@ namespace Refundeo.Core.Data.Initializers
         private static async Task InitializeUsersAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
             bool prod)
         {
-            foreach (var user in DbInitializeData.UsersTocreate)
+            foreach (var user in DbInitializeData.UsersToCreate)
             {
                 if (!userManager.Users.Any(u => u.UserName == user.Username))
                 {
@@ -111,6 +122,7 @@ namespace Refundeo.Core.Data.Initializers
                         Latitude = merchant.Latitude,
                         Longitude = merchant.Longitude
                     };
+
                     var address = new Address
                     {
                         City = merchant.AddressCity,
@@ -150,8 +162,10 @@ namespace Refundeo.Core.Data.Initializers
                                            vatPercentage * (f.MerchantFee / 100)
                     }).ToList();
 
+                    var city = await context.Cities.FirstOrDefaultAsync(c => c.GooglePlaceId == merchant.City.GooglePlaceId);
+
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchantInformation, address, location, openingHours, tags, feePoints);
+                        merchantInformation, address, city, location, openingHours, tags, feePoints);
                 }
             }
         }
@@ -221,46 +235,10 @@ namespace Refundeo.Core.Data.Initializers
             }
         }
 
-        private static byte[] GenerateQrCode(int height, int width, int margin, QRCodeRefundCaseDto refundCase)
-        {
-            var qrCodeWriter = new BarcodeWriterPixelData
-            {
-                Format = BarcodeFormat.QR_CODE,
-                Options = new QrCodeEncodingOptions
-                {
-                    Height = height,
-                    Width = width,
-                    Margin = margin
-                }
-            };
-            var pixelData = qrCodeWriter.Write(JsonConvert.SerializeObject(refundCase));
-            byte[] image;
-            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height,
-                System.Drawing.Imaging.PixelFormat.Format32bppRgb))
-            using (var ms = new MemoryStream())
-            {
-                var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height),
-                    System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                try
-                {
-                    System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0,
-                        pixelData.Pixels.Length);
-                }
-                finally
-                {
-                    bitmap.UnlockBits(bitmapData);
-                }
-
-                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                image = ms.ToArray();
-            }
-
-            return image;
-        }
-
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
             string merchantUsername, string merchantPassword, MerchantInformation merchantInformation, Address address,
-            Location location, IList<OpeningHours> openingHours, IEnumerable<Tag> tags, IList<FeePoint> feePoints)
+            City city, Location location, IList<OpeningHours> openingHours, IEnumerable<Tag> tags,
+            IList<FeePoint> feePoints)
         {
             var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword,
                 RefundeoConstants.RoleMerchant);
@@ -275,6 +253,7 @@ namespace Refundeo.Core.Data.Initializers
 
                 merchantInformation.Location = location;
                 merchantInformation.Address = address;
+                merchantInformation.City = city;
 
                 await context.MerchantInformations.AddAsync(merchantInformation);
 
@@ -333,12 +312,7 @@ namespace Refundeo.Core.Data.Initializers
                 result = await userManager.AddToRoleAsync(user, role);
             }
 
-            if (result.Succeeded)
-            {
-                return user;
-            }
-
-            return null;
+            return result.Succeeded ? user : null;
         }
     }
 }

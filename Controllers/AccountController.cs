@@ -164,7 +164,7 @@ namespace Refundeo.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(await _utilityService.ConvertRefundeoUserToUserDtoAsync(user));
+            return Ok(await _utilityService.ConvertRefundeoUserToUserDtoAsync(user));
         }
 
         [Authorize(Roles = RefundeoConstants.RoleAdmin)]

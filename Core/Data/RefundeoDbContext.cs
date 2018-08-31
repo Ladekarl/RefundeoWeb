@@ -49,5 +49,6 @@ namespace Refundeo.Core.Data
         public DbSet<OpeningHours> OpeningHours { get; set; }
         public DbSet<Language> Languages { get; set; }
         public DbSet<FeePoint> FeePoints { get; set; }
+        public DbSet<City> Cities { get; set; }
     }
 }
