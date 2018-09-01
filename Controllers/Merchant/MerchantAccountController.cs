@@ -81,6 +81,8 @@ namespace Refundeo.Controllers.Merchant
                     .Include(i => i.Location)
                     .Include(i => i.OpeningHours)
                     .Include(i => i.FeePoints)
+                    .Include(i => i.City)
+                    .ThenInclude(c => c.Location)
                     .Include(i => i.MerchantInformationTags)
                     .ThenInclude(i => i.Tag)
                     .Select(i => _utilityService.ConvertMerchantInformationToSimpleDto(i))

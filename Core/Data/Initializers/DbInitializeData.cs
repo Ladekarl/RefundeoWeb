@@ -16,19 +16,25 @@ namespace Refundeo.Core.Data.Initializers
             {
                 Name = "Barcelona",
                 GooglePlaceId = "ChIJ5TCOcRaYpBIRCmZHTz37sEQ",
-                Image = "https://refundeo20180331121625.blob.core.windows.net/cityimages/barcelona.png"
+                Image = "https://refundeo20180331121625.blob.core.windows.net/cityimages/barcelona.png",
+                Latitude = 41.390205,
+                Longitude = 2.154007
             },
             new CityDto
             {
                 Name = "Paris",
                 GooglePlaceId = "ChIJD7fiBh9u5kcRYJSMaMOCCwQ",
-                Image = "https://refundeo20180331121625.blob.core.windows.net/cityimages/paris.png"
+                Image = "https://refundeo20180331121625.blob.core.windows.net/cityimages/paris.png",
+                Latitude = 48.864716,
+                Longitude = 2.349014
             },
             new CityDto
             {
                 Name = "Rome",
                 GooglePlaceId = "ChIJu46S-ZZhLxMROG5lkwZ3D7k",
-                Image = "https://refundeo20180331121625.blob.core.windows.net/cityimages/rome.png"
+                Image = "https://refundeo20180331121625.blob.core.windows.net/cityimages/rome.png",
+                Latitude = 41.902782,
+                Longitude = 12.496366
             }
         };
 

@@ -160,9 +160,13 @@ namespace Refundeo.Migrations
 
                     b.Property<string>("Image");
 
+                    b.Property<long?>("LocationId");
+
                     b.Property<string>("Name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
 
                     b.ToTable("Cities");
                 });
@@ -532,6 +536,13 @@ namespace Refundeo.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Refundeo.Core.Data.Models.City", b =>
+                {
+                    b.HasOne("Refundeo.Core.Data.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId");
                 });
 
             modelBuilder.Entity("Refundeo.Core.Data.Models.CustomerInformation", b =>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.DynamicLinq;
 using Refundeo.Core.Data.Models;
 using Refundeo.Core.Helpers;
 
@@ -34,14 +35,39 @@ namespace Refundeo.Core.Data.Initializers
         {
             foreach (var city in DbInitializeData.CitiesToCreate)
             {
-                if (await context.Cities.Where(c => c.GooglePlaceId == city.GooglePlaceId).AnyAsync()) continue;
+                var dbCity = await context.Cities
+                    .Include(c => c.Location)
+                    .FirstOrDefaultAsync(c => c.GooglePlaceId == city.GooglePlaceId);
 
-                context.Cities.Add(new City
+                if (dbCity?.Location != null) continue;
+
+                var location = new Location
                 {
-                    GooglePlaceId = city.GooglePlaceId,
-                    Image = city.Image,
-                    Name = city.Name
-                });
+                    Latitude = city.Latitude,
+                    Longitude = city.Longitude
+                };
+
+                await context.Locations.AddAsync(location);
+
+                await context.SaveChangesAsync();
+
+                if (dbCity == null)
+                {
+                    context.Cities.Add(new City
+                    {
+                        GooglePlaceId = city.GooglePlaceId,
+                        Image = city.Image,
+                        Name = city.Name,
+                        Location = location
+                    });
+                }
+                else
+                {
+                    dbCity.Location = location;
+                    context.Cities.Update(dbCity);
+                }
+
+                await context.SaveChangesAsync();
             }
 
             await context.SaveChangesAsync();

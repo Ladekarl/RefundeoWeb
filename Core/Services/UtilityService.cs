@@ -162,15 +162,19 @@ namespace Refundeo.Core.Services
                 Logo = info.Logo
             };
 
-            if (info.City != null)
+            if (info.City == null) return dto;
+
+            dto.City = new CityDto
             {
-                dto.City = new CityDto
-                {
-                    GooglePlaceId = info.City.GooglePlaceId,
-                    Image = info.City.Image,
-                    Name = info.City.Name
-                };
-            }
+                GooglePlaceId = info.City.GooglePlaceId,
+                Image = info.City.Image,
+                Name = info.City.Name
+            };
+
+            if (info.Location == null) return dto;
+
+            dto.Latitude = info.Location.Latitude;
+            dto.Longitude = info.Location.Longitude;
 
             return dto;
         }
@@ -215,6 +219,12 @@ namespace Refundeo.Core.Services
                     Image = info.City.Image,
                     Name = info.City.Name
                 };
+
+                if (info.Location != null)
+                {
+                    dto.Latitude = info.Location.Latitude;
+                    dto.Longitude = info.Location.Longitude;
+                }
             }
 
             if (refundPercentages.Any())
@@ -251,7 +261,6 @@ namespace Refundeo.Core.Services
                     RefundPercentage = f.RefundPercentage,
                     AdminFee = f.AdminFee,
                     MerchantFee = f.MerchantFee
-
                 }).ToList(),
                 VatRate = info.VATRate,
                 AddressCity = info.Address?.City,
@@ -283,15 +292,17 @@ namespace Refundeo.Core.Services
                 Logo = info.Logo
             };
 
-            if (info.City != null)
+            if (info.City == null) return dto;
+            dto.City = new CityDto
             {
-                dto.City = new CityDto
-                {
-                    GooglePlaceId = info.City.GooglePlaceId,
-                    Image = info.City.Image,
-                    Name = info.City.Name
-                };
-            }
+                GooglePlaceId = info.City.GooglePlaceId,
+                Image = info.City.Image,
+                Name = info.City.Name
+            };
+
+            if (info.Location == null) return dto;
+            dto.Latitude = info.Location.Latitude;
+            dto.Longitude = info.Location.Longitude;
 
             return dto;
         }
