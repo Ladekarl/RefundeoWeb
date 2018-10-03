@@ -185,6 +185,7 @@ namespace Refundeo.Controllers.Merchant
                 Location = location,
                 Address = address,
                 VATRate = model.VatRate,
+                PriceLevel = model.PriceLevel,
                 Description = model.Description,
                 ContactEmail = model.ContactEmail,
                 ContactPhone = model.ContactPhone,
@@ -520,6 +521,7 @@ namespace Refundeo.Controllers.Merchant
 
             merchantInformation.CompanyName = model.CompanyName;
             merchantInformation.CVRNumber = model.CvrNumber;
+            merchantInformation.PriceLevel = model.PriceLevel;
             merchantInformation.Address.StreetName = model.AddressStreetName;
             merchantInformation.Address.Country = model.AddressCountry;
             merchantInformation.Address.City = model.AddressCity;

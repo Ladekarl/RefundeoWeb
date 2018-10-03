@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Refundeo.Core.Data.Models
 {
@@ -8,6 +9,8 @@ namespace Refundeo.Core.Data.Models
     {
         public long Id { get; set; }
         public double VATRate { get; set; }
+        [Range(1, 3)]
+        public int PriceLevel { get; set; }
         public string CompanyName { get; set; }
         public string CVRNumber { get; set; }
         public string Description { get; set; }
