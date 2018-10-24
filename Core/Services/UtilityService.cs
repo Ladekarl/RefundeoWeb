@@ -127,6 +127,7 @@ namespace Refundeo.Core.Services
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
                 VatRate = info.VATRate,
+                Rating = info.Rating,
                 PriceLevel = info.PriceLevel,
                 FeePoints = info.FeePoints?.Select(f => new FeePointDto
                 {
@@ -191,6 +192,7 @@ namespace Refundeo.Core.Services
                 CompanyName = info.CompanyName,
                 CvrNumber = info.CVRNumber,
                 VatRate = info.VATRate,
+                Rating = info.Rating,
                 PriceLevel = info.PriceLevel,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
@@ -266,6 +268,7 @@ namespace Refundeo.Core.Services
                 }).ToList(),
                 PriceLevel = info.PriceLevel,
                 VatRate = info.VATRate,
+                Rating = info.Rating,
                 AddressCity = info.Address?.City,
                 AddressCountry = info.Address?.Country,
                 AddressStreetName = info.Address?.StreetName,

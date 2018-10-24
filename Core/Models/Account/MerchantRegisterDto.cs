@@ -9,6 +9,7 @@ namespace Refundeo.Core.Models.Account
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
         public double VatRate { get; set; }
+        public double Rating { get; set; }
         public int PriceLevel { get; set; }
         public string AddressStreetName { get; set; }
         public string AddressStreetNumber { get; set; }

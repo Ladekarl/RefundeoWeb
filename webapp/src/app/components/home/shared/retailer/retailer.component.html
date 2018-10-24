@@ -74,11 +74,29 @@
                               [(ngModel)]="model.description" name="description"></textarea>
                 </div>
             </div>
-            <div *ngIf="isAdmin"  class="form-group row">
+            <div *ngIf="isAdmin" class="form-group row">
                 <div class="col-sm-12">
                     <label for="vatRate">VAT Rate (%)</label>
                     <input type="number" class="form-control" id="vatRate" placeholder="VAT rate %" required
-                            [(ngModel)]="model.vatRate" name="vatRate"/>
+                           pattern="^[0-9][0-9]?$|^100$" [(ngModel)]="model.vatRate" name="vatRate"/>
+                </div>
+            </div>
+            <div *ngIf="isAdmin" class="form-group row">
+                <div class="col-sm-12">
+                    <label for="vatRate">Rating (0-5)</label>
+                    <input type="number" min="0" max="5" class="form-control" id="rating" placeholder="Rating" required
+                           pattern="^([0-4](\.\d{0,1})?|5)$" [(ngModel)]="model.rating" name="rating"/>
+                </div>
+            </div>
+            <div *ngIf="isAdmin"  class="form-group row">
+                <div class="col-sm-12">
+                    <label for="vatRate">Price Level</label>
+                    <select class="form-control" id="priceLevel" required [(ngModel)]="model.priceLevel" name="priceLevel">
+                        <option disabled selected value>Select price level</option>
+                        <option value="1">$</option>
+                        <option value="2">$$</option>
+                        <option value="3">$$$</option>
+                    </select>
                 </div>
             </div>
             <h6 class="row">Address</h6>
@@ -131,7 +149,7 @@
                 <div class="col-lg-6 col-sm-12">
                     <label for="contactEmail">Contact email</label>
                     <input type="email" class="form-control" id="contactEmail" placeholder="Contact email" required
-                           [(ngModel)]="model.contactEmail" name="contactEmail"/>
+                           [(ngModel)]="model.contactEmail" name="contactEmail" email=""/>
                 </div>
                 <div class="col-lg-6 col-sm-12">
                     <label for="contactPhone">Contact phone</label>
@@ -156,7 +174,8 @@
                                [(ngModel)]="openingHour.open" name="{{openingHour.day}}open"/>
                     </div>
                     <div class="col-lg-5 col-sm-12">
-                        <input type="text" class="form-control" placeholder="Close"
+                        <input type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" class="form-control"
+                               placeholder="Close"
                                [(ngModel)]="openingHour.close" name="{{openingHour.day}}close"/>
                     </div>
                 </div>
@@ -182,20 +201,20 @@
                 <div *ngFor="let feePoint of feePoints; let i = index">
                     <div class="form-group row">
                         <div class="col-sm-3">
-                            <input type="number" class="form-control" id="{{i}}startFee" placeholder="From price ({{model.currency}})" required
+                            <input type="number" min="0" class="form-control" id="{{i}}startFee" placeholder="From price ({{model.currency}})" required
                                 [(ngModel)]="feePoint.start" name="{{i}}startFee"/>
                         </div>
                         <div class="col-sm-3">
-                            <input type="number" class="form-control" id="{{i}}endFee" placeholder="To price ({{model.currency}})"
+                            <input type="number" min="0" class="form-control" id="{{i}}endFee" placeholder="To price ({{model.currency}})"
                                 [(ngModel)]="feePoint.end" name="{{i}}endFee"/>
                         </div>
                         <div class="col-sm-3">
-                            <input type="number" class="form-control" id="{{i}}merchantFee" placeholder="Merchant fee %" required
-                                [(ngModel)]="feePoint.merchantFee" name="{{i}}merchantFee"/>
+                            <input type="number" min="0" max="100" class="form-control" id="{{i}}merchantFee" placeholder="Merchant fee %" required
+                                [(ngModel)]="feePoint.merchantFee" name="{{i}}merchantFee" pattern="^[0-9][0-9]?$|^100$"/>
                         </div>
                         <div class="col-sm-2">
-                            <input type="number" class="form-control" id="{{i}}adminFee" placeholder="Admin fee %" required
-                                [(ngModel)]="feePoint.adminFee" name="{{i}}adminFee"/>
+                            <input type="number" min="0" max="100" class="form-control" id="{{i}}adminFee" placeholder="Admin fee %" required
+                                [(ngModel)]="feePoint.adminFee" name="{{i}}adminFee" pattern="^[0-9][0-9]?$|^100$"/>
                         </div>
                         <div class="col-sm-1 align-self-center">
                             <i class="btn btn-outline-danger fa fa-times" (click)="onRemoveFee(i)"></i>
@@ -203,27 +222,27 @@
                     </div>
                 </div>
             </div>
-            <div *ngIf="isAdmin" class="form-group row">
+            <form *ngIf="isAdmin" class="form-group row fee-point-form" #feePointForm="ngForm" (ngSubmit)="onAddFeePoint()">
                 <div class="col-sm-3">
-                    <input type="number" class="form-control" id="newStartFee" placeholder="From price"
+                    <input type="number" min="0" class="form-control" id="newStartFee" required placeholder="From price"
                            [(ngModel)]="newFeePoint.start" name="newStartFee"/>
                 </div>
                 <div class="col-sm-3">
-                    <input type="number" class="form-control" id="newEndFee" placeholder="Leave empty if undefined"
+                    <input type="number" min="0" class="form-control" id="newEndFee" required placeholder="Leave empty if undefined"
                            [(ngModel)]="newFeePoint.end" name="newEndFee"/>
                 </div>
                 <div class="col-sm-3">
-                    <input type="number" class="form-control" id="newMerchantFee" placeholder="25"
-                           [(ngModel)]="newFeePoint.merchantFee" name="newMerchantFee"/>
+                    <input type="number" min="0" max="100" class="form-control" id="newMerchantFee" required placeholder="25"
+                           [(ngModel)]="newFeePoint.merchantFee" name="newMerchantFee" pattern="^[0-9][0-9]?$|^100$"/>
                 </div>
                 <div class="col-sm-2">
-                    <input type="number" class="form-control" id="newAdminFee" placeholder="10"
-                           [(ngModel)]="newFeePoint.adminFee" name="newAdminFee"/>
+                    <input type="number" min="0" max="100" class="form-control" required id="newAdminFee" placeholder="10"
+                           [(ngModel)]="newFeePoint.adminFee" name="newAdminFee" pattern="^[0-9][0-9]?$|^100$"/>
                 </div>
                 <div class="col-sm-1 align-self-center">
-                    <i id="addFeePoint" class="btn btn-outline-primary fa fa-plus" (click)="onAddFeePoint()"></i>
+                    <button id="addFeePoint" type="submit" class="btn btn-outline-primary fa fa-plus" [disabled]="!feePointForm.form.valid"></button>
                 </div>
-            </div>
+            </form>
             <h6 class="row" *ngIf="isAdmin">Tags</h6>
             <div *ngIf="isAdmin" class="form-group">
                 <div class="form-group row">

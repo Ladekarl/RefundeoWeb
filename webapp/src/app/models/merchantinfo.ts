@@ -7,6 +7,7 @@ export class MerchantInfo {
     companyName: string;
     cvrNumber: string;
     vatRate: number;
+    priceLevel: number;
     addressStreetName: string;
     addressStreetNumber: string;
     addressPostalCode: string;

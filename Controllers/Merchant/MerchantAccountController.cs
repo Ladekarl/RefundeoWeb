@@ -113,6 +113,7 @@ namespace Refundeo.Controllers.Merchant
                 .Include(i => i.Location)
                 .Include(i => i.OpeningHours)
                 .Include(i => i.FeePoints)
+                .Include(i => i.City)
                 .Include(i => i.MerchantInformationTags)
                 .ThenInclude(i => i.Tag)
                 .Where(i => i.Merchants.Any(x => x.Id == id))
@@ -185,6 +186,7 @@ namespace Refundeo.Controllers.Merchant
                 Location = location,
                 Address = address,
                 VATRate = model.VatRate,
+                Rating = model.Rating,
                 PriceLevel = model.PriceLevel,
                 Description = model.Description,
                 ContactEmail = model.ContactEmail,
@@ -409,7 +411,7 @@ namespace Refundeo.Controllers.Merchant
         [HttpPut("{id}")]
         public async Task<IActionResult> ChangeMerchant(string id, [FromBody] ChangeMerchantDto model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || model.City == null)
             {
                 return BadRequest(ModelState.Keys);
             }
@@ -531,6 +533,7 @@ namespace Refundeo.Controllers.Merchant
             merchantInformation.Location.Longitude = model.Longitude;
             merchantInformation.Description = model.Description;
             merchantInformation.VATRate = model.VatRate;
+            merchantInformation.Rating = model.Rating;
             merchantInformation.VATNumber = model.VatNumber;
             merchantInformation.ContactEmail = model.ContactEmail;
             merchantInformation.ContactPhone = model.ContactPhone;

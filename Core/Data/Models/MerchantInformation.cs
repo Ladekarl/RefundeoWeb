@@ -8,6 +8,7 @@ namespace Refundeo.Core.Data.Models
     public class MerchantInformation
     {
         public long Id { get; set; }
+        public double Rating { get; set; }
         public double VATRate { get; set; }
         [Range(1, 3)]
         public int PriceLevel { get; set; }
