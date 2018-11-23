@@ -291,7 +291,7 @@
                         </div>
                         <div class="banner-column-container">
                             <span class="content-text">{{model.openingHours[date.getDay()]?.open}} - {{model.openingHours[date.getDay()]?.close}}</span>
-                            <span class="content-text">{{getMinimumRefundPercentage()}} %</span>
+                            <span class="content-text">{{getMinimumRefundPercentage() | number:'1.0-1'}} %</span>
                         </div>
                     </div>
                     <div class="content-container">

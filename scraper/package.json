@@ -1,0 +1,9 @@
+{
+    "name": "google-maps-scraper",
+    "version": "0.0.0",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "puppeteer": "^1.10.0"
+    }
+}
