@@ -47,36 +47,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
                 $('.toggle-btn').click();
             }
         });
-        $('#menu').resizable({
-            maxWidth: 300,
-            minWidth: 75,
-            handles: 'e',
-            autoHide: true,
-            resize: () => {
-                const menuWidth = $('#menu').width();
-                $('#main').css({left: menuWidth});
-
-                const toHide = $('.hide-on-collapse');
-                const menuBody = $('.menu-body');
-                const menuIcons = $('.menu-icon');
-                const menuBottomItems = $('.menu-bottom-item');
-                const childItems = $('.child-item');
-                if (menuWidth <= 180) {
-                    toHide.hide();
-                    childItems.css({lineHeight: 1.5});
-                    menuBody.css({textAlign: 'center'});
-                    menuIcons.css({padding: 0});
-                    menuBottomItems.css({display: 'block'});
-                } else {
-                    toHide.show();
-                    childItems.css({lineHeight: '60px'});
-                    menuBody.css({textAlign: 'left'});
-                    menuIcons.css({paddingRight: 30});
-                    menuIcons.css({paddingLeft: 25});
-                    menuBottomItems.css({display: 'table-cell'});
-                }
-            }
-        });
     }
 
     ngOnInit(): void {

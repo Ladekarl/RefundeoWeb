@@ -183,10 +183,10 @@
             <h6 *ngIf="isAdmin" class="row">Fees</h6>
             <div *ngIf="isAdmin" class="form-group row">
                 <div class="col-sm-3">
-                    <label>From price ({{model.currency}})</label>
+                    <label>From price {{model.currency ? '(' + model.currency + ')' : ''}}</label>
                 </div>
                 <div class="col-sm-3">
-                    <label>To price ({{model.currency}})</label>
+                    <label>To price {{model.currency ? '(' + model.currency + ')' : ''}}</label>
                 </div>
                 <div class="col-sm-3">
                     <label>Merchant fee (%)</label>

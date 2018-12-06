@@ -78,6 +78,18 @@ export class MenuService {
             iconClass: 'fa-plus'
         },
         {
+            routerLink: '/admin/cities',
+            displayName: 'Cities',
+            title: 'Cities',
+            iconClass: 'fa-map-marker'
+        },
+        {
+            routerLink: '/admin/tags',
+            displayName: 'Tags',
+            title: 'Tags',
+            iconClass: 'fa-tags'
+        },
+        {
             routerLink: '/admin/docs',
             displayName: 'API',
             title: 'Refundeo API',

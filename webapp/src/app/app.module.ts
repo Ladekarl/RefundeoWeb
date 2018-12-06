@@ -34,7 +34,9 @@ import {
     SettingsComponent,
     StaticStatsComponent,
     AccountComponent,
-    PurchaseChartComponent
+    PurchaseChartComponent,
+    TagsComponent,
+    CitiesComponent
 } from './components';
 import {SwaggerService} from './services';
 import {DataViewModule} from 'primeng/dataview';
@@ -67,7 +69,9 @@ registerLocaleData(localeDa, 'da');
         StatisticsComponent,
         PurchaseChartComponent,
         StaticStatsComponent,
-        ResetPasswordComponent
+        ResetPasswordComponent,
+        TagsComponent,
+        CitiesComponent
     ],
     imports: [
         BrowserModule,

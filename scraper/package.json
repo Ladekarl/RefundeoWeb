@@ -4,6 +4,7 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
+        "open-location-code": "^1.0.3",
         "puppeteer": "^1.10.0"
     }
 }

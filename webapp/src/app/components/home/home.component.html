@@ -1,14 +1,19 @@
 <div>
     <div class="nav-side-menu" id="menu">
-        <div class="menu-body">
+        <div class="menu-top">
             <div class="brand">
                 <a [routerLink]="brandLink">
                     <div class="logo-container">
-                        <img [src]="logoImageUrl" class="img-fluid" alt="image">
-                        <span i18n class="menu-text hide-on-collapse">Refundeo</span>
+                        <img [src]="logoImageUrl" class="img" alt="image">
                     </div>
                 </a>
             </div>
+        </div>
+        <div class="menu-body">
+            <div class="mobile-logo">
+                <img [src]="logoImageUrl" class="img" alt="image">
+            </div>
+            <span i18n class="page-text">Refundeo</span>
             <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
             <div class="menu-list">
                 <ul id="menu-content" class="menu-content collapse out">

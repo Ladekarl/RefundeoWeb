@@ -2,6 +2,8 @@ export * from './home/admin/swagger/swagger.component';
 export * from './home/admin//adminrefundcases/adminrefundcases.component';
 export * from './home/admin/retailers/retailers.component';
 export * from './home/admin/shoppers/shoppers.component';
+export * from './home/admin/tags/tags.component';
+export * from './home/admin/cities/cities.component';
 export * from './home/merchant/dashboard/dashboard.component';
 export * from './home/merchant/refundcases/refundcases.component';
 export * from './home/shared/retailer/retailer.component';

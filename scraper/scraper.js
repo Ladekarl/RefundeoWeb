@@ -1,9 +1,12 @@
 const puppeteer = require('puppeteer');
+const OpenLocationCode = require('open-location-code').OpenLocationCode;
+const openLocationCode = new OpenLocationCode();
+const fs = require('fs');
 
 process.setMaxListeners(0);
 const defaultTimeout = 10000;
-const queryString = 'https://www.google.com/maps/search/shops+near+';
-const pageLimit = 2;
+const queryString = 'https://www.google.ca/maps/search/shops+in+';
+let pageLimit = 2;
 
 let launchBrowser = () => {
 	return puppeteer.launch({
@@ -23,7 +26,7 @@ let scrape = async (pagesToScrape) => {
 		for(let i = 0; i < pagesToScrape.length; i++) {
 			const pageName = pagesToScrape[i];
 			const pageToScrape = queryString + pageName;
-			const props = [];
+			let props = [];
 			try {
 				console.log('Opening page ' + pageToScrape);
 				await page.goto(pageToScrape);
@@ -36,35 +39,71 @@ let scrape = async (pagesToScrape) => {
 						propsPromises.push(
 							getPropsFromSections(pageToScrape, elements, resultPage)
 						);
-						resultPage++;
 						let buttonHandle = await page.$('#section-pagination-button-next');
 						let isDisabledHandle = await buttonHandle.getProperty('disabled');
 						isDisabled = isDisabledHandle ? await isDisabledHandle.jsonValue() : true;
 						if(!isDisabled) {
+							await page.waitFor(() => !document.querySelector('.early-pane-overlay'), {timeout: defaultTimeout});
+							await page.click('#section-pagination-button-next');
+							resultPage++;
 							try {
-								await page.waitFor(() => !document.querySelector('.early-pane-overlay'), {timeout: defaultTimeout});
-								await page.click('#section-pagination-button-next');
 								await page.waitFor(() => document.querySelector('.section-refresh-overlay-visible'), {timeout: defaultTimeout});
 								await page.waitFor(() => !document.querySelector('.section-refresh-overlay-visible'), {timeout: defaultTimeout});
 							} catch(err) {
-								throw {
-									error: err.toString(),
-									errorMessage: 'Error in page going to shop page ' + (resultPage + 1)
-								}
+								console.warn('Error in waiting for next page: ' + (resultPage + 1));
 							}
 						}
 					} catch(err) {
-						propsPromises.push([err])
+						console.log('An error occured: ' + err);
 					}
 
 					if(isDisabled || propsPromises.length >= pageLimit) {
 						if(isDisabled) console.log('-- No more pages. Awaiting results.');
 						else console.log('-- Concurrent page limit ' + pageLimit + ' reached. Awaiting results.');
 						let res = await Promise.all(propsPromises).then((res) => [].concat.apply([], res));
+
+						res = res
+							.filter(obj => typeof obj.companyName != "undefined")
+							.filter((obj, pos, arr) => arr
+								.map(mapObj => mapObj['companyName']
+								.indexOf(obj['companyName']) === pos));
+		
+						res.forEach(shop => {
+							if(shop.plusCode) {
+								const codes = shop.plusCode.trim().split(' ');
+								let fullCode;
+								if(codes.length > 1) {
+									const shortCode = codes[0].trim();
+									if(shop.latitude && shop.longitude) {
+										fullCode = openLocationCode.recoverNearest(shortCode, shop.latitude, shop.longitude);	
+									}
+									delete shop.latitude;
+									delete shop.longitude;
+								} else {
+									fullCode = codes[0];
+								}
+								if(fullCode) {
+									const coord = openLocationCode.decode(fullCode);
+									if(coord) {
+										shop.latitude = coord.latitudeCenter;
+										shop.longitude = coord.longitudeCenter;
+									}
+								}
+							}
+							delete shop.plusCode;
+						});
+
 						props.push(res);
+						props = [].concat.apply([], props);
 						propsPromises = [];
+
+						if(filePath) {
+							fs.appendFile(filePath + pageName + "_" + resultPage + ".json", JSON.stringify(res), (err) => {  
+								if (err) throw err;
+							});
+						}
 					}
-				} while(!isDisabled)
+				} while(!isDisabled && !page.isClosed())
 
 				result.push({
 					city: pageName,
@@ -205,15 +244,17 @@ let extractProps = function() {
 		let convertTime12to24 = (time12h) => {
 			if(!time12h) return;
 			const timeArr = time12h.split(/(?=a|p)/);
-			if(timeArr.length === 1) return time12h;
 			const time = timeArr[0];
-			const modifier = timeArr[1];
+			let modifier;
+			if(timeArr.length > 1) {
+				modifier = timeArr[1];
+			}
 			let [hours, minutes] = time.split(':');
 			if (hours === '12') {
 			  hours = '00';
 			}
-			if (modifier.indexOf('p') > -1) {
-			  hours = parseInt(hours, 10) + 12;
+			if (modifier && modifier.indexOf('p') > -1) {
+			  hours = (parseInt(hours, 10) + 12).toString();
 			}
 			return (hours.length === 1 ? '0' + hours : hours) + ':' + (minutes ? minutes : '00');
 		  }
@@ -248,15 +289,21 @@ let extractProps = function() {
 					}
 
 					const openingHoursText = row.children[1].innerText.trim();
-
 					if(openingHoursText.toLowerCase().indexOf('closed') > -1) {
 						continue;
 					}
-
 					const openingHoursArr = openingHoursText.split(' ')[0].split('–');
-					const open = convertTime12to24(openingHoursArr[0]);
-					const close = convertTime12to24(openingHoursArr[1]);
-				
+					let open, close;
+					if(openingHoursText.indexOf('a.m') > -1 || openingHoursText.indexOf('p.m') > -1) {
+						open = convertTime12to24(openingHoursArr[0]);
+						close = convertTime12to24(openingHoursArr[1]);
+					} else if(openingHoursText.toLowerCase().indexOf('open 24 hours') > -1) {
+						open = '00:00';
+						close = '23:59';
+					} else {
+						open = openingHoursArr[0];
+						close = openingHoursArr[1];
+					}
 					openingHours.push({
 						day,
 						open,
@@ -299,24 +346,25 @@ let extractProps = function() {
 		return result[addressProp];
 	}
 
-	// FIND OUT WHY THIS ALWAYS RETURNS THE SAME: Answer -- because it actually doesn't change. Figure out what to do
 	let findLatLong = (latLongProp) => {
-		const url = window.location.href;
-		if(url) {
-			const latLongExtra = url.split('@');
+		const metas = document.querySelectorAll('meta');
+		let foundMeta;
+		metas.forEach(meta => {
+			if(meta.content && meta.content.indexOf('center=') > -1) foundMeta = meta; 
+		});
+		if(foundMeta && foundMeta.content) {
+			const latLongExtra = foundMeta.content.split('center=')
 			if(latLongExtra && latLongExtra.length > 1) {
-				const latLongZ = latLongExtra[1].split('/');
+				const latLongZ = latLongExtra[1].split('&')
 				if(latLongZ && latLongZ.length > 1) {
-					latLong = latLongZ[0].split(',');
+					latLong = latLongZ[0].split('%2C');
 					if(latLong && latLong.length > 1) {
-						if(latLongProp === 'latitude') {
-							const latitude = latLong[0];
-							if(latitude) return parseFloat(latitude);
-						}
-						if(latLongProp === 'longitude') {
-							const longitude = latLong[1];
-							if(longitude) return parseFloat(longitude);
-						}
+						const latitude = latLong[0];
+						if(latitude && latLongProp === 'latitude') 
+							return parseFloat(latitude)
+						const longitude = latLong[1];
+						if(longitude && latLongProp === 'longitude') 
+							return parseFloat(longitude);
 					}
 				}
 			}
@@ -332,16 +380,21 @@ let extractProps = function() {
 		addressCountry: () => findAddress('addressCountry'),
 		website: () => extractProp(findElementInSection('maps-sprite-pane-info-website'), 'innerText'),
 		phone: () => extractProp(findElementInSection('maps-sprite-pane-info-phone'), 'innerText'),
-		banner: () => extractProp(document.querySelector('.section-hero-header-hero img'), 'src'),
+		banner: () => {
+			const img = extractProp(document.querySelector('.section-hero-header-hero img'), 'src');
+			return img.indexOf('maps.gstatic.com') > -1 ? undefined : img;
+		},
 		rating: () => parseFloat(extractProp(document.querySelector('.section-star-display'), 'innerText')),
 		tag: () => extractProp(extractProp(document.querySelector('.section-rating'), 'lastElementChild'), 'innerText'),
+		openingHours: findOpeningHours,
 		latitude: () => findLatLong('latitude'),
 		longitude: () => findLatLong('longitude'),
-		openingHours: findOpeningHours,
+		plusCode: () => extractProp(findElementInSection('maps-sprite-pane-info-plus-code'), 'innerText')
 	}
 
 	let propNames = Object.getOwnPropertyNames(propsToScrape);
 	let scrapeResult;
+
 	for(let i = 0; i < propNames.length; i++) {
 		let propName = propNames[i];
 		let query = propsToScrape[propName];
@@ -357,15 +410,40 @@ let extractProps = function() {
 	return scrapeResult;
 }
 
+hasDebug = false;
+let filePath;
+process.argv.forEach((val, index) => {
+	if(!val) return;
+	if(val === 'debug') {
+		hasDebug = true;
+	}
+	else if(val.indexOf('p=') > -1) {
+		filePath = val.split('p=')[1];
+	} else if (val.indexOf('l=') > -1) {
+		pageLimit = parseInt(val.split('l=')[1]);
+	}
+});
+
+if(!hasDebug) {
+	console.warn = () => {};
+} else {
+	console.log('Debug enabled');
+}
+
 scrape([
 	//'Hinnerup', 
-	'Lystrup',
-	//'Aarhus'
+	//'Lystrup',
+	//'Aarhus',
+	'grundfør'
 ]).then((scrapedCities) => {
-	scrapedCities.forEach(city => {
-		city.shops.forEach(shop => {
-			console.log(shop);
-		});
+	scrapedCities.forEach(result => {
+		if(result) {
+			if(result.error) {
+				console.log("Error: ");
+				console.log(result.error);
+				return;
+			}
+		}
 	});
 }, (err) => {
 	console.log(err);
