@@ -7,6 +7,7 @@ import {AdminAuthGuard, AuthGuard} from './guards';
 import {routing} from './app.routing';
 import {JwtInterceptor} from './helpers';
 import {Ng5SliderModule} from 'ng5-slider';
+import {MatExpansionModule} from '@angular/material/expansion';
 import {
     AuthenticationService,
     UserService,
@@ -16,7 +17,9 @@ import {
     CustomerInfoService,
     AuthorizationService,
     MerchantInfoService,
-    ChartService
+    ChartService,
+    CitiesService,
+    FileService
 } from './services';
 import {
     AppComponent,
@@ -84,11 +87,15 @@ registerLocaleData(localeDa, 'da');
         HttpClientModule,
         ChartModule,
         Ng5SliderModule,
+        MatExpansionModule,
         routing,
         Ng4LoadingSpinnerModule.forRoot()
     ],
     providers: [
-        {provide: LOCALE_ID, useValue: 'da'},
+        {
+            provide: LOCALE_ID,
+            useValue: 'da'
+        },
         AdminAuthGuard,
         AuthGuard,
         Title,
@@ -103,6 +110,8 @@ registerLocaleData(localeDa, 'da');
         RefundCasesService,
         ChartService,
         MenuService,
+        FileService,
+        CitiesService,
         UserService,
         {
             provide: HTTP_INTERCEPTORS,

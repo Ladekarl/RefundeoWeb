@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {MerchantInfo, Tag, FeePoint, OpeningHours} from '../../../../models';
 import {ActivatedRoute} from '@angular/router';
-import {AuthorizationService, MerchantInfoService} from '../../../../services';
+import {AuthorizationService, FileService, MerchantInfoService} from '../../../../services';
 import {Ng4LoadingSpinnerService} from 'ng4-loading-spinner';
 import {ConfirmationService} from 'primeng/api';
 import {combineLatest, forkJoin} from 'rxjs';
@@ -29,6 +29,7 @@ export class RetailerComponent implements OnInit {
         private merchantInfoService: MerchantInfoService,
         private authorizationService: AuthorizationService,
         private activatedRoute: ActivatedRoute,
+        private fileService: FileService,
         private spinnerService: Ng4LoadingSpinnerService) {
             this.newFeePoint = new FeePoint();
             this.openingHours = [];
@@ -226,36 +227,21 @@ export class RetailerComponent implements OnInit {
     uploadLogo(e) {
         const file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         const pattern = /image\/png/;
-        const reader = new FileReader();
-        if (file && file.type && !file.type.match(pattern)) {
-            alert('invalid format' + file.type);
-            return;
-        }
-        const fileSize = file.size / 1024 / 1024; // in MB
-        if (fileSize > 1) {
-            alert('File cannot be bigger than 1 MB');
-            return;
-        }
+        const limit = 1;
 
-        reader.onload = this._handleLogoLoaded.bind(this);
-        reader.readAsDataURL(file);
+        this.fileService.upload(file, pattern, limit).subscribe(result => {
+            this.model.logo = result;
+        });
     }
 
     uploadBanner(e) {
         const file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         const pattern = /image\/png/;
-        const reader = new FileReader();
-        if (!file.type.match(pattern)) {
-            alert('invalid format');
-            return;
-        }
-        const fileSize = file.size / 1024 / 1024; // in MB
-        if (fileSize > 1) {
-            alert('File cannot be bigger than 1 MB');
-            return;
-        }
-        reader.onload = this._handleBannerLoaded.bind(this);
-        reader.readAsDataURL(file);
+        const limit = 1;
+
+        this.fileService.upload(file, pattern, limit).subscribe(result => {
+            this.model.banner = result;
+        });
     }
 
     onAddFeePoint() {
@@ -285,16 +271,5 @@ export class RetailerComponent implements OnInit {
     onRemoveFee(index: number) {
         this.feePoints.splice(index, 1);
     }
-
-    _handleLogoLoaded(e) {
-        const reader = e.target;
-        this.model.logo = reader.result;
-    }
-
-    _handleBannerLoaded(e) {
-        const reader = e.target;
-        this.model.banner = reader.result;
-    }
-
 
 }

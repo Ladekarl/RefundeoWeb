@@ -14,12 +14,13 @@
 
 .login-container {
     background-color: #303880;
-    height: 100%;
+    height: calc(100% - 60px);
     width: 100%;
 }
 
 .login-form-container {
-    height: 50%;
+    height: 330px;
+    padding: 10px;
     background-color: #fff;
 }
 
