@@ -18,22 +18,16 @@ namespace Refundeo.Core.Services
         {
             var fcmKey = Configuration["fcmkey"];
             var projectId = Configuration["FirebaseProjectId"];
-            if (fcmKey != null && projectId != null)
-            {
-                _settings = new FcmClientSettings(projectId, fcmKey);
-            }
+            _settings = new FcmClientSettings(projectId, fcmKey);
         }
 
         public async Task<FcmMessageResponse> SendNotificationAsync(string topic, string title, string message)
         {
-            if (_settings != null)
+            using (var client = new FcmClient(_settings))
             {
-                using (var client = new FcmClient(_settings))
-                {
-                    var fcmMessage = BuildMessage(topic, title, message);
-                    var cts = new CancellationTokenSource();
-                    return await client.SendAsync(fcmMessage, cts.Token);
-                }
+                var fcmMessage = BuildMessage(topic, title, message);
+                var cts = new CancellationTokenSource();
+                return await client.SendAsync(fcmMessage, cts.Token);
             }
         }
 
