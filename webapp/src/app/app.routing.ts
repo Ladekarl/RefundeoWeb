@@ -14,8 +14,7 @@ import {
     AccountComponent,
     ResetPasswordComponent,
     StatisticsComponent,
-    TagsComponent,
-    CitiesComponent
+    TagsComponent
 } from './components';
 
 const appRoutes: Routes = [
@@ -47,11 +46,6 @@ const appRoutes: Routes = [
             {
                 path: 'shoppers',
                 component: ShoppersComponent,
-                canActivate: [AdminAuthGuard]
-            },
-            {
-                path: 'cities',
-                component: CitiesComponent,
                 canActivate: [AdminAuthGuard]
             },
             {

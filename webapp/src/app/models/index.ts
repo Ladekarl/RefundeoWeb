@@ -9,4 +9,3 @@ export * from './customerinfo';
 export * from './tag';
 export * from './attachedaccount';
 export * from './changepassword';
-export * from './city';

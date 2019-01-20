@@ -1,4 +1,4 @@
-$theme-color: #303880;
+$theme-color: #000125;
 .ui-dataview {
     .ui-widget-header {
         border-top: none;
@@ -7,6 +7,10 @@ $theme-color: #303880;
         border-bottom: 1px solid $theme-color !important;
         color: $theme-color;
     }
+}
+
+.ui-dataview .ui-dataview-header {
+    padding: 0;
 }
 
 .ui-dataview .ui-paginator-bottom {

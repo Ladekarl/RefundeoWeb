@@ -25,7 +25,6 @@ namespace Refundeo.Core.Data.Models
         public DateTime DateCreated { get; set; }
         public virtual Location Location { get; set; }
         public virtual Address Address { get; set; }
-        public virtual City City { get; set; }
         public virtual ICollection<RefundeoUser> Merchants { get; set; }
         public virtual ICollection<MerchantInformationTag> MerchantInformationTags { get; set; }
         public virtual ICollection<FeePoint> FeePoints { get; set; }

@@ -18,7 +18,6 @@ import {
     AuthorizationService,
     MerchantInfoService,
     ChartService,
-    CitiesService,
     FileService
 } from './services';
 import {
@@ -38,8 +37,7 @@ import {
     StaticStatsComponent,
     AccountComponent,
     PurchaseChartComponent,
-    TagsComponent,
-    CitiesComponent
+    TagsComponent
 } from './components';
 import {SwaggerService} from './services';
 import {DataViewModule} from 'primeng/dataview';
@@ -73,8 +71,7 @@ registerLocaleData(localeDa, 'da');
         PurchaseChartComponent,
         StaticStatsComponent,
         ResetPasswordComponent,
-        TagsComponent,
-        CitiesComponent
+        TagsComponent
     ],
     imports: [
         BrowserModule,
@@ -111,7 +108,6 @@ registerLocaleData(localeDa, 'da');
         ChartService,
         MenuService,
         FileService,
-        CitiesService,
         UserService,
         {
             provide: HTTP_INTERCEPTORS,

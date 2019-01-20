@@ -81,8 +81,6 @@ namespace Refundeo.Controllers.Merchant
                     .Include(i => i.Location)
                     .Include(i => i.OpeningHours)
                     .Include(i => i.FeePoints)
-                    .Include(i => i.City)
-                    .ThenInclude(c => c.Location)
                     .Include(i => i.MerchantInformationTags)
                     .ThenInclude(i => i.Tag)
                     .Select(i => _utilityService.ConvertMerchantInformationToSimpleDto(i))
@@ -113,7 +111,6 @@ namespace Refundeo.Controllers.Merchant
                 .Include(i => i.Location)
                 .Include(i => i.OpeningHours)
                 .Include(i => i.FeePoints)
-                .Include(i => i.City)
                 .Include(i => i.MerchantInformationTags)
                 .ThenInclude(i => i.Tag)
                 .Where(i => i.Merchants.Any(x => x.Id == id))
@@ -133,16 +130,9 @@ namespace Refundeo.Controllers.Merchant
         [HttpPost]
         public async Task<IActionResult> RegisterMerchant([FromBody] MerchantRegisterDto model)
         {
-            if (!ModelState.IsValid || model.Username == null || model.Password == null || model.City == null)
+            if (!ModelState.IsValid || model.Username == null || model.Password == null)
             {
                 return BadRequest();
-            }
-
-            var city = await _context.Cities.FirstOrDefaultAsync(c => c.GooglePlaceId == model.City.GooglePlaceId);
-
-            if (city == null)
-            {
-                return NotFound($"Could not find city with id = {model.City.GooglePlaceId}");
             }
 
             var user = new RefundeoUser {UserName = model.Username};
@@ -194,8 +184,7 @@ namespace Refundeo.Controllers.Merchant
                 AdminEmail = model.AdminEmail,
                 VATNumber = model.VatNumber,
                 Currency = model.Currency,
-                DateCreated = DateTime.Now,
-                City = city
+                DateCreated = DateTime.Now
             };
 
             await _context.MerchantInformations.AddAsync(merchantInformation);
@@ -327,17 +316,9 @@ namespace Refundeo.Controllers.Merchant
                 .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == user.Id));
 
-            var city = await _context.Cities
-                .FirstOrDefaultAsync(c => c.GooglePlaceId == model.City.GooglePlaceId);
-
-            if (merchantInformation == null || city == null)
+            if (merchantInformation == null)
             {
                 return NotFound();
-            }
-
-            if (merchantInformation.City == null || merchantInformation.City.Id != city.Id)
-            {
-                merchantInformation.City = city;
             }
 
             foreach (var openingHoursModel in model.OpeningHours)
@@ -411,7 +392,7 @@ namespace Refundeo.Controllers.Merchant
         [HttpPut("{id}")]
         public async Task<IActionResult> ChangeMerchant(string id, [FromBody] ChangeMerchantDto model)
         {
-            if (!ModelState.IsValid || model.City == null)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState.Keys);
             }
@@ -422,22 +403,13 @@ namespace Refundeo.Controllers.Merchant
                 .Include(m => m.Location)
                 .Include(m => m.OpeningHours)
                 .Include(m => m.FeePoints)
-                .Include(m => m.City)
                 .Include(m => m.MerchantInformationTags)
                 .ThenInclude(m => m.Tag)
                 .FirstOrDefaultAsync(i => i.Merchants.Any(x => x.Id == id));
 
-            var city = await _context.Cities
-                .FirstOrDefaultAsync(c => c.GooglePlaceId == model.City.GooglePlaceId);
-
-            if (merchantInformation == null || city == null)
+            if (merchantInformation == null)
             {
                 return NotFound();
-            }
-
-            if (merchantInformation.City == null || merchantInformation.City.Id != city.Id)
-            {
-                merchantInformation.City = city;
             }
 
             foreach (var openingHoursModel in model.OpeningHours)

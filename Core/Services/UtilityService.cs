@@ -164,15 +164,6 @@ namespace Refundeo.Core.Services
                 Logo = info.Logo
             };
 
-            if (info.City == null) return dto;
-
-            dto.City = new CityDto
-            {
-                GooglePlaceId = info.City.GooglePlaceId,
-                Image = info.City.Image,
-                Name = info.City.Name
-            };
-
             if (info.Location == null) return dto;
 
             dto.Latitude = info.Location.Latitude;
@@ -215,20 +206,10 @@ namespace Refundeo.Core.Services
                 Logo = info.Logo
             };
 
-            if (info.City != null)
+            if (info.Location != null)
             {
-                dto.City = new CityDto
-                {
-                    GooglePlaceId = info.City.GooglePlaceId,
-                    Image = info.City.Image,
-                    Name = info.City.Name
-                };
-
-                if (info.Location != null)
-                {
-                    dto.Latitude = info.Location.Latitude;
-                    dto.Longitude = info.Location.Longitude;
-                }
+                dto.Latitude = info.Location.Latitude;
+                dto.Longitude = info.Location.Longitude;
             }
 
             if (refundPercentages.Any())
@@ -296,14 +277,6 @@ namespace Refundeo.Core.Services
                     }).ToList(),
                 Banner = info.Banner,
                 Logo = info.Logo
-            };
-
-            if (info.City == null) return dto;
-            dto.City = new CityDto
-            {
-                GooglePlaceId = info.City.GooglePlaceId,
-                Image = info.City.Image,
-                Name = info.City.Name
             };
 
             if (info.Location == null) return dto;

@@ -2,9 +2,9 @@ $nav-width: 19%;
 $collapse-break: 768px;
 $nav-background-color: #e9ecef;
 $background-color: #f9f9f9;
-$nav-color: #303880;
-$nav-active-color: #303880;
-$nav-inactive-text-color: #303880;
+$nav-color: #000125;
+$nav-active-color: #000125;
+$nav-inactive-text-color: #000125;
 $nav-active-text-color: #E9ECEF;
 $nav-submenu-color: #E9ECEF;
 $nav-border-bottom-color: #e9ecef;
@@ -35,7 +35,7 @@ $nav-menu-line-height: 60px;
         width: 100%;
         float: left;
         background-color: $nav-background-color;
-        padding-top: 120px;
+        padding-top: 160px;
         padding-bottom: 60px;
         height: 100%;
         overflow: scroll;
@@ -149,7 +149,7 @@ $nav-menu-line-height: 60px;
             border-bottom: thin solid $nav-border-bottom-color;
             a {
                 .logo-container {
-                    padding: 20px 0 20px 0;
+                    padding: 40px 0 40px 0;
                     img {
                         height: 80px;
                     }

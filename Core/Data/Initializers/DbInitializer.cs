@@ -16,7 +16,6 @@ namespace Refundeo.Core.Data.Initializers
             RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
             await InitializeTags(context);
-            await InitializeCities(context);
             await InitializeRolesAsync(roleManager);
             await InitializeUsersAsync(userManager, context, false);
             await InitializeRefundCasesAsync(context);
@@ -26,51 +25,8 @@ namespace Refundeo.Core.Data.Initializers
             RoleManager<IdentityRole> roleManager, RefundeoDbContext context)
         {
             await InitializeTags(context);
-            await InitializeCities(context);
             await InitializeRolesAsync(roleManager);
             await InitializeUsersAsync(userManager, context, true);
-        }
-
-        private static async Task InitializeCities(RefundeoDbContext context)
-        {
-            foreach (var city in DbInitializeData.CitiesToCreate)
-            {
-                var dbCity = await context.Cities
-                    .Include(c => c.Location)
-                    .FirstOrDefaultAsync(c => c.GooglePlaceId == city.GooglePlaceId);
-
-                if (dbCity?.Location != null) continue;
-
-                var location = new Location
-                {
-                    Latitude = city.Latitude,
-                    Longitude = city.Longitude
-                };
-
-                await context.Locations.AddAsync(location);
-
-                await context.SaveChangesAsync();
-
-                if (dbCity == null)
-                {
-                    context.Cities.Add(new City
-                    {
-                        GooglePlaceId = city.GooglePlaceId,
-                        Image = city.Image,
-                        Name = city.Name,
-                        Location = location
-                    });
-                }
-                else
-                {
-                    dbCity.Location = location;
-                    context.Cities.Update(dbCity);
-                }
-
-                await context.SaveChangesAsync();
-            }
-
-            await context.SaveChangesAsync();
         }
 
         private static async Task InitializeTags(RefundeoDbContext context)
@@ -188,10 +144,8 @@ namespace Refundeo.Core.Data.Initializers
                                            vatPercentage * (f.MerchantFee / 100)
                     }).ToList();
 
-                    var city = await context.Cities.FirstOrDefaultAsync(c => c.GooglePlaceId == merchant.City.GooglePlaceId);
-
                     await CreateMerchantAsync(userManager, context, merchant.Username, merchant.Password,
-                        merchantInformation, address, city, location, openingHours, tags, feePoints);
+                        merchantInformation, address, location, openingHours, tags, feePoints);
                 }
             }
         }
@@ -262,8 +216,7 @@ namespace Refundeo.Core.Data.Initializers
         }
 
         private static async Task CreateMerchantAsync(UserManager<RefundeoUser> userManager, RefundeoDbContext context,
-            string merchantUsername, string merchantPassword, MerchantInformation merchantInformation, Address address,
-            City city, Location location, IList<OpeningHours> openingHours, IEnumerable<Tag> tags,
+            string merchantUsername, string merchantPassword, MerchantInformation merchantInformation, Address address, Location location, IList<OpeningHours> openingHours, IEnumerable<Tag> tags,
             IList<FeePoint> feePoints)
         {
             var user = await CreateAccountAsync(userManager, merchantUsername, merchantPassword,
@@ -279,7 +232,6 @@ namespace Refundeo.Core.Data.Initializers
 
                 merchantInformation.Location = location;
                 merchantInformation.Address = address;
-                merchantInformation.City = city;
 
                 await context.MerchantInformations.AddAsync(merchantInformation);
 

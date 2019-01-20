@@ -40,31 +40,31 @@
             <div class="ui-helper-clearfix header-row">
                 <div class="ui-g">
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Created</b>
+                        <span i18n>Created</span>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Company</b>
+                        <span i18n>Company</span>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Customer</b>
+                        <span i18n>Customer</span>
                     </div>
                     <div class="ui-g-2 ui-md-2 header-col">
-                        <b i18n>Receipt number</b>
+                        <span i18n>Receipt number</span>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Purchase Amount</b>
+                        <span i18n>Purchase Amount</span>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Refund Amount</b>
+                        <span i18n>Refund Amount</span>
                     </div>
                     <div class="ui-g-2 ui-md-2 header-col">
-                        <b i18n>Status</b>
+                        <span i18n>Status</span>
                     </div>
                     <div class="ui-g-2 ui-md-2 header-col">
-                        <b i18n>Accept</b>
+                        <span i18n>Accept</span>
                     </div>
                     <div class="ui-g-1 ui-md-1 header-col">
-                        <b i18n>Download</b>
+                        <span i18n>Download</span>
                         <input type="checkbox"
                                class="checkbox"
                                (change)="onCheckAllChange($event)"
@@ -107,18 +107,16 @@
                         <div *ngIf="!refundCase.isAccepted && !refundCase.isRejected">
                             <div class="ui-g-12 ui-sm-12 text-primary" i18n>Requested</div>
                         </div>
-                        <div *ngIf="!refundCase.isRequested" class="ui-g-12 ui-sm-12 table-col" i18n>
-                            Not requested
-                        </div>
                         <div *ngIf="refundCase.isRejected" class="ui-g-12 ui-sm-12 table-col text-danger" i18n>
                             Rejected
                         </div>
                     </div>
                     <div *ngIf="!refundCase.isRequested" class="ui-g-12 ui-md-12 table-col">
-                        New
+                        Not requested
                     </div>
                 </div>
                 <div class="ui-g-2 ui-md-2 table-col">
+                    <span class="ui-g-12 ui-md-12 table-col" *ngIf="!refundCase.isRequested">-</span>
                     <div *ngIf="refundCase.isRequested">
                         <button type="button" class="btn btn-primary status-button" (click)="onAcceptClick(refundCase)">
                             Accept
@@ -130,6 +128,7 @@
                 </div>
                 <div class="ui-g-1 ui-md-1 table-col">
                     <div class="col-sm-12">
+                        <span class="ui-g-12 ui-md-12 table-col" *ngIf="!refundCase.isRequested">-</span>
                         <button *ngIf="refundCase.isRequested" class="btn">
                             <i class="fa fa-download"
                                (click)="downloadPressed(refundCase)">

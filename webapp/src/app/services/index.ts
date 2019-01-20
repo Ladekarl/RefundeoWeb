@@ -8,5 +8,4 @@ export * from './customerinfo.service';
 export * from './authorization.service';
 export * from './merchantinfo.service';
 export * from './chart.service';
-export * from './cities.service';
 export * from './file.service';

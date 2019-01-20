@@ -27,7 +27,6 @@ namespace Refundeo.Core.Models.Account
         public string ContactPhone { get; set; }
         public string AdminEmail { get; set; }
         public string Currency { get; set; }
-        public CityDto City { get; set; }
         public DateTime DateCreated { get; set; }
         public ICollection<AttachedAccountDto> AttachedAccounts { get; set; }
         public ICollection<OpeningHoursDto> OpeningHours { get; set; }
