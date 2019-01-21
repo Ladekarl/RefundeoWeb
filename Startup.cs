@@ -100,19 +100,22 @@ namespace Refundeo
                     jwtBearerOptions.TokenValidationParameters = new RefundeoTokenValidationParameters(Configuration)
                         .TokenValidationParameters);
 
+            services.AddLogging(builder => builder
+                .AddConfiguration(Configuration.GetSection("Logging"))
+                .AddDebug()
+                .AddConsole());
+
             if (!HostingEnvironment.IsDevelopment())
             {
+
                 services.Configure<MvcOptions>(options => { options.Filters.Add(new RequireHttpsAttribute()); });
             }
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
             if (HostingEnvironment.IsDevelopment())
             {
-                loggerFactory.AddDebug();
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
