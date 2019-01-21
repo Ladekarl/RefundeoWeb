@@ -251,7 +251,7 @@ namespace Refundeo.Core.Services
 
             using (var sw = new StringWriter())
             {
-                var viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
+                var viewResult = _razorViewEngine.FindView(actionContext, "~/Views/Shared/VATForm.csthml", false);
 
                 // Fallback - the above seems to consistently return null when using the EmbeddedFileProvider
                 if (viewResult.View == null)
