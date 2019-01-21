@@ -47,6 +47,6 @@
         <None Remove="Migrations\**" />
     </ItemGroup>
     <ItemGroup>
-        <Content Include="libwkhtmltox.dll" CopyToPublishDirectory="always" />
+        <None Include="libwkhtmltox.dll" CopyToPublishDirectory="always" />
     </ItemGroup>
 </Project>
