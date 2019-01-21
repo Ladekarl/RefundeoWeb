@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Helpers;
@@ -24,12 +23,11 @@ namespace Refundeo.Controllers.User
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly IEmailService _emailService;
-        private readonly ILogger _logger;
 
         public UserRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
             IBlobStorageService blobStorageService, IEmailService emailService,
-            INotificationService notificationService, ILogger<UserRefundCaseController> logger)
+            INotificationService notificationService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -37,7 +35,6 @@ namespace Refundeo.Controllers.User
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
             _emailService = emailService;
-            _logger = logger;
         }
 
         [HttpGet]
@@ -208,13 +205,11 @@ namespace Refundeo.Controllers.User
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                _logger.LogInformation(LoggingEvents.GetItemNotFound, "User not found");
                 return Forbid();
             }
 
             if (model.Email == null)
             {
-                _logger.LogInformation(LoggingEvents.DataNotFound, "Email not found");
                 return BadRequest();
             }
 
@@ -231,21 +226,10 @@ namespace Refundeo.Controllers.User
 
             if (refundCase == null)
             {
-                _logger.LogInformation(LoggingEvents.GetItemNotFound, "RefundCase not found");
                 return NotFound();
             }
 
-            _logger.LogInformation(LoggingEvents.SendItem, "Sending item to {EMAIL}", model.Email);
-
-            try
-            {
-                await _emailService.SendVATMailAsync(ControllerContext, refundCase, model.Email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(LoggingEvents.SendItemError, ex, "Error in Sending VAT Mail to {EMAIL}", model.Email);
-                throw;
-            }
+            await _emailService.SendVATMailAsync(ControllerContext, refundCase, model.Email);
 
             return NoContent();
         }
