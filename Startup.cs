@@ -103,7 +103,8 @@ namespace Refundeo
             services.AddLogging(builder => builder
                 .AddConfiguration(Configuration.GetSection("Logging"))
                 .AddDebug()
-                .AddConsole());
+                .AddConsole()
+                .AddAzureWebAppDiagnostics());
 
             if (!HostingEnvironment.IsDevelopment())
             {

@@ -208,13 +208,13 @@ namespace Refundeo.Controllers.User
             var user = await _utilityService.GetCallingUserAsync(Request);
             if (user == null)
             {
-                _logger.LogWarning(LoggingEvents.GetItemNotFound, "User not found");
+                _logger.LogInformation(LoggingEvents.GetItemNotFound, "User not found");
                 return Forbid();
             }
 
             if (model.Email == null)
             {
-                _logger.LogWarning(LoggingEvents.DataNotFound, "Email not found");
+                _logger.LogInformation(LoggingEvents.DataNotFound, "Email not found");
                 return BadRequest();
             }
 
@@ -231,11 +231,11 @@ namespace Refundeo.Controllers.User
 
             if (refundCase == null)
             {
-                _logger.LogWarning(LoggingEvents.GetItemNotFound, "RefundCase not found");
+                _logger.LogInformation(LoggingEvents.GetItemNotFound, "RefundCase not found");
                 return NotFound();
             }
 
-            _logger.LogWarning(LoggingEvents.SendItem, "Sending item to {EMAIL}", model.Email);
+            _logger.LogInformation(LoggingEvents.SendItem, "Sending item to {EMAIL}", model.Email);
 
             try
             {
