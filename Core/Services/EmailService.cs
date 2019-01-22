@@ -1,15 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -235,43 +241,63 @@ namespace Refundeo.Core.Services
         {
             const string viewName = "VATForm";
 
-            if (!(context.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) is ICompositeViewEngine
-                engine))
+            using (var sw = new StringWriter())
             {
-                return null;
-            }
+                var razorViewEngine = context.HttpContext.RequestServices.GetService(typeof(IRazorViewEngine)) as IRazorViewEngine;
+                var activator = context.HttpContext.RequestServices.GetService(typeof(IRazorPageActivator)) as IRazorPageActivator;
 
-            var viewResult = engine.FindView(context, viewName, true);
-            StringBuilder html;
+                var result = razorViewEngine.FindPage(context, viewName);
 
-            var tempDataProvider =
-                context.HttpContext.RequestServices.GetService(typeof(ITempDataProvider)) as ITempDataProvider;
+                if (result.Page == null)
+                {
+                    throw new ArgumentNullException($"The page {viewName} cannot be found.");
+                }
 
-            var viewDataDictionary = new ViewDataDictionary(
-                new EmptyModelMetadataProvider(),
-                new ModelStateDictionary())
-            {
-                Model = model
-            };
+                var page = result.Page;
 
-            using (var output = new StringWriter())
-            {
-                var view = viewResult.View;
+                var view = new RazorView(razorViewEngine,
+                    activator,
+                    new List<IRazorPage>(),
+                    page,
+                    HtmlEncoder.Default,
+                    new DiagnosticListener("ViewRenderService"));
+
+                var viewDataDictionary = new ViewDataDictionary(
+                    new EmptyModelMetadataProvider(),
+                    new ModelStateDictionary())
+                {
+                    Model = model
+                };
+
+                var tempDataProvider =
+                    context.HttpContext.RequestServices.GetService(typeof(ITempDataProvider)) as ITempDataProvider;
+
+
                 var tempDataDictionary = new TempDataDictionary(context.HttpContext, tempDataProvider);
+
                 var viewContext = new ViewContext(
                     context,
-                    viewResult.View,
+                    view,
                     viewDataDictionary,
                     tempDataDictionary,
-                    output,
-                    new HtmlHelperOptions());
+                    sw,
+                    new HtmlHelperOptions()
+                );
 
-                await view.RenderAsync(viewContext);
 
-                html = output.GetStringBuilder();
+                var pageNormal = ((Page)result.Page);
+
+               // pageNormal.PageContext = context.HttpContext.page;
+
+                pageNormal.ViewContext = viewContext;
+
+
+                activator.Activate(pageNormal, viewContext);
+
+                await page.ExecuteAsync();
+
+                return sw.ToString();
             }
-
-            return html.ToString();
         }
     }
 }
