@@ -251,7 +251,7 @@ namespace Refundeo.Core.Services
 
             using (var sw = new StringWriter())
             {
-                var viewResult = _razorViewEngine.GetView("/site/wwwroot/Views/Shared", viewName, false);
+                var viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
 
                 if (viewResult.View == null)
                 {

@@ -6,6 +6,7 @@
         <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
         <RetryAttemptsForDeployment>30</RetryAttemptsForDeployment>
         <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="CoreCompat.System.Drawing" Version="1.0.0-beta006" />
