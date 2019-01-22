@@ -251,14 +251,7 @@ namespace Refundeo.Core.Services
 
             using (var sw = new StringWriter())
             {
-                var viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
-
-                // Fallback - the above seems to consistently return null when using the EmbeddedFileProvider
-                if (viewResult.View == null)
-                {
-                    viewResult = _razorViewEngine.GetView("~/", viewName, false);
-                }
-
+                var viewResult = _razorViewEngine.GetView("~/", viewName, false);
                 if (viewResult.View == null)
                 {
                     throw new ArgumentNullException($"{viewName} does not match any available view");
