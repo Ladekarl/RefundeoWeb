@@ -44,6 +44,7 @@
     <ItemGroup>
         <None Remove="webapp\node_modules\**" />
         <None Remove="Migrations\**" />
+        <None Remove="scraper\**" />
     </ItemGroup>
     <ItemGroup>
         <None Include="libwkhtmltox.dll" CopyToPublishDirectory="always" />
