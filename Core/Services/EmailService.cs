@@ -251,7 +251,8 @@ namespace Refundeo.Core.Services
 
             using (var sw = new StringWriter())
             {
-                var viewResult = _razorViewEngine.GetView("~/", viewName, false);
+                var viewResult = _razorViewEngine.GetView("~/Views", viewName, false);
+
                 if (viewResult.View == null)
                 {
                     throw new ArgumentNullException($"{viewName} does not match any available view");
