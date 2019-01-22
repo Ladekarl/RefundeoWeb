@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,15 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
@@ -37,15 +33,11 @@ namespace Refundeo.Core.Services
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
         private readonly RefundeoDbContext _context;
         private readonly UserManager<RefundeoUser> _userManager;
-        private readonly IRazorViewEngine _razorViewEngine;
-        private readonly ITempDataProvider _tempDataProvider;
-        private readonly IServiceProvider _serviceProvider;
 
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor, RefundeoDbContext context,
             UserManager<RefundeoUser> userManager, IBlobStorageService blobStorageService,
-            IConverter converter, IUtilityService utilityService, IRazorViewEngine razorViewEngine,
-            ITempDataProvider tempDataProvider, IServiceProvider serviceProvider)
+            IConverter converter, IUtilityService utilityService)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
@@ -64,9 +56,6 @@ namespace Refundeo.Core.Services
                 Credentials = new NetworkCredential(_emailAccountOptionsAccessor.Value.Email,
                     _emailAccountOptionsAccessor.Value.Password)
             };
-            _razorViewEngine = razorViewEngine;
-            _tempDataProvider = tempDataProvider;
-            _serviceProvider = serviceProvider;
         }
 
         public async Task<string> SendPasswordRecoveryMailAsync(string username)
@@ -214,7 +203,7 @@ namespace Refundeo.Core.Services
                 QrCode = await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode)
             };
 
-            var html = await GetVatFormHtmlAsync(model);
+            var html = await GetVatFormHtmlAsync(controllerContext, model);
 
             var doc = new HtmlToPdfDocument
             {
@@ -242,40 +231,47 @@ namespace Refundeo.Core.Services
             return new MemoryStream(_converter.Convert(doc));
         }
 
-        private async Task<string> GetVatFormHtmlAsync(VatFormModel model)
+        private async Task<string> GetVatFormHtmlAsync(ActionContext context, VatFormModel model)
         {
             const string viewName = "VATForm";
 
-            var httpContext = new DefaultHttpContext {RequestServices = _serviceProvider};
-            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
-
-            using (var sw = new StringWriter())
+            if (!(context.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) is ICompositeViewEngine
+                engine))
             {
-                var viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
-
-                if (viewResult.View == null)
-                {
-                    throw new ArgumentNullException($"{viewName} does not match any available view");
-                }
-
-                var viewDictionary =
-                    new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
-                    {
-                        Model = model
-                    };
-
-                var viewContext = new ViewContext(
-                    actionContext,
-                    viewResult.View,
-                    viewDictionary,
-                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
-                    sw,
-                    new HtmlHelperOptions()
-                );
-
-                await viewResult.View.RenderAsync(viewContext);
-                return sw.ToString();
+                return null;
             }
+
+            var viewResult = engine.FindView(context, viewName, true);
+            StringBuilder html;
+
+            var tempDataProvider =
+                context.HttpContext.RequestServices.GetService(typeof(ITempDataProvider)) as ITempDataProvider;
+
+            var viewDataDictionary = new ViewDataDictionary(
+                new EmptyModelMetadataProvider(),
+                new ModelStateDictionary())
+            {
+                Model = model
+            };
+
+            using (var output = new StringWriter())
+            {
+                var view = viewResult.View;
+                var tempDataDictionary = new TempDataDictionary(context.HttpContext, tempDataProvider);
+                var viewContext = new ViewContext(
+                    context,
+                    viewResult.View,
+                    viewDataDictionary,
+                    tempDataDictionary,
+                    output,
+                    new HtmlHelperOptions());
+
+                await view.RenderAsync(viewContext);
+
+                html = output.GetStringBuilder();
+            }
+
+            return html.ToString();
         }
     }
 }
