@@ -62,11 +62,11 @@ namespace Refundeo
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IRefundCaseService, RefundCaseService>();
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
-            services.AddTransient<IEmailService, EmailService>();
 
             services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
             services.Configure<EmailAccountOptions>(Configuration.GetSection("EmailAccount"));
 
+            services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IBlobStorageService, BlobStorageServiceService>();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
