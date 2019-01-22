@@ -1,24 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
@@ -36,6 +25,7 @@ namespace Refundeo.Core.Services
         private readonly IBlobStorageService _blobStorageService;
         private readonly IConverter _converter;
         private readonly IUtilityService _utilityService;
+        private readonly IViewRenderService _viewRenderService;
         private readonly IOptions<StorageAccountOptions> _storageAccountOptionsAccessor;
         private readonly RefundeoDbContext _context;
         private readonly UserManager<RefundeoUser> _userManager;
@@ -43,7 +33,7 @@ namespace Refundeo.Core.Services
         public EmailService(IOptions<EmailAccountOptions> emailAccountOptionsAccessor,
             IOptions<StorageAccountOptions> storageAccountOptionsAccessor, RefundeoDbContext context,
             UserManager<RefundeoUser> userManager, IBlobStorageService blobStorageService,
-            IConverter converter, IUtilityService utilityService)
+            IConverter converter, IUtilityService utilityService, IViewRenderService viewRenderService)
         {
             _emailAccountOptionsAccessor = emailAccountOptionsAccessor;
             _storageAccountOptionsAccessor = storageAccountOptionsAccessor;
@@ -52,6 +42,7 @@ namespace Refundeo.Core.Services
             _blobStorageService = blobStorageService;
             _converter = converter;
             _utilityService = utilityService;
+            _viewRenderService = viewRenderService;
             _smtpClient = new SmtpClient
             {
                 Host = _emailAccountOptionsAccessor.Value.Host,
@@ -138,13 +129,7 @@ namespace Refundeo.Core.Services
             }
         }
 
-        public void SendVATMail(ControllerContext controllerContext, RefundCase refundCase,
-            string receiverEmail)
-        {
-            SendVATMailAsync(controllerContext, refundCase, receiverEmail);
-        }
-
-        public async Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase,
+        public async Task SendVATMailAsync(RefundCase refundCase,
             string receiverEmail)
         {
             var refundDate =
@@ -153,7 +138,7 @@ namespace Refundeo.Core.Services
             var merchantInformation = refundCase.MerchantInformation;
 
             var template = await GetVatFormMailTemplateAsync();
-            var vatForm = await GetVatFormAsync(controllerContext, refundCase);
+            var vatForm = await GetVatFormAsync(refundCase);
             var attachment = new Attachment(vatForm, GetVatFormName(refundCase), MediaTypeNames.Application.Pdf);
 
             await SendMailAsync(
@@ -177,7 +162,7 @@ namespace Refundeo.Core.Services
             return $"{refundCase.MerchantInformation.CompanyName} {refundDate} {refundCase.Id}";
         }
 
-        private async Task<Stream> GetVatFormAsync(ActionContext controllerContext, RefundCase refundCase)
+        private async Task<Stream> GetVatFormAsync(RefundCase refundCase)
         {
             var model = new VatFormModel
             {
@@ -209,7 +194,7 @@ namespace Refundeo.Core.Services
                 QrCode = await _utilityService.ConvertBlobPathToBase64Async(refundCase.QRCode)
             };
 
-            var html = await GetVatFormHtmlAsync(controllerContext, model);
+            var html = await _viewRenderService.RenderToStringAsync("VATForm", model);
 
             var doc = new HtmlToPdfDocument
             {
@@ -235,69 +220,6 @@ namespace Refundeo.Core.Services
             };
 
             return new MemoryStream(_converter.Convert(doc));
-        }
-
-        private async Task<string> GetVatFormHtmlAsync(ActionContext context, VatFormModel model)
-        {
-            const string viewName = "VATForm";
-
-            using (var sw = new StringWriter())
-            {
-                var razorViewEngine = context.HttpContext.RequestServices.GetService(typeof(IRazorViewEngine)) as IRazorViewEngine;
-                var activator = context.HttpContext.RequestServices.GetService(typeof(IRazorPageActivator)) as IRazorPageActivator;
-
-                var result = razorViewEngine.FindPage(context, viewName);
-
-                if (result.Page == null)
-                {
-                    throw new ArgumentNullException($"The page {viewName} cannot be found.");
-                }
-
-                var page = result.Page;
-
-                var view = new RazorView(razorViewEngine,
-                    activator,
-                    new List<IRazorPage>(),
-                    page,
-                    HtmlEncoder.Default,
-                    new DiagnosticListener("ViewRenderService"));
-
-                var viewDataDictionary = new ViewDataDictionary(
-                    new EmptyModelMetadataProvider(),
-                    new ModelStateDictionary())
-                {
-                    Model = model
-                };
-
-                var tempDataProvider =
-                    context.HttpContext.RequestServices.GetService(typeof(ITempDataProvider)) as ITempDataProvider;
-
-
-                var tempDataDictionary = new TempDataDictionary(context.HttpContext, tempDataProvider);
-
-                var viewContext = new ViewContext(
-                    context,
-                    view,
-                    viewDataDictionary,
-                    tempDataDictionary,
-                    sw,
-                    new HtmlHelperOptions()
-                );
-
-
-                var pageNormal = ((Page)result.Page);
-
-               // pageNormal.PageContext = context.HttpContext.page;
-
-                pageNormal.ViewContext = viewContext;
-
-
-                activator.Activate(pageNormal, viewContext);
-
-                await page.ExecuteAsync();
-
-                return sw.ToString();
-            }
         }
     }
 }

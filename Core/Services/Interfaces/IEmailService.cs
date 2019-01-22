@@ -11,7 +11,6 @@ namespace Refundeo.Core.Services.Interfaces
             Attachment attachment = null);
 
         Task<string> SendPasswordRecoveryMailAsync(string username);
-        void SendVATMail(ControllerContext controllerContext, RefundCase refundCase, string receiverEmail);
-        Task SendVATMailAsync(ControllerContext controllerContext, RefundCase refundCase, string receiverEmail);
+        Task SendVATMailAsync(RefundCase refundCase, string receiverEmail);
     }
 }

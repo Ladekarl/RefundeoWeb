@@ -271,7 +271,7 @@ namespace Refundeo.Controllers.Merchant
                 await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
                 await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _emailService.SendVATMail(ControllerContext, refundCase, customerInformation.Email);
+            _emailService.SendVATMailAsync(refundCase, customerInformation.Email);
 
             _notificationService.SendNotificationAsync(customerInformation.Customer.Id,
                 refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);

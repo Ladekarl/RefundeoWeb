@@ -58,10 +58,13 @@ namespace Refundeo
             services.AddCors();
             services.AddNodeServices();
 
+            services.AddScoped<IViewRenderService, ViewRenderService>();
+
             services.AddTransient<IUtilityService, UtilityService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IRefundCaseService, RefundCaseService>();
             services.AddTransient(typeof(IPaginationService<>), typeof(PaginationService<>));
+            services.AddTransient<IEmailService, EmailService>();
 
             services.Configure<StorageAccountOptions>(Configuration.GetSection("StorageAccount"));
             services.Configure<EmailAccountOptions>(Configuration.GetSection("EmailAccount"));
