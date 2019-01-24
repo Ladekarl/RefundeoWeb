@@ -274,7 +274,7 @@ namespace Refundeo.Controllers.Admin
             if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
                 refundCaseToUpdate.MerchantInformation?.CompanyName != null)
             {
-                _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
                     refundCaseToUpdate.MerchantInformation.CompanyName,
                     text.RefundUpdateText);
             }

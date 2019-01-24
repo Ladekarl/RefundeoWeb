@@ -18,7 +18,8 @@ namespace Refundeo.Core.Services
         public NotificationService(IConfiguration Configuration)
         {
             var fcmKey = Configuration["fcmkey"];
-            var projectId = Configuration["FirebaseProjectId"];_settings = new FcmClientSettings(projectId, fcmKey);
+            var projectId = Configuration["FirebaseProjectId"];
+            _settings = new FcmClientSettings(projectId, fcmKey);
         }
 
         public async Task<FcmMessageResponse> SendNotificationAsync(string topic, string title, string message)
