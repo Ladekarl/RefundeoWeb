@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using FcmSharp;
@@ -37,7 +38,7 @@ namespace Refundeo.Core.Services
                 ValidateOnly = false,
                 Message = new Message
                 {
-                    Topic = topic.Replace("-", string.Empty),
+                    Topic = Regex.Replace(topic, @"-", string.Empty),
                     Notification = new Notification
                     {
                         Title = title,
