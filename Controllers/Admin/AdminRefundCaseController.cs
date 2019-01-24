@@ -275,12 +275,12 @@ namespace Refundeo.Controllers.Admin
                            .FirstOrDefaultAsync() ??
                        await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _logger.LogDebug("Before sending");
+            _logger.LogInformation("Before sending");
 
             if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
                 refundCaseToUpdate.MerchantInformation?.CompanyName != null)
             {
-                _logger.LogDebug("Sending notification for {ID} with {COMPANYNAME} with text {TEXT}",
+                _logger.LogInformation("Sending notification for {ID} with {COMPANYNAME} with text {TEXT}",
                     refundCaseToUpdate.CustomerInformation.Customer.Id,
                     refundCaseToUpdate.MerchantInformation.CompanyName, text.RefundUpdateText);
                 await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
@@ -288,7 +288,7 @@ namespace Refundeo.Controllers.Admin
                     text.RefundUpdateText);
             }
 
-            _logger.LogDebug("After sending");
+            _logger.LogInformation("After sending");
 
             return NoContent();
         }
