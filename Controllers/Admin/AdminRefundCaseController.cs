@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refundeo.Core.Data;
 using Refundeo.Core.Data.Models;
@@ -25,10 +26,12 @@ namespace Refundeo.Controllers.Admin
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly INotificationService _notificationService;
+        private readonly ILogger<AdminRefundCaseController> _logger;
 
         public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService, INotificationService notificationService)
+            IBlobStorageService blobStorageService, INotificationService notificationService,
+            ILogger<AdminRefundCaseController> logger)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -36,6 +39,7 @@ namespace Refundeo.Controllers.Admin
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -271,13 +275,20 @@ namespace Refundeo.Controllers.Admin
                            .FirstOrDefaultAsync() ??
                        await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
+            _logger.LogDebug("Before sending");
+
             if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
                 refundCaseToUpdate.MerchantInformation?.CompanyName != null)
             {
+                _logger.LogDebug("Sending notification for {ID} with {COMPANYNAME} with text {TEXT}",
+                    refundCaseToUpdate.CustomerInformation.Customer.Id,
+                    refundCaseToUpdate.MerchantInformation.CompanyName, text.RefundUpdateText);
                 await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
                     refundCaseToUpdate.MerchantInformation.CompanyName,
                     text.RefundUpdateText);
             }
+
+            _logger.LogDebug("After sending");
 
             return NoContent();
         }
