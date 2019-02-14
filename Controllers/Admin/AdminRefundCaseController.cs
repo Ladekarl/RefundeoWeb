@@ -173,7 +173,7 @@ namespace Refundeo.Controllers.Admin
                 await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
                 await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
+            await _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
                 text.RefundCreatedText);
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity,
@@ -240,7 +240,7 @@ namespace Refundeo.Controllers.Admin
                 await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
                 await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+            await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
                 refundCaseToUpdate.MerchantInformation.CompanyName,
                 text.RefundUpdateText);
 
@@ -279,7 +279,7 @@ namespace Refundeo.Controllers.Admin
             if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
                 refundCaseToUpdate.MerchantInformation?.CompanyName != null)
             {
-                _logger.LogInformation(LoggingEvents.SendItem, "Sending notification for {ID}",
+                _logger.LogInformation(LoggingEvents.SendItem, "Sending notification to {ID}",
                     refundCaseToUpdate.CustomerInformation.Customer.Id,
                     refundCaseToUpdate.MerchantInformation.CompanyName, text.RefundUpdateText);
                 await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
