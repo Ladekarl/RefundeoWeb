@@ -78,7 +78,8 @@ namespace Refundeo.Controllers
                 // TODO: Comment in when facebook accepts
                 //Country = fbUser.Location.Location.Country,
                 IsOauth = true,
-                Address = new Address()
+                Address = new Address(),
+                DateCreated = DateTime.Now
             };
             return await _authenticationService.RegisterUserAsync(newUser,
                 _authenticationService.GenerateRandomPassword(), customerInformation, shouldCreateRefreshToken);
