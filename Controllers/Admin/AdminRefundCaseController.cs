@@ -26,12 +26,10 @@ namespace Refundeo.Controllers.Admin
         private readonly IOptions<StorageAccountOptions> _optionsAccessor;
         private readonly IBlobStorageService _blobStorageService;
         private readonly INotificationService _notificationService;
-        private readonly ILogger<AdminRefundCaseController> _logger;
 
         public AdminRefundCaseController(RefundeoDbContext context, IRefundCaseService refundCaseService,
             IUtilityService utilityService, IOptions<StorageAccountOptions> optionsAccessor,
-            IBlobStorageService blobStorageService, INotificationService notificationService,
-            ILogger<AdminRefundCaseController> logger)
+            IBlobStorageService blobStorageService, INotificationService notificationService)
         {
             _context = context;
             _refundCaseService = refundCaseService;
@@ -39,7 +37,6 @@ namespace Refundeo.Controllers.Admin
             _optionsAccessor = optionsAccessor;
             _blobStorageService = blobStorageService;
             _notificationService = notificationService;
-            _logger = logger;
         }
 
         [HttpGet]
@@ -279,9 +276,6 @@ namespace Refundeo.Controllers.Admin
             if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
                 refundCaseToUpdate.MerchantInformation?.CompanyName != null)
             {
-                _logger.LogInformation(LoggingEvents.SendItem, "Sending notification to {ID}",
-                    refundCaseToUpdate.CustomerInformation.Customer.Id,
-                    refundCaseToUpdate.MerchantInformation.CompanyName, text.RefundUpdateText);
                 await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
                     refundCaseToUpdate.MerchantInformation.CompanyName,
                     text.RefundUpdateText);

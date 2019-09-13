@@ -9,7 +9,7 @@
 .device-wrapper {
     position: fixed;
     width: (100% / 209.829619921363 * 100);
-    overflow-y: scroll;
+    overflow: hidden;
     font-size: 10px;
 }
 
@@ -121,6 +121,8 @@
 .content-container {
     padding-left: 10px;
     padding-right: 10px;
+    height: 225px;
+    overflow: hidden;
 }
 
 .description-container {
