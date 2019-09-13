@@ -120,9 +120,12 @@ namespace Refundeo.Core.Data.Initializers
                         CVRNumber = merchant.CvrNumber,
                         Description = merchant.Description,
                         VATNumber = merchant.VatNumber,
+                        VATRate = merchant.VatRate,
+                        PriceLevel = merchant.PriceLevel,
                         ContactEmail = merchant.ContactEmail,
                         ContactPhone = merchant.ContactPhone,
                         DateCreated = DateTime.Now,
+                        Rating = merchant.Rating,
                         Logo = merchant.Logo,
                         Banner = merchant.Banner,
                         Currency = merchant.Currency
