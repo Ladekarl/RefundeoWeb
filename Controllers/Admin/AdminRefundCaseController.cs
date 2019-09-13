@@ -170,8 +170,15 @@ namespace Refundeo.Controllers.Admin
                 await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
                 await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            await _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
-                text.RefundCreatedText);
+            try
+            {
+                await _notificationService.SendNotificationAsync(model.CustomerId, merchantInformation.CompanyName,
+                    text.RefundCreatedText);
+            }
+            catch (Exception)
+            {
+                // Ignored
+            }
 
             return await _refundCaseService.GenerateRefundCaseDtoResponseAsync(refundCaseResult.Entity,
                 await _utilityService.GetCallingUserAsync(Request));
@@ -237,9 +244,16 @@ namespace Refundeo.Controllers.Admin
                 await _context.Languages.Where(t => t.Key == customerInformation.Language).FirstOrDefaultAsync() ??
                 await _context.Languages.Where(t => t.Key == "en").FirstOrDefaultAsync();
 
-            await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
-                refundCaseToUpdate.MerchantInformation.CompanyName,
-                text.RefundUpdateText);
+            try
+            {
+                await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                    refundCaseToUpdate.MerchantInformation.CompanyName,
+                    text.RefundUpdateText);
+            }
+            catch (Exception)
+            {
+                // Ignored
+            }
 
             return new NoContentResult();
         }
@@ -276,9 +290,16 @@ namespace Refundeo.Controllers.Admin
             if (refundCaseToUpdate.CustomerInformation?.Customer?.Id != null &&
                 refundCaseToUpdate.MerchantInformation?.CompanyName != null)
             {
-                await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
-                    refundCaseToUpdate.MerchantInformation.CompanyName,
-                    text.RefundUpdateText);
+                try
+                {
+                    await _notificationService.SendNotificationAsync(refundCaseToUpdate.CustomerInformation.Customer.Id,
+                        refundCaseToUpdate.MerchantInformation.CompanyName,
+                        text.RefundUpdateText);
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
             }
 
             return NoContent();

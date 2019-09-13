@@ -273,8 +273,15 @@ namespace Refundeo.Controllers.Merchant
 
             await _emailService.SendVATMailAsync(refundCase, customerInformation.Email);
 
-            await _notificationService.SendNotificationAsync(customerInformation.Customer.Id,
-                refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);
+            try
+            {
+                await _notificationService.SendNotificationAsync(customerInformation.Customer.Id,
+                    refundCase.MerchantInformation.CompanyName, text.RefundCreatedText);
+            }
+            catch (Exception)
+            {
+                // Ignored
+            }
 
             return NoContent();
         }
