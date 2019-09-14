@@ -108,16 +108,20 @@ export class RefundCasesComponent implements OnInit {
 
         this.authorizationService.getCurrentUser().subscribe(currentUser => {
             const tasks = [];
+            let tempRefundCases;
+            let tempMerchantInfo;
             tasks.push(this.refundCasesService.getAll(false)
                 .pipe(map((refundCases: RefundCase[]) => {
-                    this.refundCases = refundCases.reverse().slice(0, 5);
+                    tempRefundCases = refundCases.reverse();
                 })));
             tasks.push(this.merchantInfoService.getMerchant(currentUser.id).pipe(map(merchantInfo => {
-                this.merchantInfo = merchantInfo;
+                tempMerchantInfo = merchantInfo;
             })));
 
             forkJoin(tasks).subscribe(() => {
                 this.spinnerService.hide();
+                this.refundCases = tempRefundCases;
+                this.merchantInfo = tempMerchantInfo;
                 this.loading = false;
             }, () => {
                 this.spinnerService.hide();
